@@ -10,7 +10,7 @@ const spiralProjectData = [
     role: "Creative Developer",
     year: "2026",
     keywords: ["WebGL", "Interaction", "Direction"],
-    thumbnail: "assets/spiral/53.avif",
+    thumbnail: "assets/clone-coding/clone-01.png",
     cta_url: "#",
   },
   {
@@ -21,7 +21,7 @@ const spiralProjectData = [
     role: "Art Direction",
     year: "2026",
     keywords: ["Identity", "Motion", "Web"],
-    thumbnail: "assets/spiral/19.avif",
+    thumbnail: "assets/clone-coding/clone-02.png",
     cta_url: "#",
   },
   {
@@ -32,7 +32,7 @@ const spiralProjectData = [
     role: "Product Designer",
     year: "2025",
     keywords: ["Product", "System", "Prototype"],
-    thumbnail: "assets/spiral/1ca.avif",
+    thumbnail: "assets/clone-coding/clone-03.png",
     cta_url: "#",
   },
   {
@@ -43,7 +43,7 @@ const spiralProjectData = [
     role: "Frontend Developer",
     year: "2025",
     keywords: ["Creative Code", "3D", "Typography"],
-    thumbnail: "assets/spiral/41.avif",
+    thumbnail: "assets/clone-coding/clone-04.png",
     cta_url: "#",
   },
   {
@@ -54,7 +54,18 @@ const spiralProjectData = [
     role: "Design Engineer",
     year: "2024",
     keywords: ["Editorial", "Animation", "Experience"],
-    thumbnail: "assets/spiral/bff.avif",
+    thumbnail: "assets/clone-coding/clone-05.png",
+    cta_url: "#",
+  },
+  {
+    id: "project-six",
+    number: "006",
+    title: "Project Six",
+    oneLiner: "기존 웹 경험을 분석하고 인터랙션과 레이아웃을 재구현했습니다",
+    role: "Clone Coding",
+    year: "2024",
+    keywords: ["Rebuild", "Interaction", "Frontend"],
+    thumbnail: "assets/clone-coding/clone-06.png",
     cta_url: "#",
   },
 ];
@@ -65,6 +76,7 @@ const intro = document.querySelector(".intro");
 const heroTitle = document.querySelector(".hero-title");
 const introHeading = document.querySelector(".section-heading h2");
 const introCopy = document.querySelector(".intro-copy");
+const introPortraitSlot = document.querySelector(".intro-portrait-slot");
 const flipStack = document.querySelector(".flip-stack");
 const darkReveal = document.querySelector(".dark-reveal");
 const toolContentSection = document.querySelector(".tools-content-section");
@@ -94,7 +106,6 @@ const projectOverlayChrome = [projectOverlayClose, document.querySelector(".proj
 const experienceSection = document.querySelector(".experience-section");
 const timelineShell = document.querySelector(".timeline-shell");
 const timelineProgress = document.querySelector(".timeline-progress");
-const timelinePath = document.querySelector(".timeline-ribbon-path");
 const experienceItems = [...document.querySelectorAll(".experience-item")];
 const navTitleCurrent = document.querySelector("[data-nav-title-current]");
 const navTitleNext = document.querySelector("[data-nav-title-next]");
@@ -106,7 +117,6 @@ const lerp = (start, end, progress) => start + (end - start) * progress;
 let ticking = false;
 let spiralExperience = null;
 let spiralInitializing = false;
-let timelinePathLength = 6561.77;
 let activeNavTitle = navTitleCurrent?.textContent.trim() || "Haesoo";
 let navTitleTimeline = null;
 let previousNavScrollY = window.scrollY;
@@ -133,11 +143,6 @@ const prepareTimelineWords = () => {
     target.dataset.wordsReady = "true";
   });
 
-  if (timelinePath) {
-    timelinePathLength = timelinePath.getTotalLength() || timelinePathLength;
-    timelinePath.style.strokeDasharray = `${timelinePathLength}`;
-    timelinePath.style.strokeDashoffset = `${timelinePathLength}`;
-  }
 };
 
 const updateExperienceTimeline = () => {
@@ -157,9 +162,6 @@ const updateExperienceTimeline = () => {
   );
 
   timelineProgress.style.height = `${(timelineProgressValue * 100).toFixed(4)}%`;
-  if (timelinePath) {
-    timelinePath.style.strokeDashoffset = `${timelinePathLength * (1 - timelineProgressValue)}`;
-  }
 
   const introHeading = experienceSection?.querySelector(".experience-intro-text");
   if (introHeading) {
@@ -240,12 +242,13 @@ const updateHeroCard = () => {
   const introGapCenter = window.innerWidth * 0.5;
   const belowTitleY = titleRect.bottom + (compact ? 22 : 16);
   const startY = compact ? belowTitleY : window.innerHeight - cardHeight - 20;
-  const endScale = compact ? 1.08 : 2;
+  const endScale = compact ? 1.08 : 2.5;
   const heroEndY = compact ? window.innerHeight * 0.62 : window.innerHeight - cardHeight - 20;
   const textCenterY = compact ? copyRect.top + copyRect.height * 0.46 : copyRect.top + copyRect.height * 0.5;
+  const portraitSlotRect = introPortraitSlot?.getBoundingClientRect();
   const introTargetY = compact
     ? Math.min(window.innerHeight - (cardHeight * (1 + endScale)) / 2 - 32, textCenterY - cardHeight / 2)
-    : introHeading.nextElementSibling.getBoundingClientRect().bottom - (cardHeight * (1 + endScale)) / 2;
+    : (portraitSlotRect?.top || copyRect.top) + (cardHeight * (endScale - 1)) / 2;
   const heroStageY = startY + (heroEndY - startY) * flipProgress;
   const y = heroStageY + (introTargetY - heroStageY) * travelProgress;
   const x = startX + (introGapCenter - startX) * travelProgress;
@@ -497,6 +500,7 @@ const initSpiralExperience = async () => {
           vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
           vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
         );
+        uv.y *= 0.91;
         vec4 color = texture2D(uTexture, uv);
         float cornerRadius = mix(0.05, 0.025, uFocusProgress);
         float sdf = roundedRectSDF(vUv, vec2(1.0), cornerRadius);
@@ -1366,7 +1370,7 @@ if (isFigmaCaptureMode) {
   initSpiralExperience();
 }
 
-document.querySelectorAll("a, button, .flip-card, .tool-card").forEach((element) => {
+document.querySelectorAll("a, button, .flip-card").forEach((element) => {
   element.addEventListener("pointerenter", () => cursor?.classList.add("is-active"));
   element.addEventListener("pointerleave", () => cursor?.classList.remove("is-active"));
 });

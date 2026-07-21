@@ -13,7 +13,7 @@
   const images = [];
   const animationState = { index: 0 };
   const imageUrls = [
-    "images/plan-az/project-01.jpg",
+    "assets/project1/project-01.png",
     "images/plan-az/project-02.jpg",
     "images/plan-az/project-03.jpg",
     "images/plan-az/project-04.jpg",
@@ -48,10 +48,12 @@
   const parallaxDistance = () => viewportHeight * 0.18;
   const getGroupTiltDirection = (index) => (index % 2 === 0 ? 1 : -1);
 
-  const drawImageCover = (image, x, y, width, height) => {
+  const drawImageCover = (image, x, y, width, height, cropTop = 0) => {
     if (!image || !image.complete || image.naturalWidth === 0) return;
 
-    const imageRatio = image.naturalWidth / image.naturalHeight;
+    const sourceY = image.naturalHeight * cropTop;
+    const sourceHeight = image.naturalHeight - sourceY;
+    const imageRatio = image.naturalWidth / sourceHeight;
     const screenRatio = width / height;
     let drawWidth;
     let drawHeight;
@@ -70,11 +72,21 @@
       drawY = y + (height - drawHeight) / 2;
     }
 
-    ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+    ctx.drawImage(
+      image,
+      0,
+      sourceY,
+      image.naturalWidth,
+      sourceHeight,
+      drawX,
+      drawY,
+      drawWidth,
+      drawHeight
+    );
   };
 
-  const drawImageCoverMove = (image, x, y, width, height, offsetY) => {
-    drawImageCover(image, x, y + offsetY, width, height);
+  const drawImageCoverMove = (image, x, y, width, height, offsetY, cropTop = 0) => {
+    drawImageCover(image, x, y + offsetY, width, height, cropTop);
   };
 
   const drawExpandedRoundedRect = (x, y, width, height, cornerRadius, padding = 10) => {
@@ -156,7 +168,8 @@
         -viewportHeight / 2,
         viewportWidth,
         viewportHeight,
-        imageOffsetY
+        imageOffsetY,
+        imageIndex === 0 ? 0.093 : 0
       );
       ctx.restore();
     }
@@ -184,7 +197,8 @@
       -viewportHeight / 2,
       viewportWidth,
       viewportHeight,
-      imageOffsetY
+      imageOffsetY,
+      0.093
     );
     ctx.restore();
   };
