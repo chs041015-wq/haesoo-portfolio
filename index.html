@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Haesoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=53" />
+  </head>
+  <body>
+    <div class="cursor" aria-hidden="true"></div>
+
+    <header class="site-nav" aria-label="Primary navigation">
+      <a class="brand nav-section-title" href="#home" aria-label="Back to home">
+        <span class="nav-section-title-window" aria-live="polite">
+          <span data-nav-title-current>Haesoo</span>
+          <span data-nav-title-next aria-hidden="true"></span>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a class="rolling-link" href="#about"><span>About</span><span>About</span></a>
+        <a class="rolling-link" href="#services"><span>Services</span><span>Services</span></a>
+        <a class="rolling-link" href="#works"><span>Works</span><span>Works</span></a>
+        <a class="rolling-link" href="#contact"><span>Contact</span><span>Contact</span></a>
+      </nav>
+    </header>
+
+    <div class="flip-stack" aria-label="Animated portfolio card">
+      <article class="flip-card">
+        <div class="card-face card-front">
+          <img src="https://framerusercontent.com/images/haSjyjpt7FyCjJUBvXtmzCMSEQg.png?width=800&height=1072" alt="Portrait of portfolio creator - color view" />
+        </div>
+        <div class="card-face card-rear">
+          <img src="https://framerusercontent.com/images/haSjyjpt7FyCjJUBvXtmzCMSEQg.png?width=800&height=1072" alt="Portrait of portfolio creator - black and white view" />
+        </div>
+      </article>
+    </div>
+
+    <main>
+      <section class="hero" id="home" aria-label="Landing" data-nav-title="Haesoo">
+        <div class="hero-pin">
+          <div class="orb left" aria-hidden="true"></div>
+          <div class="orb right" aria-hidden="true"></div>
+
+          <div class="hero-title" aria-label="Software Engineer">
+            <span>SOFTWARE</span>
+            <span>ENGINEER</span>
+          </div>
+
+          <div class="hero-meta">
+            <h2>©2026</h2>
+            <p>/CREATING SINCE 2020</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="intro" id="about" data-nav-title="About Me">
+        <div class="section-heading">
+          <h2>Hey!</h2>
+          <p>I’m Haesoo, a builder based in Syria, currently working on Templyo, a platform for high-quality Framer templates.</p>
+        </div>
+        <div class="intro-copy">
+          <p>I’m a software engineer and Framer creator with a strong focus on building modern, scalable, and conversion-driven web experiences.</p>
+          <p>Over the years, I’ve created and shipped multiple SaaS products and Framer templates used by global customers, helping them launch faster.</p>
+          <a class="pill-link" href="#contact">Get Started</a>
+        </div>
+      </section>
+
+      <section class="tools-marquee reveal-content-section" aria-label="Reveal statement" data-nav-title="About Me">
+        <div class="reveal-copy">
+          <p class="about-text">
+            <span class="word">I’m</span>
+            <span class="word">Haesoo,</span>
+            <span class="word">a</span>
+            <span class="word">software</span>
+            <img class="about-text-image" src="https://pacomepertant.com/_nuxt/1.B1dNENWz.png" alt="" />
+            <span class="word">engineer</span>
+            <span class="word">building</span>
+            <span class="word">modern</span>
+            <span class="word">web</span>
+            <span class="word">experiences.</span>
+            <img class="about-text-image" src="https://pacomepertant.com/_nuxt/3.BTmrErUb.png" alt="" />
+            <span class="word">I</span>
+            <span class="word">shape</span>
+            <span class="word">interfaces</span>
+            <span class="word">with</span>
+            <span class="word">motion,</span>
+            <span class="word">systems,</span>
+            <img class="about-text-image" src="https://pacomepertant.com/_nuxt/4.BC7zNsqh.png" alt="" />
+            <span class="word">and</span>
+            <span class="word">detail</span>
+            <span class="word">to</span>
+            <span class="word">make</span>
+            <span class="word">digital</span>
+            <span class="word">products</span>
+            <span class="word">feel</span>
+            <span class="word">alive.</span>
+            <img class="about-text-image" src="https://pacomepertant.com/_nuxt/5.DnIwmEfV.png" alt="" />
+          </p>
+        </div>
+      </section>
+
+      <section class="project-showcase project-section project1" id="project1" aria-label="Project 1 fullscreen showcase" data-nav-title="Works">
+        <header class="section-title project-section-title">
+          <p>/My Works</p>
+          <h2>기획부터 구현까지, 아이디어를 실제 경험으로 완성한 프로젝트입니다.</h2>
+        </header>
+        <div class="canvas__wr">
+          <canvas
+            id="project-showcase-canvas"
+            role="img"
+            aria-label="Four featured projects in a fullscreen scroll showcase"
+          ></canvas>
+        </div>
+      </section>
+
+      <section class="spiral-section project-section project2" id="project2" aria-label="Project 2 spiral works" data-nav-title="Works">
+        <span class="section-anchor" id="spiral" aria-hidden="true"></span>
+        <header class="section-title project-section-title">
+          <p>/Clone Coding</p>
+          <h2>실제 웹사이트의 구조와 인터랙션을 분석하고 직접 재현하며 <strong>퍼블리싱과 인터랙션 구현 역량</strong>을 키웠습니다.</h2>
+        </header>
+        <div class="spiral-scroll-shell">
+          <div class="spiral-stage">
+            <div class="spiral-grid" aria-hidden="true"></div>
+            <canvas class="spiral-webgl" role="button" tabindex="0" aria-label="Selected Works spiral"></canvas>
+
+            <div class="spiral-scene" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dark-reveal tools-content-section" id="tools" aria-label="Tools" data-nav-title="Tools">
+        <div class="tools-content">
+          <header class="section-title tools-head">
+            <p>/Skills &amp; Tools</p>
+            <h2>기획부터 디자인, 개발과 AI 활용까지 작업 전 과정에 사용하는 기술과 도구입니다.</h2>
+          </header>
+          <div class="tool-row" data-tool-row="planning-design">
+            <div class="tool-track" data-tool-track data-direction="forward" aria-label="Planning and design tools"></div>
+          </div>
+          <div class="tool-row reverse" data-tool-row="development-ai">
+            <div class="tool-track" data-tool-track data-direction="reverse" aria-label="Development and AI tools"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="experience-section" id="services" aria-labelledby="experience-title" data-nav-title="History">
+        <header class="experience-intro section-title">
+          <p>/History</p>
+          <h3 id="experience-title"><span class="experience-intro-text">배우고, 만들며, 쌓아온 저의 타임라인을 소개합니다.</span></h3>
+        </header>
+
+        <div class="timeline-shell">
+          <div class="timeline-ribbon-layer" aria-hidden="true">
+            <svg viewBox="0 0 1200 3000" preserveAspectRatio="xMidYMin slice">
+              <path
+                class="timeline-ribbon-path"
+                d="M0.478149 0.14624C179.389 584.988 1024.24 241.063 1203.16 488.791C1382.07 736.519 591.549 555.192 685.399 850.592C754.827 1069.12 1251.74 767.219 1254.66 995.312C1257.47 1214.38 748.65 1128.11 748.65 1392.87C748.65 1678.93 1318.81 1483.96 1318.81 1754.67C1318.81 1978.88 826.875 1777.46 819.13 2001.55C811.613 2219.04 1126.15 2122.45 1318.81 2242.46C1511.48 2362.48 902.26 3183.15 902.26 3183.15"
+              />
+            </svg>
+          </div>
+
+          <div class="timeline-line" aria-hidden="true"></div>
+          <div class="timeline-progress" aria-hidden="true"></div>
+
+          <div class="experience-timeline-container">
+            <article class="experience-item">
+              <div class="experience-content">
+                <h4 class="timeline-company">Techivation</h4>
+                <p class="timeline-role">Full Stack Developer (Part-time)</p>
+                <p class="timeline-description">Building and maintaining Techivation’s full web and SaaS ecosystem powering audio plugin licensing and management.</p>
+                <p class="timeline-date">May 2025 – Present</p>
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-content">
+                <h4 class="timeline-company">VexLogic</h4>
+                <p class="timeline-role">Full Stack Engineer (Part-time)</p>
+                <p class="timeline-description">Developing an AI-powered SaaS platform with real-time collaboration, billing systems, and intelligent document management.</p>
+                <p class="timeline-date">Jun 2025 – Present</p>
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-content">
+                <h4 class="timeline-company">Comra AI</h4>
+                <p class="timeline-role">Full Stack Developer (Full-time)</p>
+                <p class="timeline-description">Building immersive 3D virtual tours systems using React Three Fiber, Prisma, and PostgreSQL for real estate and architecture.</p>
+                <p class="timeline-date">Nov 2024 – Present</p>
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-content">
+                <h4 class="timeline-company">Digital Natives</h4>
+                <p class="timeline-role">Frontend Developer (Full-time)</p>
+                <p class="timeline-description">Built scalable web apps and reusable UI systems using React, Next.js, and Tailwind CSS for enterprise clients.</p>
+                <p class="timeline-date">Feb 2024 – Oct 2024</p>
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-content">
+                <h4 class="timeline-company">Fintechracy</h4>
+                <p class="timeline-role">Frontend Developer (Full-time)</p>
+                <p class="timeline-description">Developed a mobile-first PWA for financial management with offline storage, barcode scanning, and performance optimization.</p>
+                <p class="timeline-date">Nov 2023 – Mar 2024</p>
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+            </article>
+
+            <article class="experience-item">
+              <div class="experience-content">
+                <h4 class="timeline-company">Codintex</h4>
+                <p class="timeline-role">Software Engineer (Internship)</p>
+                <p class="timeline-description">Worked on enterprise desktop apps using .NET and C#, gaining foundational experience in backend systems and security.</p>
+                <p class="timeline-date">Jul 2022 – Sep 2023</p>
+              </div>
+              <span class="timeline-dot" aria-hidden="true"></span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="works chatbot-section" id="works" aria-label="Chat with Haesoo" data-nav-title="Ask Me">
+        <div class="chatbot-layout">
+          <div class="chat-mail" aria-label="Chat message composer">
+            <header class="chat-frame chat-header-frame">
+              <span data-chat-recipient>TO: HAESOO</span>
+              <span data-chat-email>( EMAIL ADDRESS )</span>
+            </header>
+
+            <div
+              class="chat-frame chat-conversation-frame"
+              data-chat-log
+              role="log"
+              aria-live="polite"
+              aria-relevant="additions"
+              tabindex="0"
+            ></div>
+
+            <form class="chat-frame chat-input-frame" data-chat-form>
+              <label class="visually-hidden" for="chatbot-input">Message Haesoo</label>
+              <input
+                id="chatbot-input"
+                data-chat-input
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                maxlength="240"
+                placeholder="WRITE A MESSAGE..."
+              />
+              <button type="submit" data-chat-send>SEND</button>
+            </form>
+          </div>
+
+          <aside class="character-panel" aria-label="Character placeholder">
+            <div id="character-mount" class="is-idle" data-character-state="idle">
+              <div class="character-figure" aria-hidden="true">
+                <span class="character-head">
+                  <i></i>
+                  <i></i>
+                </span>
+                <span class="character-body"></span>
+              </div>
+              <span class="character-status" data-character-status>IDLE</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="contact" id="contact" data-nav-title="Contact">
+        <p>/Contact</p>
+        <h2>Let’s talk.</h2>
+        <a href="mailto:Mejed@Templyo.io">Mejed@Templyo.io</a>
+      </section>
+    </main>
+
+    <button class="chatbot-fab" type="button" aria-label="Go to chatbot" aria-controls="works" title="Chat with Haesoo">
+      <span class="chatbot-fab-icon" aria-hidden="true"></span>
+    </button>
+
+    <aside class="project-overlay" aria-hidden="true" aria-label="Selected project">
+      <div class="project-overlay-shade" aria-hidden="true"></div>
+
+      <button class="project-overlay-close" type="button" aria-label="Close project" title="Close project">
+        <span aria-hidden="true">×</span>
+      </button>
+
+      <div class="project-overlay-copy" aria-live="polite">
+        <p class="project-overlay-kicker" data-overlay-reveal>
+          <span class="project-overlay-number">001</span>
+          <span aria-hidden="true">/</span>
+          <span class="project-overlay-title">Project One</span>
+        </p>
+        <h2 class="project-overlay-oneliner" data-overlay-reveal>프로젝트 한 줄 설명이 들어가는 자리입니다</h2>
+        <p class="project-overlay-meta" data-overlay-reveal>
+          <span class="project-overlay-role">Creative Developer</span>
+          <span aria-hidden="true">·</span>
+          <span class="project-overlay-year">2026</span>
+        </p>
+        <ul class="project-overlay-keywords" data-overlay-reveal aria-label="Project keywords"></ul>
+        <a class="project-overlay-cta" data-overlay-reveal href="#">케이스 스터디 보기 <span aria-hidden="true">↗</span></a>
+      </div>
+
+      <nav class="project-overlay-navigation" aria-label="Project navigation">
+        <button class="project-overlay-prev" type="button" aria-label="Previous project">
+          <span aria-hidden="true">←</span> Prev
+        </button>
+        <button class="project-overlay-next" type="button" aria-label="Next project">
+          Next <span aria-hidden="true">→</span>
+        </button>
+      </nav>
+    </aside>
+
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="tools.js?v=6"></script>
+    <script src="assets/vendor/ScrollTrigger.min.js"></script>
+    <script src="project-scroll.js?v=7"></script>
+    <script src="chatbot.js?v=3"></script>
+    <script src="script.js?v=44"></script>
+  </body>
+</html>
