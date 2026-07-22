@@ -91,6 +91,7 @@ const spiralStage = document.querySelector(".spiral-stage");
 const spiralScrollShell = document.querySelector(".spiral-scroll-shell");
 const spiralGrid = document.querySelector(".spiral-grid");
 const spiralCanvas = document.querySelector(".spiral-webgl");
+const spiralProjectCta = document.querySelector(".spiral-project-cta");
 const projectOverlay = document.querySelector(".project-overlay");
 const projectOverlayShade = document.querySelector(".project-overlay-shade");
 const projectOverlayClose = document.querySelector(".project-overlay-close");
@@ -107,11 +108,19 @@ const projectOverlayRevealItems = [...document.querySelectorAll("[data-overlay-r
 const projectOverlayChrome = [projectOverlayClose, document.querySelector(".project-overlay-navigation")].filter(Boolean);
 const experienceSection = document.querySelector(".experience-section");
 const timelineShell = document.querySelector(".timeline-shell");
+const timelineLine = document.querySelector(".timeline-line");
 const timelineProgress = document.querySelector(".timeline-progress");
 const experienceItems = [...document.querySelectorAll(".experience-item")];
 const navTitleCurrent = document.querySelector("[data-nav-title-current]");
 const navTitleNext = document.querySelector("[data-nav-title-next]");
 const navTitleSections = [...document.querySelectorAll("[data-nav-title]")];
+const profileTypingTargets = [
+  document.querySelector(".section-heading h2"),
+  document.querySelector(".profile-summary h3"),
+  document.querySelector(".profile-summary p"),
+  ...document.querySelectorAll(".profile-details li > span"),
+  document.querySelector(".profile-project-link > span:first-child"),
+].filter(Boolean);
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
@@ -137,7 +146,9 @@ const cubicBezierProgress = (progress, x1, y1, x2, y2) => {
 
   return sample(time, y1, y2);
 };
-const heroCardSpring = { stiffness: 500, damping: 60, mass: 1 };
+// Keep the card following the scroll instead of snapping to each new target.
+// The longer, near-critically damped response mirrors the original hero flip.
+const heroCardSpring = { stiffness: 110, damping: 24, mass: 1 };
 const heroCardMotion = {
   initialized: false,
   frame: null,
@@ -153,6 +164,81 @@ let activeNavTitle = navTitleCurrent?.textContent.trim() || "Haesoo";
 let navTitleTimeline = null;
 let previousNavScrollY = window.scrollY;
 let heroCardDock = null;
+let profileTypingStarted = false;
+
+const wait = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
+
+const prepareProfileTyping = () => {
+  if (isFigmaCaptureMode || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  profileTypingTargets.forEach((target) => {
+    if (target.dataset.typingReady === "true") return;
+    const accessibleLabel = target.textContent.replace(/\s+/g, " ").trim();
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach((textNode) => {
+      const fragment = document.createDocumentFragment();
+      [...textNode.nodeValue].forEach((character) => {
+        if (/\s/.test(character)) {
+          fragment.appendChild(document.createTextNode(character));
+          return;
+        }
+        const characterElement = document.createElement("span");
+        characterElement.className = "typing-char";
+        characterElement.textContent = character;
+        fragment.appendChild(characterElement);
+      });
+      textNode.replaceWith(fragment);
+    });
+
+    target.dataset.typingReady = "true";
+    if (accessibleLabel) target.setAttribute("aria-label", accessibleLabel);
+    target.closest(".profile-details li, .profile-project-link")?.setAttribute("data-typing-row", "");
+  });
+};
+
+const getTypingDelay = (character, index, speed = 1) => {
+  if (/[,.!?]/.test(character)) return 155 * speed;
+  const baseDelay = /[\u3131-\uD79D]/.test(character) ? 65 : 45;
+  return Math.max(16, (baseDelay + ((character.codePointAt(0) + index * 7) % 17) - 8) * speed);
+};
+
+const typeProfileTarget = async (target, speed = 1) => {
+  target.closest("[data-typing-row]")?.classList.add("is-typing-visible");
+  const characters = [...target.querySelectorAll(".typing-char")];
+
+  for (let characterIndex = 0; characterIndex < characters.length; characterIndex += 1) {
+    target.querySelector(".typing-char.has-caret")?.classList.remove("has-caret");
+    const character = characters[characterIndex];
+    character.classList.add("is-typed", "has-caret");
+    await wait(getTypingDelay(character.textContent, characterIndex, speed));
+  }
+
+  characters.at(-1)?.classList.remove("has-caret");
+};
+
+const startProfileTyping = async () => {
+  if (profileTypingStarted) return;
+  profileTypingStarted = true;
+
+  if (isFigmaCaptureMode || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll("[data-typing-row]").forEach((row) => row.classList.add("is-typing-visible"));
+    return;
+  }
+
+  const helloTarget = profileTypingTargets[0];
+  const helloTyping = typeProfileTarget(helloTarget, 0.9);
+  await wait(110);
+
+  for (const target of profileTypingTargets.slice(1)) {
+    await typeProfileTarget(target, 0.28);
+    await wait(35);
+  }
+
+  await helloTyping;
+};
 
 const initLandingEntrance = () => {
   const root = document.documentElement;
@@ -231,7 +317,7 @@ const prepareTimelineWords = () => {
 };
 
 const updateExperienceTimeline = () => {
-  if (!timelineShell || !timelineProgress || !experienceItems.length) return;
+  if (!timelineShell || !timelineLine || !timelineProgress || !experienceItems.length) return;
 
   const viewportHeight = window.innerHeight;
   const sectionRect = experienceSection?.getBoundingClientRect();
@@ -240,13 +326,20 @@ const updateExperienceTimeline = () => {
   }
 
   const shellRect = timelineShell.getBoundingClientRect();
+  const timelineEndMarker = timelineShell.querySelector(".experience-now .timeline-dot");
+  const markerRect = timelineEndMarker?.getBoundingClientRect();
+  const timelineEndY = markerRect
+    ? Math.max(markerRect.top + markerRect.height / 2 - shellRect.top, 1)
+    : Math.max(shellRect.height, 1);
+  timelineShell.style.setProperty("--timeline-end-y", `${timelineEndY.toFixed(2)}px`);
+
   const timelineProgressValue = clamp(
-    (viewportHeight * 0.65 - shellRect.top) / Math.max(shellRect.height, 1),
+    (viewportHeight * 0.65 - shellRect.top) / timelineEndY,
     0,
     1
   );
 
-  timelineProgress.style.height = `${(timelineProgressValue * 100).toFixed(4)}%`;
+  timelineProgress.style.height = `${(timelineProgressValue * timelineEndY).toFixed(2)}px`;
 
   const introHeading = experienceSection?.querySelector(".experience-intro-text");
   if (introHeading) {
@@ -280,7 +373,34 @@ const updateExperienceTimeline = () => {
     );
     const content = item.querySelector(".experience-content");
     const words = [...item.querySelectorAll(".timeline-word")];
+    const isNow = item.classList.contains("experience-now");
     const easedOpacity = easeOutCubic(rawReveal);
+
+    if (isNow) {
+      const nowScrollableDistance = Math.max(itemRect.height - viewportHeight, 1);
+      const nowReveal = clamp(-itemRect.top / nowScrollableDistance, 0, 1);
+      const maximumNowStagger = Math.min(words.length * 0.045, 0.55);
+      const nowRingFill = item.querySelector(".now-progress-ring-fill");
+      if (content) content.style.opacity = "1";
+      item.classList.toggle("is-revealed", nowReveal > 0.02);
+      item.classList.toggle("is-ring-started", nowReveal > 0.005);
+      item.classList.toggle("is-ring-complete", nowReveal > 0.985);
+      if (nowRingFill) {
+        nowRingFill.style.strokeDashoffset = (100 - nowReveal * 100).toFixed(3);
+      }
+
+      words.forEach((word, index) => {
+        const wordProgress = clamp(
+          (nowReveal - index * 0.045) / Math.max(1 - maximumNowStagger, 0.01),
+          0,
+          1
+        );
+        const eased = easeOutCubic(wordProgress);
+        word.style.opacity = (0.12 + eased * 0.88).toFixed(4);
+        word.style.transform = `translateY(${((1 - eased) * 18).toFixed(3)}px) rotateX(0deg)`;
+      });
+      return;
+    }
 
     if (content) content.style.opacity = easedOpacity.toFixed(4);
 
@@ -415,6 +535,7 @@ const updateHeroCard = () => {
       flipStack.classList.add("is-docked");
       introPortraitSlot.appendChild(flipStack);
     }
+    startProfileTyping();
     heroCardDock = { x: introGapCenter, y: dockY, rotate: 0, scale: dockScale, compact };
     return;
   }
@@ -518,8 +639,15 @@ const updateAboutRevealText = () => {
 
     if (item.classList.contains("about-text-image")) {
       const scale = itemProgress * 1.5;
+      const wobbleEnvelope = 1 - itemProgress;
+      const wobbleX = Math.sin(itemProgress * Math.PI * 5) * wobbleEnvelope * 9;
+      const wobbleY = -Math.abs(Math.sin(itemProgress * Math.PI * 3)) * wobbleEnvelope * 5;
+      const wobbleRotate = Math.sin(itemProgress * Math.PI * 6) * wobbleEnvelope * 9;
       item.style.setProperty("--icon-opacity", itemProgress.toFixed(3));
       item.style.setProperty("--icon-scale", scale.toFixed(3));
+      item.style.setProperty("--icon-wobble-x", `${wobbleX.toFixed(3)}px`);
+      item.style.setProperty("--icon-wobble-y", `${wobbleY.toFixed(3)}px`);
+      item.style.setProperty("--icon-wobble-rotate", `${wobbleRotate.toFixed(3)}deg`);
     } else {
       const opacity = 0.5 + itemProgress * 0.5;
       item.style.setProperty("--word-opacity", opacity.toFixed(3));
@@ -654,6 +782,7 @@ const initSpiralExperience = async () => {
       uniform vec2 uImageSizes;
       uniform float uFocusProgress;
       uniform float uOpacity;
+      uniform float uHoverDim;
       varying vec2 vUv;
 
       float roundedRectSDF(vec2 uv, vec2 size, float radius) {
@@ -671,15 +800,19 @@ const initSpiralExperience = async () => {
           vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
         );
         uv.y *= 0.91;
+        float hoverZoom = mix(1.0, 1.09, uHoverDim);
+        uv = (uv - 0.5) / hoverZoom + 0.5;
         vec4 color = texture2D(uTexture, uv);
         float cornerRadius = mix(0.05, 0.025, uFocusProgress);
         float sdf = roundedRectSDF(vUv, vec2(1.0), cornerRadius);
         float alpha = 1.0 - smoothstep(0.0, 0.002, sdf);
-        gl_FragColor = vec4(color.rgb, alpha * uOpacity);
+        vec3 overlayColor = mix(color.rgb, color.rgb * 0.42, uHoverDim);
+        gl_FragColor = vec4(overlayColor, alpha * uOpacity);
       }
     `;
 
-    camera.position.set(0, 0, 8);
+    // Keep the complete spiral inside the stage, including its lowest cards.
+    camera.position.set(0, 0, 8.75);
     renderer.setClearColor(0x0a0a0a, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -699,6 +832,7 @@ const initSpiralExperience = async () => {
           uScrollSpeed: { value: 0 },
           uFocusProgress: { value: 0 },
           uOpacity: { value: 1 },
+          uHoverDim: { value: 0 },
         },
         vertexShader,
         fragmentShader,
@@ -1313,6 +1447,62 @@ const initSpiralExperience = async () => {
       return raycaster.intersectObjects(planes, false)[0]?.object || null;
     };
 
+    const getCenterPlane = () => {
+      return planes.reduce((largest, plane) => {
+        const rect = getProjectedPlaneRect(plane);
+        const visibleOpacity = plane.material.uniforms.uOpacity.value;
+        const area = rect.width * rect.height * visibleOpacity;
+        return !largest || area > largest.area ? { plane, area } : largest;
+      }, null)?.plane || null;
+    };
+
+    const getInteractivePlane = (event) => {
+      const centerPlane = getCenterPlane();
+      if (!centerPlane) return null;
+      const rect = spiralCanvas.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / Math.max(rect.height, 1)) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      return raycaster.intersectObject(centerPlane, false).length ? centerPlane : null;
+    };
+
+    const setHoveredPlane = (nextPlane) => {
+      if (hoveredPlane === nextPlane) return;
+      const previousPlane = hoveredPlane;
+      hoveredPlane = nextPlane;
+      [
+        { plane: previousPlane, value: 0 },
+        { plane: hoveredPlane, value: 1 },
+      ].forEach(({ plane, value }) => {
+        const hoverUniform = plane?.material.uniforms.uHoverDim;
+        if (!hoverUniform) return;
+        gsap.killTweensOf(hoverUniform);
+        gsap.to(hoverUniform, {
+          value,
+          duration: 0.28,
+          ease: "power2.out",
+          onUpdate: () => renderer.render(scene, camera),
+        });
+      });
+    };
+
+    const updateProjectCta = (plane, event) => {
+      if (!spiralProjectCta || !plane) {
+        spiralProjectCta?.classList.remove("is-visible");
+        return;
+      }
+      spiralProjectCta.style.left = `${event.clientX}px`;
+      spiralProjectCta.style.top = `${event.clientY}px`;
+      spiralProjectCta.classList.add("is-visible");
+    };
+
+    const visitProject = (plane) => {
+      if (!plane) return;
+      const project = spiralProjectData.find((item) => item.id === plane.userData.projectId);
+      if (!project?.cta_url || project.cta_url === "#") return;
+      window.open(project.cta_url, "_blank", "noopener,noreferrer");
+    };
+
     const resize = () => {
       const width = spiralStage.clientWidth;
       const height = spiralStage.clientHeight;
@@ -1341,16 +1531,21 @@ const initSpiralExperience = async () => {
       const scrollSpeed = currentOffset - previousOffset;
       previousOffset = currentOffset;
       const centerIndex = Math.floor(planes.length / 2);
+      const fadeRange = 1.65;
 
       planes.forEach((plane, index) => {
         let normalizedIndex = index - currentOffset;
         normalizedIndex = ((normalizedIndex % planes.length) + planes.length) % planes.length;
         const relativeIndex = normalizedIndex - centerIndex;
+        const edgeDistance = centerIndex - Math.abs(relativeIndex);
+        const fadeProgress = clamp(edgeDistance / fadeRange, 0, 1);
+        const edgeOpacity = fadeProgress * fadeProgress * (3 - 2 * fadeProgress);
         const angle = relativeIndex * 0.85;
         plane.position.set(Math.cos(angle) * 2, relativeIndex * 0.5 - 0.8, Math.sin(angle) * 2);
         plane.rotation.y = -angle + Math.PI / 2;
         plane.renderOrder = Math.round((plane.position.z + 3) * 1000) + index;
         plane.material.uniforms.uScrollSpeed.value = scrollSpeed;
+        plane.material.uniforms.uOpacity.value = edgeOpacity;
       });
 
       renderer.render(scene, camera);
@@ -1395,7 +1590,7 @@ const initSpiralExperience = async () => {
       if (spiralCanvas.hasPointerCapture?.(event.pointerId)) spiralCanvas.releasePointerCapture(event.pointerId);
       suppressNextClick = distance >= 5;
       if (suppressNextClick) return;
-      openProject(raycastPlane(event));
+      visitProject(getInteractivePlane(event));
     });
 
     spiralCanvas.addEventListener("pointercancel", (event) => {
@@ -1410,25 +1605,27 @@ const initSpiralExperience = async () => {
         return;
       }
       if (event.detail === 0 || mobileQuery.matches || overlayMode !== "spiral" || isTransitioning) return;
-      openProject(raycastPlane(event));
+      visitProject(getInteractivePlane(event));
     });
 
     spiralCanvas.addEventListener("pointermove", (event) => {
       if (mobileQuery.matches || overlayMode !== "spiral") return;
-      hoveredPlane = raycastPlane(event);
+      setHoveredPlane(getInteractivePlane(event));
       spiralCanvas.classList.toggle("is-project-hover", Boolean(hoveredPlane));
+      updateProjectCta(hoveredPlane, event);
     });
 
     spiralCanvas.addEventListener("pointerleave", () => {
       pointerDown = null;
-      hoveredPlane = null;
+      setHoveredPlane(null);
       spiralCanvas.classList.remove("is-project-hover");
+      updateProjectCta(null);
     });
 
     spiralCanvas.addEventListener("keydown", (event) => {
       if (mobileQuery.matches || overlayMode !== "spiral" || !["Enter", " "].includes(event.key)) return;
       event.preventDefault();
-      openProject(hoveredPlane || getBestPlaneForProject(spiralProjectData[0].id));
+      visitProject(hoveredPlane || getCenterPlane());
     });
 
     projectOverlayClose?.addEventListener("click", closeProject);
@@ -1519,6 +1716,7 @@ window.addEventListener("resize", () => {
   heroCardDock = null;
   requestHeroCardUpdate();
 });
+prepareProfileTyping();
 updateHeroCard();
 initLandingEntrance();
 updateDarkRevealCurve();
