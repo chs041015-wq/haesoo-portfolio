@@ -74,10 +74,12 @@ const cursor = document.querySelector(".cursor");
 const hero = document.querySelector(".hero");
 const intro = document.querySelector(".intro");
 const heroTitle = document.querySelector(".hero-title");
+const heroWords = [...document.querySelectorAll(".hero-word")];
 const introHeading = document.querySelector(".section-heading h2");
 const introCopy = document.querySelector(".intro-copy");
 const introPortraitSlot = document.querySelector(".intro-portrait-slot");
 const flipStack = document.querySelector(".flip-stack");
+const main = document.querySelector("main");
 const darkReveal = document.querySelector(".dark-reveal");
 const toolContentSection = document.querySelector(".tools-content-section");
 const revealContentSection = document.querySelector(".reveal-content-section");
@@ -114,12 +116,95 @@ const navTitleSections = [...document.querySelectorAll("[data-nav-title]")];
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
 const lerp = (start, end, progress) => start + (end - start) * progress;
+const cubicBezierProgress = (progress, x1, y1, x2, y2) => {
+  const x = clamp(progress, 0, 1);
+  const sample = (time, point1, point2) => {
+    const inverse = 1 - time;
+    return 3 * inverse * inverse * time * point1 + 3 * inverse * time * time * point2 + time * time * time;
+  };
+  const derivative = (time, point1, point2) => (
+    3 * (1 - time) * (1 - time) * point1
+    + 6 * (1 - time) * time * (point2 - point1)
+    + 3 * time * time * (1 - point2)
+  );
+  let time = x;
+
+  for (let index = 0; index < 6; index += 1) {
+    const slope = derivative(time, x1, x2);
+    if (Math.abs(slope) < 0.000001) break;
+    time = clamp(time - (sample(time, x1, x2) - x) / slope, 0, 1);
+  }
+
+  return sample(time, y1, y2);
+};
+const heroCardSpring = { stiffness: 500, damping: 60, mass: 1 };
+const heroCardMotion = {
+  initialized: false,
+  frame: null,
+  lastTime: 0,
+  current: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, metaOpacity: 1 },
+  target: { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, metaOpacity: 1 },
+  velocity: { x: 0, y: 0, rotate: 0, scale: 0, opacity: 0, metaOpacity: 0 },
+};
 let ticking = false;
 let spiralExperience = null;
 let spiralInitializing = false;
 let activeNavTitle = navTitleCurrent?.textContent.trim() || "Haesoo";
 let navTitleTimeline = null;
 let previousNavScrollY = window.scrollY;
+let heroCardDock = null;
+
+const initLandingEntrance = () => {
+  const root = document.documentElement;
+  const gsap = window.gsap;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactLanding = window.matchMedia("(max-width: 1279.98px)").matches;
+  const finalState = {
+    "--landing-card-opacity": 1,
+    "--landing-card-y": "0px",
+    "--landing-nav-opacity": 1,
+    "--landing-nav-y": "0px",
+    "--landing-detail-opacity": 1,
+    "--landing-detail-y": "0px",
+    "--landing-card-rotate": "0deg",
+  };
+
+  if (!gsap || reducedMotion || isFigmaCaptureMode) {
+    Object.entries(finalState).forEach(([property, value]) => root.style.setProperty(property, value));
+    root.classList.add("landing-complete");
+    return;
+  }
+
+  const entrance = gsap.timeline({
+    defaults: { duration: 1.6, ease: "expo.out" },
+    onComplete: () => root.classList.add("landing-complete"),
+  });
+
+  entrance.to(heroWords, {
+    opacity: 1,
+    filter: "blur(0px)",
+    y: 0,
+    duration: 2.8,
+    stagger: 0.25,
+    ease: "expo.out",
+  }, 0);
+
+  entrance.to(root, {
+    "--landing-card-opacity": 1,
+    "--landing-card-y": "0px",
+  }, 1);
+
+  entrance.to(root, {
+    "--landing-nav-opacity": 1,
+    "--landing-nav-y": "0px",
+    "--landing-detail-opacity": 1,
+    "--landing-detail-y": "0px",
+  }, 1.4);
+
+  if (compactLanding) {
+    entrance.to(root, { "--landing-card-rotate": "0deg" }, 2);
+  }
+};
 
 const prepareTimelineWords = () => {
   const targets = document.querySelectorAll(
@@ -213,56 +298,141 @@ const updateExperienceTimeline = () => {
   });
 };
 
+const paintHeroCardMotion = () => {
+  const state = heroCardMotion.current;
+  const root = document.documentElement;
+  root.style.setProperty("--card-x", `${state.x.toFixed(3)}px`);
+  root.style.setProperty("--card-y", `${state.y.toFixed(3)}px`);
+  root.style.setProperty("--card-rotate", `${state.rotate.toFixed(3)}deg`);
+  root.style.setProperty("--card-scale", state.scale.toFixed(4));
+  root.style.setProperty("--card-opacity", clamp(state.opacity, 0, 1).toFixed(4));
+  root.style.setProperty("--hero-meta-opacity", clamp(state.metaOpacity, 0, 1).toFixed(4));
+};
+
+const stepHeroCardMotion = (time) => {
+  const motion = heroCardMotion;
+  const elapsed = motion.lastTime ? Math.min((time - motion.lastTime) / 1000, 0.05) : 1 / 60;
+  motion.lastTime = time;
+  let remaining = elapsed;
+  const fixedStep = 1 / 120;
+
+  while (remaining > 0) {
+    const dt = Math.min(fixedStep, remaining);
+    Object.keys(motion.current).forEach((key) => {
+      const displacement = motion.target[key] - motion.current[key];
+      const acceleration = (
+        heroCardSpring.stiffness * displacement - heroCardSpring.damping * motion.velocity[key]
+      ) / heroCardSpring.mass;
+      motion.velocity[key] += acceleration * dt;
+      motion.current[key] += motion.velocity[key] * dt;
+    });
+    remaining -= dt;
+  }
+
+  paintHeroCardMotion();
+
+  const isMoving = Object.keys(motion.current).some((key) => (
+    Math.abs(motion.target[key] - motion.current[key]) > (key === "x" || key === "y" ? 0.02 : 0.0002)
+    || Math.abs(motion.velocity[key]) > (key === "x" || key === "y" ? 0.02 : 0.0002)
+  ));
+
+  if (isMoving) {
+    motion.frame = requestAnimationFrame(stepHeroCardMotion);
+  } else {
+    Object.assign(motion.current, motion.target);
+    Object.keys(motion.velocity).forEach((key) => { motion.velocity[key] = 0; });
+    paintHeroCardMotion();
+    motion.frame = null;
+    motion.lastTime = 0;
+  }
+};
+
+const setHeroCardTarget = (nextTarget) => {
+  const motion = heroCardMotion;
+  Object.assign(motion.target, nextTarget);
+
+  if (!motion.initialized || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    Object.assign(motion.current, motion.target);
+    motion.initialized = true;
+    paintHeroCardMotion();
+    return;
+  }
+
+  if (motion.frame === null) {
+    motion.lastTime = 0;
+    motion.frame = requestAnimationFrame(stepHeroCardMotion);
+  }
+};
+
 const updateHeroCard = () => {
   if (!hero || !intro || !heroTitle || !introHeading || !introCopy || !flipStack) return;
 
   const scrollY = window.scrollY;
-  if (scrollY > intro.offsetTop + intro.offsetHeight + window.innerHeight * 0.5) {
-    document.documentElement.style.setProperty("--card-opacity", "0");
-    document.documentElement.style.setProperty("--hero-meta-opacity", "0");
-    return;
-  }
-
-  const cardHeight = flipStack.offsetHeight;
   const compact = window.innerWidth <= 840;
+  const cardWidth = compact ? 156 : 200;
+  const cardHeight = compact ? 184 : 228;
   const titleRect = heroTitle.getBoundingClientRect();
   const copyRect = introCopy.getBoundingClientRect();
-  const heroFlipEnd = Math.max(intro.offsetTop * 0.78, 1);
   const introTop = intro.offsetTop;
-  const introTravelEnd = introTop + window.innerHeight * (compact ? 0.24 : 0.2);
-  const travelStart = compact ? 0 : window.innerHeight * 0.65;
-  const flipProgress = compact ? easeOutCubic(clamp(scrollY / heroFlipEnd, 0, 1)) : clamp(scrollY / heroFlipEnd, 0, 1);
-  const travelProgress = easeOutCubic(clamp((scrollY - travelStart) / Math.max(introTravelEnd - travelStart, 1), 0, 1));
-  const desktopFade = clamp((scrollY - (introTop + window.innerHeight * 0.62)) / (window.innerHeight * 0.24), 0, 1);
-  const mobileFade = clamp((scrollY - (introTop - window.innerHeight * 0.72)) / (window.innerHeight * 0.18), 0, 1);
-  const fadeProgress = compact ? mobileFade : desktopFade;
+  const introTravelEnd = introTop;
+  const dockStart = introTravelEnd;
+  const travelStart = 0;
+  const rawTravelProgress = clamp((scrollY - travelStart) / Math.max(introTravelEnd - travelStart, 1), 0, 1);
+  const travelProgress = cubicBezierProgress(rawTravelProgress, 0.44, 0, 0.56, 1);
+  const flipProgress = travelProgress;
   const heroMetaOpacity = 1 - clamp(scrollY / Math.max(introTop * 0.42, 1), 0, 1);
 
   const startX = window.innerWidth * 0.5;
-  const introGapCenter = window.innerWidth * 0.5;
+  const portraitSlotRect = introPortraitSlot?.getBoundingClientRect();
+  const introGapCenter = portraitSlotRect
+    ? portraitSlotRect.left + portraitSlotRect.width * 0.5
+    : window.innerWidth * 0.5;
   const belowTitleY = titleRect.bottom + (compact ? 22 : 16);
   const startY = compact ? belowTitleY : window.innerHeight - cardHeight - 20;
-  const endScale = compact ? 1.08 : 2.5;
   const heroEndY = compact ? window.innerHeight * 0.62 : window.innerHeight - cardHeight - 20;
-  const textCenterY = compact ? copyRect.top + copyRect.height * 0.46 : copyRect.top + copyRect.height * 0.5;
-  const portraitSlotRect = introPortraitSlot?.getBoundingClientRect();
-  const introTargetY = compact
-    ? Math.min(window.innerHeight - (cardHeight * (1 + endScale)) / 2 - 32, textCenterY - cardHeight / 2)
-    : (portraitSlotRect?.top || copyRect.top) + (cardHeight * (endScale - 1)) / 2;
+  const portraitDocumentTop = (portraitSlotRect?.top || copyRect.top) + scrollY;
+  const portraitWidth = portraitSlotRect?.width || cardWidth;
+  const copyDocumentTop = copyRect.top + scrollY;
+  const dockCopyCenterY = copyDocumentTop - dockStart + copyRect.height * (compact ? 0.46 : 0.5);
+  const dockScale = portraitWidth / Math.max(cardWidth, 1);
+  const dockY = compact
+    ? Math.min(
+        window.innerHeight - (cardHeight * (1 + dockScale)) / 2 - 32,
+        dockCopyCenterY - cardHeight / 2
+      )
+    : portraitDocumentTop - dockStart + (cardHeight * (dockScale - 1)) / 2;
+  const introTargetY = dockY;
   const heroStageY = startY + (heroEndY - startY) * flipProgress;
-  const y = heroStageY + (introTargetY - heroStageY) * travelProgress;
-  const x = startX + (introGapCenter - startX) * travelProgress;
-  const rotate = 180 - 180 * flipProgress;
+  let y = heroStageY + (introTargetY - heroStageY) * travelProgress;
+  let x = startX + (introGapCenter - startX) * travelProgress;
+  let rotate = 180 - 180 * flipProgress;
   const startScale = compact ? 0.78 : 1;
-  const scale = startScale + (endScale - startScale) * flipProgress;
-  const opacity = 1 - fadeProgress;
+  let scale = startScale + (dockScale - startScale) * flipProgress;
 
-  document.documentElement.style.setProperty("--card-x", `${x}px`);
-  document.documentElement.style.setProperty("--card-y", `${y}px`);
-  document.documentElement.style.setProperty("--card-rotate", `${rotate}deg`);
-  document.documentElement.style.setProperty("--card-scale", scale.toFixed(3));
-  document.documentElement.style.setProperty("--card-opacity", opacity.toFixed(3));
-  document.documentElement.style.setProperty("--hero-meta-opacity", heroMetaOpacity.toFixed(3));
+  if (scrollY >= dockStart) {
+    document.documentElement.style.setProperty("--hero-meta-opacity", heroMetaOpacity.toFixed(4));
+    if (!flipStack.classList.contains("is-docked")) {
+      flipStack.classList.add("is-docked");
+      introPortraitSlot.appendChild(flipStack);
+    }
+    heroCardDock = { x: introGapCenter, y: dockY, rotate: 0, scale: dockScale, compact };
+    return;
+  }
+
+  if (flipStack.classList.contains("is-docked")) {
+    flipStack.classList.remove("is-docked");
+    document.body.insertBefore(flipStack, main);
+    Object.assign(heroCardMotion.current, {
+      x: introGapCenter,
+      y: dockY,
+      rotate: 0,
+      scale: dockScale,
+      opacity: 1,
+    });
+    Object.keys(heroCardMotion.velocity).forEach((key) => { heroCardMotion.velocity[key] = 0; });
+  }
+
+  setHeroCardTarget({ x, y, rotate, scale, opacity: 1, metaOpacity: heroMetaOpacity });
 };
 
 const updateDarkRevealCurve = () => {
@@ -1345,8 +1515,12 @@ window.addEventListener("pointermove", (event) => {
 });
 
 window.addEventListener("scroll", requestHeroCardUpdate, { passive: true });
-window.addEventListener("resize", requestHeroCardUpdate);
+window.addEventListener("resize", () => {
+  heroCardDock = null;
+  requestHeroCardUpdate();
+});
 updateHeroCard();
+initLandingEntrance();
 updateDarkRevealCurve();
 updateCreamExitCurve();
 updateAboutRevealText();

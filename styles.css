@@ -64,6 +64,22 @@
   --card-scale: 0.9;
   --card-opacity: 1;
   --hero-meta-opacity: 1;
+  --landing-card-opacity: 1;
+  --landing-card-y: 0px;
+  --landing-card-rotate: 0deg;
+  --landing-nav-opacity: 1;
+  --landing-nav-y: 0px;
+  --landing-detail-opacity: 1;
+  --landing-detail-y: 0px;
+}
+
+html.has-js:not(.landing-complete) {
+  --landing-card-opacity: 0.001;
+  --landing-card-y: 10px;
+  --landing-nav-opacity: 0.001;
+  --landing-nav-y: 10px;
+  --landing-detail-opacity: 0.001;
+  --landing-detail-y: 10px;
 }
 
 * {
@@ -127,7 +143,8 @@ a {
   align-items: center;
   font-size: 16px;
   font-weight: 500;
-  transform: translateZ(0);
+  opacity: var(--landing-nav-opacity);
+  transform: translate3d(0, var(--landing-nav-y), 0);
   transition: opacity 180ms ease;
 }
 
@@ -175,6 +192,7 @@ body.is-spiral-active .site-nav {
 .nav-links {
   justify-self: end;
   display: flex;
+  align-items: center;
   gap: 24px;
 }
 
@@ -193,6 +211,103 @@ body.is-spiral-active .site-nav {
 
 .rolling-link:hover span {
   transform: translateY(-100%);
+}
+
+.nav-contact {
+  --contact-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-block: calc((1.2em - var(--contact-height)) / 2);
+  color: var(--paper);
+  transition: gap 450ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.nav-contact-label,
+.nav-contact-arrow {
+  height: var(--contact-height);
+  background: var(--night);
+}
+
+.nav-contact-label {
+  min-width: 108px;
+  padding-inline: 25px;
+  border-radius: 999px;
+  justify-content: flex-start;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: var(--contact-height);
+  transition: min-width 450ms cubic-bezier(0.76, 0, 0.24, 1), padding 450ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.nav-contact-label span {
+  height: var(--contact-height);
+  line-height: var(--contact-height);
+}
+
+.nav-contact-arrow {
+  display: grid;
+  width: var(--contact-height);
+  flex: 0 0 var(--contact-height);
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.nav-contact-arrow svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 450ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.nav-contact:hover,
+.nav-contact:focus-visible {
+  gap: 2px;
+}
+
+.nav-contact:hover .nav-contact-label,
+.nav-contact:focus-visible .nav-contact-label {
+  min-width: 118px;
+  padding-inline: 30px;
+}
+
+.nav-contact:hover .nav-contact-label span,
+.nav-contact:focus-visible .nav-contact-label span {
+  transform: translateY(-100%);
+}
+
+.nav-contact:hover .nav-contact-arrow svg,
+.nav-contact:focus-visible .nav-contact-arrow svg {
+  transform: rotate(45deg);
+}
+
+.nav-contact:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+body.is-spiral-active .nav-contact {
+  color: var(--night);
+}
+
+body.is-spiral-active .nav-contact-label,
+body.is-spiral-active .nav-contact-arrow {
+  background: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-contact,
+  .nav-contact-label,
+  .nav-contact-label span,
+  .nav-contact-arrow svg {
+    transition-duration: 0.01ms;
+  }
 }
 
 .hero {
@@ -225,18 +340,48 @@ body.is-spiral-active .site-nav {
   letter-spacing: 0;
 }
 
+.hero-title-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.hero-word {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+}
+
+html.has-js:not(.landing-complete) .hero-word {
+  opacity: 0.001;
+  filter: blur(2px);
+  transform: translate3d(0, 10px, 0);
+}
+
 .flip-stack {
   position: fixed;
   left: 0;
   top: 0;
   width: 200px;
   height: 228px;
-  opacity: var(--card-opacity);
+  opacity: calc(var(--card-opacity) * var(--landing-card-opacity));
   pointer-events: none;
-  transform: translate3d(calc(var(--card-x) - 50%), var(--card-y), 0) scale(var(--card-scale));
+  transform: translate3d(calc(var(--card-x) - 50%), calc(var(--card-y) + var(--landing-card-y)), 0) scale(var(--card-scale));
   transform-style: preserve-3d;
   z-index: 4;
   will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.flip-stack.is-docked {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transform: none;
+}
+
+.flip-stack.is-docked .flip-card {
+  transform: rotateY(0deg);
 }
 
 .flip-card {
@@ -245,8 +390,9 @@ body.is-spiral-active .site-nav {
   border-radius: 8px;
   transform-style: preserve-3d;
   box-shadow: 0 24px 80px rgba(17, 17, 17, 0.16);
-  transform: rotateY(var(--card-rotate));
+  transform: rotateY(calc(var(--card-rotate) + var(--landing-card-rotate)));
   will-change: transform;
+  backface-visibility: hidden;
 }
 
 .flip-card:hover {
@@ -286,7 +432,8 @@ body.is-spiral-active .site-nav {
   display: flex;
   align-items: end;
   justify-content: space-between;
-  opacity: var(--hero-meta-opacity);
+  opacity: calc(var(--hero-meta-opacity) * var(--landing-detail-opacity));
+  transform: translate3d(0, var(--landing-detail-y), 0);
   transition: opacity 120ms linear;
 }
 
@@ -308,6 +455,8 @@ body.is-spiral-active .site-nav {
   background-size: contain;
   background-position: center;
   animation: slowSpin 16s linear infinite;
+  opacity: var(--landing-detail-opacity);
+  translate: 0 var(--landing-detail-y);
 }
 
 .orb.left {
@@ -338,7 +487,7 @@ body.is-spiral-active .site-nav {
 
 .intro {
   display: grid;
-  grid-template-columns: 246px 60px 448px 120px 360px;
+  grid-template-columns: 360px 120px 448px 120px 360px;
   grid-template-rows: 510px;
   align-items: start;
   justify-content: center;
@@ -347,6 +496,7 @@ body.is-spiral-active .site-nav {
 }
 
 .intro-portrait-slot {
+  position: relative;
   grid-column: 3;
   width: 448px;
   height: 510px;
@@ -1043,6 +1193,12 @@ body.is-figma-capture .timeline-progress {
   border-radius: 999px;
   background: #0a0a0a;
   transform: translate(-50%, -50%) rotate(3deg);
+}
+
+@media (max-width: 1279.98px) {
+  html.has-js:not(.landing-complete) {
+    --landing-card-rotate: -180deg;
+  }
 }
 
 @media (max-width: 840px) {
@@ -2039,7 +2195,30 @@ body.is-figma-capture .timeline-progress {
     grid-column: 1;
     grid-row: 2;
     justify-self: center;
-    gap: 16px;
+    gap: 14px;
+  }
+
+  .nav-contact {
+    --contact-height: 38px;
+    gap: 4px;
+    margin-block: calc((1.2em - var(--contact-height)) / 2);
+  }
+
+  .nav-contact-label {
+    min-width: 82px;
+    padding-inline: 18px;
+    font-size: 14px;
+  }
+
+  .nav-contact-arrow svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .nav-contact:hover .nav-contact-label,
+  .nav-contact:focus-visible .nav-contact-label {
+    min-width: 88px;
+    padding-inline: 21px;
   }
 
   .menu-button {

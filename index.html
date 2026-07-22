@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Haesoo</title>
+    <script>document.documentElement.classList.add("has-js");</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=69" />
+    <link rel="stylesheet" href="styles.css?v=77" />
   </head>
   <body>
     <div class="cursor" aria-hidden="true"></div>
@@ -23,7 +24,14 @@
         <a class="rolling-link" href="#about"><span>About</span><span>About</span></a>
         <a class="rolling-link" href="#services"><span>Services</span><span>Services</span></a>
         <a class="rolling-link" href="#works"><span>Works</span><span>Works</span></a>
-        <a class="rolling-link" href="#contact"><span>Contact</span><span>Contact</span></a>
+        <a class="nav-contact" href="#contact" aria-label="Go to contact section">
+          <span class="nav-contact-label rolling-link" aria-hidden="true"><span>Contact</span><span>Contact</span></span>
+          <span class="nav-contact-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M6 18 18 6M9 6h9v9" />
+            </svg>
+          </span>
+        </a>
       </nav>
     </header>
 
@@ -45,8 +53,8 @@
           <div class="orb right" aria-hidden="true"></div>
 
           <div class="hero-title" aria-label="Designer Who Codes">
-            <span>DESIGNER</span>
-            <span>WHO CODES</span>
+            <span class="hero-title-line"><span class="hero-word">DESIGNER</span></span>
+            <span class="hero-title-line"><span class="hero-word">WHO</span> <span class="hero-word">CODES</span></span>
           </div>
 
           <div class="hero-meta">
@@ -313,6 +321,6 @@
     <script src="assets/vendor/ScrollTrigger.min.js"></script>
     <script src="project-scroll.js?v=9"></script>
     <script src="chatbot.js?v=3"></script>
-    <script src="script.js?v=48"></script>
+    <script src="script.js?v=58"></script>
   </body>
 </html>
