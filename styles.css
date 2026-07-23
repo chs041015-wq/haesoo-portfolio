@@ -301,6 +301,60 @@ body.is-spiral-active .nav-contact-arrow {
   background: var(--paper);
 }
 
+.section-decorated {
+  position: relative;
+  isolation: isolate;
+}
+
+.section-decorated > :not(.section-decor) {
+  z-index: 1;
+}
+
+.section-decor {
+  --decor-color: 30, 30, 30;
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  color: rgb(var(--decor-color));
+  pointer-events: none;
+}
+
+[data-decor-theme="dark"] .section-decor {
+  --decor-color: 250, 250, 250;
+}
+
+.section-decor-grid {
+  position: absolute;
+  inset: 0 max(20px, calc((100vw - 1440px) / 2));
+  background-image:
+    linear-gradient(to right, rgba(var(--decor-color), 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--decor-color), 0.032) 1px, transparent 1px);
+  background-size: 25% 100%, 100% 120px;
+  border-inline: 1px solid rgba(var(--decor-color), 0.055);
+}
+
+.section-decor-label {
+  position: absolute;
+  top: min(50vh, 520px);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  opacity: 0.38;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+.section-decor-label-left {
+  left: max(12px, calc((100vw - 1500px) / 2));
+  transform: rotate(180deg);
+}
+
+.section-decor-label-right {
+  right: max(12px, calc((100vw - 1500px) / 2));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nav-contact,
   .nav-contact-label,
@@ -2399,6 +2453,15 @@ body.is-figma-capture .timeline-progress {
     --section-start-space: 96px;
     --section-title-gap: 64px;
     --section-end-space: 96px;
+  }
+
+  .section-decor-grid {
+    inset-inline: 16px;
+    background-size: 50% 100%, 100% 96px;
+  }
+
+  .section-decor-label {
+    display: none;
   }
 
   .section-title {

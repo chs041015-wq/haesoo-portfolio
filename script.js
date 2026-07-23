@@ -257,6 +257,7 @@ const initLandingEntrance = () => {
 
   if (!gsap || reducedMotion || isFigmaCaptureMode) {
     Object.entries(finalState).forEach(([property, value]) => root.style.setProperty(property, value));
+    root.classList.add("hero-title-ready");
     root.classList.add("landing-complete");
     return;
   }
@@ -274,6 +275,10 @@ const initLandingEntrance = () => {
     stagger: 0.25,
     ease: "expo.out",
   }, 0);
+
+  // Expo easing makes the title visually settle well before the long tail ends.
+  // Enable interaction at that perceived finish instead of waiting for the full timeline.
+  entrance.call(() => root.classList.add("hero-title-ready"), null, 1.35);
 
   entrance.to(root, {
     "--landing-card-opacity": 1,
@@ -346,13 +351,13 @@ const initHeroLetterInteraction = () => {
     interactionFrame = requestAnimationFrame(() => {
       interactionFrame = null;
 
-      if (!document.documentElement.classList.contains("landing-complete")) {
+      if (!document.documentElement.classList.contains("hero-title-ready")) {
         resetLetters();
         return;
       }
 
       const titleRect = heroTitle.getBoundingClientRect();
-      const radius = Math.min(140, Math.max(105, window.innerWidth * 0.09));
+      const radius = Math.min(165, Math.max(125, window.innerWidth * 0.105));
       const isNearTitle = (
         pointerX >= titleRect.left - radius
         && pointerX <= titleRect.right + radius
@@ -371,17 +376,48 @@ const initHeroLetterInteraction = () => {
         const dy = rect.top + rect.height / 2 - pointerY;
         const distance = Math.max(Math.hypot(dx, dy), 0.001);
         const strength = Math.max(0, 1 - distance / radius);
-        const easedStrength = strength * strength;
+        const easedStrength = Math.pow(strength, 1.6);
 
-        motion.x((dx / distance) * easedStrength * 26);
-        motion.y((dy / distance) * easedStrength * 26);
-        motion.rotation((dx / radius) * easedStrength * 7);
+        motion.x((dx / distance) * easedStrength * 42);
+        motion.y((dy / distance) * easedStrength * 42);
+        motion.rotation((dx / radius) * easedStrength * 10);
       });
     });
   }, { passive: true });
 
   heroTitle.addEventListener("pointerleave", resetLetters);
   window.addEventListener("blur", resetLetters);
+};
+
+const initSectionDecorations = () => {
+  const sections = [
+    { selector: ".hero", left: "LANDING", right: "PORTFOLIO · 2026", theme: "light" },
+    { selector: ".intro", left: "PROFILE", right: "ABOUT ME", theme: "light" },
+    { selector: ".tools-marquee", left: "PHILOSOPHY", right: "DESIGN + CODE", theme: "light" },
+    { selector: ".project1", left: "SELECTED WORK", right: "PROJECTS", theme: "dark" },
+    { selector: ".project2", left: "STUDIES", right: "CLONE CODING", theme: "dark" },
+    { selector: ".tools-content-section", left: "CAPABILITIES", right: "SKILLS + TOOLS", theme: "dark" },
+    { selector: ".experience-section", left: "JOURNEY", right: "HISTORY", theme: "dark" },
+    { selector: ".contact", left: "GET IN TOUCH", right: "AVAILABLE FOR WORK", theme: "light" },
+  ];
+
+  sections.forEach(({ selector, left, right, theme }) => {
+    const section = document.querySelector(selector);
+    if (!section || section.querySelector(":scope > .section-decor")) return;
+
+    section.classList.add("section-decorated");
+    section.dataset.decorTheme = theme;
+
+    const decor = document.createElement("div");
+    decor.className = "section-decor";
+    decor.setAttribute("aria-hidden", "true");
+    decor.innerHTML = `
+      <span class="section-decor-grid"></span>
+      <span class="section-decor-label section-decor-label-left">${left}</span>
+      <span class="section-decor-label section-decor-label-right">${right}</span>
+    `;
+    section.appendChild(decor);
+  });
 };
 
 const prepareTimelineWords = () => {
@@ -759,6 +795,7 @@ const updateSpiralNavState = () => {
 };
 
 const setNavSectionTitle = (title, direction) => {
+  title = "Haesoo";
   if (!title || !navTitleCurrent || !navTitleNext || title === activeNavTitle) return;
 
   if (navTitleTimeline) {
@@ -1809,6 +1846,7 @@ window.addEventListener("resize", () => {
   requestHeroCardUpdate();
 });
 prepareProfileTyping();
+initSectionDecorations();
 updateHeroCard();
 initHeroLetterInteraction();
 initLandingEntrance();
