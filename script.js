@@ -292,6 +292,98 @@ const initLandingEntrance = () => {
   }
 };
 
+const initHeroLetterInteraction = () => {
+  const gsap = window.gsap;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  if (!heroTitle || !gsap || reducedMotion || !canHover || isFigmaCaptureMode) return;
+
+  const letters = [];
+
+  heroWords.forEach((word) => {
+    if (word.dataset.lettersReady === "true") return;
+
+    const fragment = document.createDocumentFragment();
+    [...word.textContent].forEach((letter) => {
+      const letterElement = document.createElement("span");
+      letterElement.className = "hero-letter";
+      letterElement.textContent = letter;
+      letterElement.setAttribute("aria-hidden", "true");
+      fragment.appendChild(letterElement);
+      letters.push(letterElement);
+    });
+
+    word.textContent = "";
+    word.appendChild(fragment);
+    word.dataset.lettersReady = "true";
+  });
+
+  const motions = letters.map((letter) => ({
+    letter,
+    x: gsap.quickTo(letter, "x", { duration: 0.65, ease: "elastic.out(1, 0.45)" }),
+    y: gsap.quickTo(letter, "y", { duration: 0.65, ease: "elastic.out(1, 0.45)" }),
+    rotation: gsap.quickTo(letter, "rotation", { duration: 0.65, ease: "elastic.out(1, 0.45)" }),
+  }));
+
+  const resetLetters = () => {
+    motions.forEach((motion) => {
+      motion.x(0);
+      motion.y(0);
+      motion.rotation(0);
+    });
+  };
+
+  let interactionFrame = null;
+  let pointerX = 0;
+  let pointerY = 0;
+
+  window.addEventListener("pointermove", (event) => {
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (interactionFrame !== null) return;
+
+    interactionFrame = requestAnimationFrame(() => {
+      interactionFrame = null;
+
+      if (!document.documentElement.classList.contains("landing-complete")) {
+        resetLetters();
+        return;
+      }
+
+      const titleRect = heroTitle.getBoundingClientRect();
+      const radius = Math.min(140, Math.max(105, window.innerWidth * 0.09));
+      const isNearTitle = (
+        pointerX >= titleRect.left - radius
+        && pointerX <= titleRect.right + radius
+        && pointerY >= titleRect.top - radius
+        && pointerY <= titleRect.bottom + radius
+      );
+
+      if (!isNearTitle) {
+        resetLetters();
+        return;
+      }
+
+      motions.forEach((motion) => {
+        const rect = motion.letter.getBoundingClientRect();
+        const dx = rect.left + rect.width / 2 - pointerX;
+        const dy = rect.top + rect.height / 2 - pointerY;
+        const distance = Math.max(Math.hypot(dx, dy), 0.001);
+        const strength = Math.max(0, 1 - distance / radius);
+        const easedStrength = strength * strength;
+
+        motion.x((dx / distance) * easedStrength * 26);
+        motion.y((dy / distance) * easedStrength * 26);
+        motion.rotation((dx / radius) * easedStrength * 7);
+      });
+    });
+  }, { passive: true });
+
+  heroTitle.addEventListener("pointerleave", resetLetters);
+  window.addEventListener("blur", resetLetters);
+};
+
 const prepareTimelineWords = () => {
   const targets = document.querySelectorAll(
     ".experience-intro-text, .timeline-company, .timeline-role, .timeline-description, .timeline-date"
@@ -1718,6 +1810,7 @@ window.addEventListener("resize", () => {
 });
 prepareProfileTyping();
 updateHeroCard();
+initHeroLetterInteraction();
 initLandingEntrance();
 updateDarkRevealCurve();
 updateCreamExitCurve();

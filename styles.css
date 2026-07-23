@@ -350,10 +350,22 @@ body.is-spiral-active .nav-contact-arrow {
   will-change: transform, opacity, filter;
 }
 
+.hero-letter {
+  display: inline-block;
+  transform-origin: 50% 60%;
+  will-change: transform;
+}
+
 html.has-js:not(.landing-complete) .hero-word {
   opacity: 0.001;
   filter: blur(2px);
   transform: translate3d(0, 10px, 0);
+}
+
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .hero-letter {
+    transform: none !important;
+  }
 }
 
 .flip-stack {
