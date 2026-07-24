@@ -7,8 +7,8 @@
     <script>document.documentElement.classList.add("has-js");</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=101" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Science+Gothic:wght@500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=112" />
   </head>
   <body>
     <div class="cursor" aria-hidden="true"></div>
@@ -54,7 +54,7 @@
 
           <div class="hero-title" aria-label="Designer Who Codes">
             <span class="hero-title-line"><span class="hero-word">DESIGNER</span></span>
-            <span class="hero-title-line"><span class="hero-word">WHO</span> <span class="hero-word">CODES</span></span>
+            <span class="hero-title-line"><span class="hero-word">WHO</span> <span class="hero-word">CODES</span><span class="hero-title-caret" aria-hidden="true"></span></span>
           </div>
 
           <div class="hero-meta">
@@ -65,7 +65,7 @@
       </section>
 
       <section class="intro" id="about" data-nav-title="About Me">
-        <div class="section-heading">
+        <div class="section-heading code-section-heading" data-code-title="ABOUT ME" data-code-path="01 / about.js">
           <h2>Hello!</h2>
         </div>
         <div class="intro-portrait-slot" aria-hidden="true"></div>
@@ -111,7 +111,7 @@
       </section>
 
       <section class="project-showcase project-section project1" id="project1" aria-label="Project 1 fullscreen showcase" data-nav-title="Works">
-        <header class="section-title project-section-title">
+        <header class="section-title project-section-title code-section-heading" data-code-title="SELECTED WORK" data-code-path="02 / projects/index.js">
           <p>/My Works</p>
           <h2>기획부터 구현까지, 아이디어를 실제 경험으로 완성한 프로젝트입니다.</h2>
         </header>
@@ -126,7 +126,7 @@
 
       <section class="spiral-section project-section project2" id="project2" aria-label="Project 2 spiral works" data-nav-title="Works">
         <span class="section-anchor" id="spiral" aria-hidden="true"></span>
-        <header class="section-title project-section-title">
+        <header class="section-title project-section-title code-section-heading" data-code-title="CLONE LAB" data-code-path="03 / experiments/clone.js">
           <p>/Clone Coding</p>
           <h2>실제 웹사이트의 구조와 인터랙션을 분석하고 직접 재현하며 <strong>퍼블리싱과 인터랙션 구현 역량</strong>을 키웠습니다.</h2>
         </header>
@@ -143,23 +143,135 @@
         </div>
       </section>
 
+      <section class="alt-showcase project-section project3" id="project3" aria-label="Project case studies with device previews" data-nav-title="Works">
+        <header class="section-title code-section-heading" data-code-title="CASE STUDIES" data-code-path="03b / projects/cases.js">
+          <p>/Case Studies</p>
+          <h2>대표 프로젝트를 디바이스 목업과 함께 자세히 살펴보세요.</h2>
+        </header>
+
+        <div class="alt-list">
+          <article class="alt-item" id="alt-project-1">
+            <div class="alt-content">
+              <div class="alt-details">
+                <div class="alt-index" aria-hidden="true">
+                  <svg class="alt-wave" viewBox="0 0 90 16"><path d="M0,8 Q11,2 22,8 T44,8 T66,8 T88,8" /></svg>
+                  <span class="alt-index-number">01</span>
+                </div>
+                <h3 class="alt-title">Project One</h3>
+                <p class="alt-description">프로젝트 한 줄 설명이 들어가는 자리입니다.</p>
+                <a class="alt-button" href="#">
+                  <span>View project</span>
+                  <span class="alt-button-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M6 18 18 6M9 6h9v9" /></svg>
+                  </span>
+                </a>
+              </div>
+              <div class="alt-preview" data-loaded="false">
+                <canvas class="alt-canvas" data-alt-canvas data-device="laptop" data-screen-src="assets/project1/project-01.png"></canvas>
+              </div>
+            </div>
+          </article>
+
+          <article class="alt-item" data-alternate="true" id="alt-project-2">
+            <div class="alt-content">
+              <div class="alt-preview" data-loaded="false">
+                <canvas class="alt-canvas" data-alt-canvas data-device="phone" data-screen-src="assets/clone-coding/clone-01.png" data-screen-src-2="assets/clone-coding/clone-03.png"></canvas>
+              </div>
+              <div class="alt-details">
+                <div class="alt-index" aria-hidden="true">
+                  <svg class="alt-wave" viewBox="0 0 90 16"><path d="M0,8 Q11,2 22,8 T44,8 T66,8 T88,8" /></svg>
+                  <span class="alt-index-number">02</span>
+                </div>
+                <h3 class="alt-title">Project Two</h3>
+                <p class="alt-description">브랜드의 움직임을 디지털 경험으로 확장한 프로젝트입니다.</p>
+                <a class="alt-button" href="#">
+                  <span>View project</span>
+                  <span class="alt-button-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M6 18 18 6M9 6h9v9" /></svg>
+                  </span>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <article class="alt-item" id="alt-project-3">
+            <div class="alt-content">
+              <div class="alt-details">
+                <div class="alt-index" aria-hidden="true">
+                  <svg class="alt-wave" viewBox="0 0 90 16"><path d="M0,8 Q11,2 22,8 T44,8 T66,8 T88,8" /></svg>
+                  <span class="alt-index-number">03</span>
+                </div>
+                <h3 class="alt-title">Project Three</h3>
+                <p class="alt-description">복잡한 제품 흐름을 선명한 인터페이스로 정리했습니다.</p>
+                <a class="alt-button" href="#">
+                  <span>View project</span>
+                  <span class="alt-button-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false"><path d="M6 18 18 6M9 6h9v9" /></svg>
+                  </span>
+                </a>
+              </div>
+              <div class="alt-preview" data-loaded="false">
+                <canvas class="alt-canvas" data-alt-canvas data-device="laptop" data-screen-src="assets/clone-coding/clone-02.png"></canvas>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <section class="dark-reveal tools-content-section" id="tools" aria-label="Tools" data-nav-title="Tools">
-        <div class="tools-content">
-          <header class="section-title tools-head">
-            <p>/Skills &amp; Tools</p>
-            <h2>프로젝트와 클론코딩을 진행하며 익힌 기획부터 디자인, 개발, AI 활용까지 이어지는 기술과 도구입니다.</h2>
-          </header>
-          <div class="tool-row" data-tool-row="planning-design">
-            <div class="tool-track" data-tool-track data-direction="forward" aria-label="Planning and design tools"></div>
-          </div>
-          <div class="tool-row reverse" data-tool-row="development-ai">
-            <div class="tool-track" data-tool-track data-direction="reverse" aria-label="Development and AI tools"></div>
+        <header class="section-title tools-head code-section-heading" data-code-title="TOOLKIT" data-code-path="04 / skills/tools.js">
+          <p>/Skills &amp; Tools</p>
+          <h2>프로젝트와 클론코딩을 진행하며 익힌 기획부터 디자인, 개발, AI 활용까지 이어지는 기술과 도구입니다.</h2>
+        </header>
+
+        <div class="tools-pin-shell">
+          <div class="tools-pin-stage">
+            <div class="tools-card-rail" data-tool-col="left" aria-hidden="true"></div>
+
+            <div class="tools-center">
+              <h3 class="tools-center-title">SKILLS</h3>
+              <div class="tools-category-grid">
+                <div class="tools-category">
+                  <h4>DESIGN</h4>
+                  <ul>
+                    <li>Figma</li>
+                    <li>Blender</li>
+                  </ul>
+                </div>
+                <div class="tools-category">
+                  <h4>FRONTEND</h4>
+                  <ul>
+                    <li>HTML / CSS</li>
+                    <li>Vanilla JS</li>
+                    <li>Three.js</li>
+                    <li>GSAP</li>
+                    <li>jQuery</li>
+                    <li>React</li>
+                    <li>TypeScript</li>
+                    <li>Tailwind</li>
+                    <li>Git / GitHub</li>
+                    <li>Vercel</li>
+                  </ul>
+                </div>
+                <div class="tools-category">
+                  <h4>AI</h4>
+                  <ul>
+                    <li>OpenAI</li>
+                    <li>Gemini</li>
+                    <li>Anthropic</li>
+                    <li>Meshy AI</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="tools-card-rail" data-tool-col="right" aria-hidden="true"></div>
           </div>
         </div>
       </section>
 
       <section class="experience-section" id="services" aria-labelledby="experience-title" data-nav-title="History">
-        <header class="experience-intro section-title">
+        <header class="experience-intro section-title code-section-heading" data-code-title="JOURNEY" data-code-path="05 / history.log">
           <p>/History</p>
           <h3 id="experience-title"><span class="experience-intro-text">배우고, 만들며, 쌓아온 저의 타임라인을 소개합니다.</span></h3>
         </header>
@@ -243,7 +355,7 @@
 
       <section class="works history-cream-transition" data-nav-title="Contact" aria-hidden="true"></section>
 
-      <section class="contact" id="contact" data-nav-title="Contact">
+      <section class="contact code-section-heading" id="contact" data-nav-title="Contact" data-code-title="LET'S TALK" data-code-path="06 / contact.send()">
         <p>/Contact</p>
         <h2>Let’s talk.</h2>
         <a href="mailto:Mejed@Templyo.io">Mejed@Templyo.io</a>
@@ -251,9 +363,9 @@
     </main>
 
     <script src="assets/vendor/gsap.min.js"></script>
-    <script src="tools.js?v=13"></script>
+    <script src="tools.js?v=25"></script>
     <script src="assets/vendor/ScrollTrigger.min.js"></script>
     <script src="project-scroll.js?v=9"></script>
-    <script src="script.js?v=79"></script>
+    <script src="script.js?v=85"></script>
   </body>
 </html>

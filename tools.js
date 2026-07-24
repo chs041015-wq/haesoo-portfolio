@@ -1,61 +1,55 @@
-const TOOL_DATA = {
-  planningDesign: [
-    { name: "Figma", icon: "assets/tools/figma.png", level: "상", fillPercent: 90, desc: "와이어프레임부터 프로토타입까지 전 과정에 사용했습니다" },
-    { name: "Blender", icon: "assets/tools/blender.png", level: "중", fillPercent: 60, desc: "AI 스크립트를 통해\n 3D 애니메이션을 추가했습니다" },
-    { name: "HTML", icon: "assets/tools/html.png?v=2", level: "상", fillPercent: 90, desc: "시맨틱 마크업으로 접근성\n높은 구조를 만들었습니다" },
-    { name: "CSS", icon: "assets/tools/css.png?v=2", level: "상", fillPercent: 90, desc: "반응형 레이아웃과 스타일로 화면을 구현했습니다" },
-    { name: "Vanilla JS", icon: "assets/tools/vanilla-js.png", level: "상", fillPercent: 90, desc: "DOM API로 인터랙션 로직을 직접 설계했습니다" },
-    { name: "Three.js", icon: "assets/tools/three-js.png", level: "중상", fillPercent: 75, desc: "카메라, 조명, 지오메트리를\n다뤄 3D 씬을 구현했습니다" },
-    { name: "GSAP", icon: "assets/tools/gsap.png", level: "중상", fillPercent: 75, desc: "타임라인과 트리거로 정교한 스크롤 연출을 만들었습니다" },
-    { name: "jQuery", icon: "assets/tools/jquery.png", level: "중상", fillPercent: 75, desc: "셀렉터 기반으로 DOM을\n빠르게 제어했습니다" },
-    { name: "React", icon: "assets/tools/react.png", level: "중상", fillPercent: 75, desc: "재사용 가능한 컴포넌트와\n 상태 관리로 화면을 \n구조화했습니다" },
-  ],
-  developmentAi: [
-    { name: "TypeScript", icon: "assets/tools/typescript.png", level: "중상", fillPercent: 75, desc: "타입을 정의해 재사용 가능한 UI를 구축했습니다" },
-    { name: "Tailwind", icon: "assets/tools/tailwind.png", level: "중상", fillPercent: 75, desc: "디자인 토큰을 유틸리티 클래스로 빠르게 구현했습니다" },
-    { name: "Git/GitHub", icon: "assets/tools/git-github.png", level: "상", fillPercent: 90, desc: "브랜치 작업으로 팀 프로젝트를 \n효율적으로 진행하였습니다" },
-    { name: "Vercel", icon: "assets/tools/vercel.png", level: "상", fillPercent: 90, desc: "개인프로젝트, 팀프로젝트의 배포를 담당하였습니다" },
-    { name: "OpenAI", icon: "assets/tools/openai.png", level: "상", fillPercent: 90, desc: "기획, 코드 리뷰, 이미지 생성에 활용하였습니다" },
-    { name: "Gemini", icon: "assets/tools/gemini.png", level: "중", fillPercent: 60, desc: "리서치와 브레인스토밍을 \n그려나갑니다" },
-    { name: "Anthropic", icon: "assets/tools/anthropic.png", level: "상", fillPercent: 90, desc: "기획부터 코드까지 효율적인 작업을 진행하였습니다" },
-    { name: "Meshy AI", icon: "assets/tools/meshy-ai.png", level: "중", fillPercent: 60, desc: "3D 모델 생성으로 프로젝트 \n디자인에 가담했습니다" },
-  ],
-};
+const FEATURED_TOOLS = [
+  { name: "Figma", icon: "assets/tools/figma.png", level: "상", fillPercent: 90, desc: "와이어프레임부터 프로토타입까지 전 과정에 사용했습니다" },
+  { name: "Three.js", icon: "assets/tools/three-js.png", level: "중상", fillPercent: 75, desc: "카메라, 조명, 지오메트리를\n다뤄 3D 씬을 구현했습니다" },
+  { name: "GSAP", icon: "assets/tools/gsap.png", level: "중상", fillPercent: 75, desc: "타임라인과 트리거로 정교한 스크롤 연출을 만들었습니다" },
+  { name: "React", icon: "assets/tools/react.png", level: "중상", fillPercent: 75, desc: "재사용 가능한 컴포넌트와\n 상태 관리로 화면을 \n구조화했습니다" },
+  { name: "TypeScript", icon: "assets/tools/typescript.png", level: "중상", fillPercent: 75, desc: "타입을 정의해 재사용 가능한 UI를 구축했습니다" },
+  { name: "Anthropic", icon: "assets/tools/anthropic.png", level: "상", fillPercent: 90, desc: "기획부터 코드까지 효율적인 작업을 진행하였습니다" },
+  { name: "Blender", icon: "assets/tools/blender.png", level: "중", fillPercent: 60, desc: "AI 스크립트를 통해\n 3D 애니메이션을 추가했습니다" },
+  { name: "HTML", icon: "assets/tools/html.png?v=2", level: "상", fillPercent: 90, desc: "시맨틱 마크업으로 접근성\n높은 구조를 만들었습니다" },
+  { name: "CSS", icon: "assets/tools/css.png?v=2", level: "상", fillPercent: 90, desc: "반응형 레이아웃과 스타일로 화면을 구현했습니다" },
+];
 
-window.toolData = TOOL_DATA;
+window.toolData = FEATURED_TOOLS;
 
 (() => {
   const toolsSection = document.querySelector(".tools-content-section");
-  const gsap = window.gsap;
-  if (!toolsSection || !gsap) return;
+  const pinShell = toolsSection?.querySelector(".tools-pin-shell");
+  const pinStage = toolsSection?.querySelector(".tools-pin-stage");
+  if (!toolsSection || !pinShell || !pinStage) return;
 
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const mobileQuery = window.matchMedia("(max-width: 768px)");
+  const mobileQuery = window.matchMedia("(max-width: 1100px)");
   const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
-  const rowControllers = new Map();
-  let toolsInView = false;
-  let activeTouchItem = null;
 
-  const createToolItem = (tool, isClone) => {
-    const item = document.createElement("button");
-    item.className = "tool-item";
-    item.type = "button";
-    item.tabIndex = isClone ? -1 : 0;
-    item.dataset.level = tool.level;
-    item.dataset.fillPercent = String(tool.fillPercent);
-    item.dataset.desc = tool.desc;
-    item.style.setProperty("--fill-percent", tool.fillPercent);
-    item.setAttribute("aria-label", `${tool.name}. 숙련도 ${tool.level}. ${tool.desc}`);
-    item.setAttribute("aria-pressed", "false");
+  const createToolCard = (tool) => {
+    const card = document.createElement("div");
+    card.className = "tool-card";
+    card.style.setProperty("--fill-percent", tool.fillPercent);
 
-    const visual = document.createElement("span");
-    visual.className = "tool-item-visual";
+    const inner = document.createElement("div");
+    inner.className = "tool-card-inner";
 
+    const front = document.createElement("div");
+    front.className = "tool-card-face tool-card-front";
+
+    const iconWrap = document.createElement("span");
+    iconWrap.className = "tool-card-icon-wrap";
     const icon = document.createElement("img");
-    icon.className = "tool-item-icon";
+    icon.className = "tool-card-icon";
     icon.src = tool.icon;
     icon.alt = "";
     icon.setAttribute("aria-hidden", "true");
+    iconWrap.append(icon);
+
+    const name = document.createElement("span");
+    name.className = "tool-card-name";
+    name.textContent = tool.name;
+
+    front.append(iconWrap, name);
+
+    const back = document.createElement("div");
+    back.className = "tool-card-face tool-card-back";
 
     const svgNamespace = "http://www.w3.org/2000/svg";
     const progress = document.createElementNS(svgNamespace, "svg");
@@ -79,167 +73,131 @@ window.toolData = TOOL_DATA;
     fillCircle.setAttribute("stroke-linecap", "round");
 
     progress.append(trackCircle, fillCircle);
-    visual.append(icon, progress);
 
-    const copy = document.createElement("span");
-    copy.className = "tool-item-copy";
+    const level = document.createElement("span");
+    level.className = "tool-card-level";
+    level.textContent = `LV. ${tool.level}`;
 
-    const name = document.createElement("span");
-    name.className = "tool-item-name";
-    if (tool.name.length > 12) name.classList.add("is-long");
-    name.textContent = tool.name;
+    const desc = document.createElement("span");
+    desc.className = "tool-card-desc";
+    desc.textContent = tool.desc;
 
-    const description = document.createElement("span");
-    description.className = "tool-item-desc";
-    description.textContent = tool.desc;
+    back.append(progress, level, desc);
 
-    copy.append(name, description);
-    item.append(visual, copy);
-    return item;
+    inner.append(front, back);
+    card.append(inner);
+    return card;
   };
 
-  const createToolSet = (tools, isClone) => {
-    const set = document.createElement("div");
-    set.className = "tool-set";
-    if (isClone) set.setAttribute("aria-hidden", "true");
-    tools.forEach((tool) => set.append(createToolItem(tool, isClone)));
-    return set;
-  };
+  const leftRail = toolsSection.querySelector('[data-tool-col="left"]');
+  const rightRail = toolsSection.querySelector('[data-tool-col="right"]');
+  if (!leftRail || !rightRail) return;
 
-  const renderTrack = (track, tools) => {
-    const originalSet = createToolSet(tools, false);
-    const cloneSet = createToolSet(tools, true);
-    track.replaceChildren(originalSet, cloneSet);
+  const leftTools = FEATURED_TOOLS.filter((_, index) => index % 2 === 0);
+  const rightTools = FEATURED_TOOLS.filter((_, index) => index % 2 !== 0);
 
-    // Keep each half wider than the viewport so the looping seam never enters view.
-    const minimumSetWidth = window.innerWidth + 160;
-    let repetition = 1;
-    while (originalSet.getBoundingClientRect().width < minimumSetWidth && repetition < 8) {
-      tools.forEach((tool) => {
-        originalSet.append(createToolItem(tool, true));
-        cloneSet.append(createToolItem(tool, true));
+  // Left, right, left, right... one shared turn-taking sequence, so only a
+  // single card is "on" at a time and the two sides hand off in order.
+  const sequence = [];
+  const maxLen = Math.max(leftTools.length, rightTools.length);
+  for (let i = 0; i < maxLen; i += 1) {
+    if (leftTools[i]) sequence.push({ tool: leftTools[i], side: "left" });
+    if (rightTools[i]) sequence.push({ tool: rightTools[i], side: "right" });
+  }
+  const slotCount = sequence.length;
+
+  const buildRail = (rail, side) => {
+    rail.replaceChildren();
+    return sequence
+      .map((entry, slotIndex) => ({ ...entry, slotIndex }))
+      .filter((entry) => entry.side === side)
+      .map(({ tool, slotIndex }) => {
+        const card = createToolCard(tool);
+        const spread = (slotIndex + 0.5) / slotCount;
+        const topPercent = Math.min(Math.max(spread * 100, 44.5), 55.5);
+        card.style.top = `${topPercent.toFixed(2)}%`;
+        rail.append(card);
+        const center = Math.min(Math.max(spread, 0.06), 0.94);
+        return { card, center };
       });
-      repetition += 1;
+  };
+
+  const halfWindow = 0.1;
+
+  const leftEntries = buildRail(leftRail, "left");
+  const rightEntries = buildRail(rightRail, "right");
+  const allEntries = [...leftEntries, ...rightEntries];
+  const railHeights = new Map();
+
+  const measureRails = () => {
+    // Travel distance needs to clear the rail's own height so a card fully
+    // exits off-screen (top or bottom) rather than fading out mid-transit.
+    railHeights.set(leftRail, leftRail.getBoundingClientRect().height);
+    railHeights.set(rightRail, rightRail.getBoundingClientRect().height);
+  };
+
+  const applyMotion = (entries, rail, progress) => {
+    const riseDistance = (railHeights.get(rail) || 800) * 0.55;
+    entries.forEach(({ card, center }) => {
+      const localT = Math.max(Math.min((progress - center) / halfWindow, 1.3), -1.3);
+      const lift = -localT * riseDistance;
+      card.style.transform = `translateY(${lift.toFixed(2)}px)`;
+    });
+  };
+
+  const resetCardStyles = () => {
+    allEntries.forEach(({ card }) => {
+      card.style.transform = "";
+    });
+  };
+
+  let sectionInView = false;
+  let frame = null;
+
+  const paint = () => {
+    frame = null;
+    if (!sectionInView) return;
+
+    if (reducedMotionQuery.matches || mobileQuery.matches) {
+      resetCardStyles();
+      return;
     }
+
+    const rect = pinShell.getBoundingClientRect();
+    const scrollable = Math.max(rect.height - pinStage.offsetHeight, 1);
+    const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
+    applyMotion(leftEntries, leftRail, progress);
+    applyMotion(rightEntries, rightRail, progress);
   };
 
-  const planningTrack = toolsSection.querySelector('[data-tool-row="planning-design"] [data-tool-track]');
-  const developmentTrack = toolsSection.querySelector('[data-tool-row="development-ai"] [data-tool-track]');
-  if (!planningTrack || !developmentTrack) return;
-
-  renderTrack(planningTrack, TOOL_DATA.planningDesign);
-  renderTrack(developmentTrack, TOOL_DATA.developmentAi);
-
-  const getBaseTimeScale = () => {
-    if (reducedMotionQuery.matches) return 0;
-    return mobileQuery.matches ? 0.52 : 1;
+  const requestPaint = () => {
+    if (frame !== null) return;
+    frame = requestAnimationFrame(paint);
   };
 
-  toolsSection.querySelectorAll("[data-tool-track]").forEach((track) => {
-    const row = track.closest(".tool-row");
-    const isReverse = track.dataset.direction === "reverse";
-    gsap.set(track, { xPercent: isReverse ? -50 : 0, force3D: true });
-
-    const timeline = gsap.timeline({ repeat: -1, paused: true }).to(track, {
-      xPercent: isReverse ? 0 : -50,
-      duration: isReverse ? 38 : 34,
-      ease: "none",
-      force3D: true,
-    });
-
-    timeline.timeScale(getBaseTimeScale());
-    rowControllers.set(row, { timeline });
+  measureRails();
+  window.addEventListener("resize", () => {
+    measureRails();
+    requestPaint();
   });
-
-  const syncMarqueeVisibility = () => {
-    const speed = getBaseTimeScale();
-    rowControllers.forEach(({ timeline }) => {
-      timeline.timeScale(speed);
-      if (toolsInView && speed > 0) timeline.resume();
-      else timeline.pause();
-    });
-  };
-
-  const tweenRowSpeed = (row, shouldStop) => {
-    const controller = rowControllers.get(row);
-    if (!controller) return;
-    gsap.to(controller.timeline, {
-      timeScale: shouldStop ? 0 : getBaseTimeScale(),
-      duration: reducedMotionQuery.matches ? 0 : shouldStop ? 0.22 : 0.42,
-      ease: "power2.out",
-      overwrite: true,
-    });
-  };
-
-  const setItemActive = (item, active) => {
-    item.classList.toggle("is-active", active);
-    item.setAttribute("aria-pressed", String(active));
-  };
-
-  const usesTouchInteraction = () => mobileQuery.matches || coarsePointerQuery.matches;
-
-  toolsSection.querySelectorAll(".tool-item").forEach((item) => {
-    const row = item.closest(".tool-row");
-
-    item.addEventListener("pointerenter", () => {
-      if (usesTouchInteraction()) return;
-      tweenRowSpeed(row, true);
-    });
-
-    item.addEventListener("pointerleave", () => {
-      if (usesTouchInteraction()) return;
-      tweenRowSpeed(row, false);
-    });
-
-    item.addEventListener("focus", () => {
-      if (usesTouchInteraction()) return;
-      setItemActive(item, true);
-      tweenRowSpeed(row, true);
-    });
-
-    item.addEventListener("blur", () => {
-      if (usesTouchInteraction()) return;
-      setItemActive(item, false);
-      tweenRowSpeed(row, false);
-    });
-
-    item.addEventListener("click", () => {
-      if (!usesTouchInteraction()) return;
-      if (activeTouchItem && activeTouchItem !== item) {
-        setItemActive(activeTouchItem, false);
-        tweenRowSpeed(activeTouchItem.closest(".tool-row"), false);
-      }
-      const nextState = !item.classList.contains("is-active");
-      setItemActive(item, nextState);
-      tweenRowSpeed(row, nextState);
-      activeTouchItem = nextState ? item : null;
-    });
-  });
+  window.addEventListener("scroll", requestPaint, { passive: true });
 
   const visibilityObserver = new IntersectionObserver(
     ([entry]) => {
-      toolsInView = entry.isIntersecting;
-      syncMarqueeVisibility();
+      sectionInView = entry.isIntersecting;
+      if (sectionInView) requestPaint();
     },
     { rootMargin: "25% 0px", threshold: 0 }
   );
   visibilityObserver.observe(toolsSection);
 
-  const syncMotionMode = () => {
-    toolsSection.querySelectorAll(".tool-item.is-active").forEach((item) => setItemActive(item, false));
-    activeTouchItem = null;
-    syncMarqueeVisibility();
-  };
+  reducedMotionQuery.addEventListener("change", requestPaint);
+  mobileQuery.addEventListener("change", requestPaint);
 
-  reducedMotionQuery.addEventListener("change", syncMotionMode);
-  mobileQuery.addEventListener("change", syncMotionMode);
-
-  window.toolMarqueeController = {
-    data: TOOL_DATA,
-    pause: () => rowControllers.forEach(({ timeline }) => timeline.pause()),
-    resume: () => {
-      toolsInView = true;
-      syncMarqueeVisibility();
-    },
-  };
+  toolsSection.querySelectorAll(".tool-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      if (!coarsePointerQuery.matches) return;
+      card.classList.toggle("is-flipped");
+    });
+  });
 })();
