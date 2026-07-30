@@ -1,0 +1,15 @@
+[    3975ms] [WARNING] [GSI_LOGGER]: Your client application uses one of the Google One Tap prompt UI status methods that may stop functioning when FedCM becomes mandatory. Refer to the migration guide to update your code accordingly and opt-in to FedCM to test your changes. Learn more: https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#display_moment and https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#skipped_moment @ https://accounts.google.com/gsi/client:86
+[    3978ms] [ERROR] Not signed in with the identity provider. @ https://chatgpt.com/?utm_source=google&utm_medium=paid_search&utm_campaign=GOOG_C_SEM_GBR_Core_CHT_BAU_ACQ_PER_MIX_ALL_APAC_KR_KO_120624&c_id=21990694068&c_agid=183521100427&c_crid=793872436205&c_kwid=kwd-368538592&c_ims=&c_pms=9216652&c_nw=g&c_dvc=c&gad_source=1&gad_campaignid=21990694068&gbraid=0AAAAA-I0E5ctsve-y2ZQApte8wbbEId_z&gclid=EAIaIQobChMIrri109v5lQMVotQWBR0Pfzh2EAAYASAAEgKe6vD_BwE:0
+[    7149ms] [ERROR] [GSI_LOGGER]: FedCM get() rejects with AbortError: signal is aborted without reason @ https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:27
+[    7190ms] [ERROR] Qt: [@formatjs/intl Error MISSING_TRANSLATION] Missing message: "dynamicUsernameInput.email" for locale "ko-KR", using default message (Email address) as fallback.
+
+    at new Qt (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:20:79)
+    at nn (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:24:287)
+    at Vn (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:24:5318)
+    at Tt (https://chatgpt.com/cdn/assets/35711af7-jpbwsruvbi3mew3o.js:1:2417)
+    at Jo (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:36:48769)
+    at Vc (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:36:71461)
+    at ol (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:36:82112)
+    at Gd (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:36:126901)
+    at Wd (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:36:126874)
+    at Ud (https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:36:126733) @ https://chatgpt.com/cdn/assets/2340486e-cq9nrp99ol4x4jou.js:27

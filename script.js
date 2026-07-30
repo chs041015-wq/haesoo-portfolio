@@ -1,4 +1,4 @@
-const isFigmaCaptureMode = new URLSearchParams(window.location.search).get("figma-export") === "1";
+﻿const isFigmaCaptureMode = new URLSearchParams(window.location.search).get("figma-export") === "1";
 if (isFigmaCaptureMode) document.body.classList.add("is-figma-capture");
 
 const spiralProjectData = [
@@ -6,7 +6,7 @@ const spiralProjectData = [
     id: "project-one",
     number: "001",
     title: "Project One",
-    oneLiner: "프로젝트 한 줄 설명이 들어가는 자리입니다",
+    oneLiner: "기획 단계부터 참여해 WebGL 기반의 인터랙션과 디렉션을 완성했습니다.",
     role: "Creative Developer",
     year: "2026",
     keywords: ["WebGL", "Interaction", "Direction"],
@@ -17,7 +17,7 @@ const spiralProjectData = [
     id: "project-two",
     number: "002",
     title: "Project Two",
-    oneLiner: "브랜드의 움직임을 디지털 경험으로 확장한 프로젝트입니다",
+    oneLiner: "브랜드의 정체성을 모션과 웹 경험으로 확장한 프로젝트입니다.",
     role: "Art Direction",
     year: "2026",
     keywords: ["Identity", "Motion", "Web"],
@@ -28,7 +28,7 @@ const spiralProjectData = [
     id: "project-three",
     number: "003",
     title: "Project Three",
-    oneLiner: "복잡한 제품 흐름을 선명한 인터페이스로 정리했습니다",
+    oneLiner: "복잡한 제품 흐름을 직관적인 인터페이스로 정리했습니다.",
     role: "Product Designer",
     year: "2025",
     keywords: ["Product", "System", "Prototype"],
@@ -39,7 +39,7 @@ const spiralProjectData = [
     id: "project-four",
     number: "004",
     title: "Project Four",
-    oneLiner: "이미지와 타이포그래피가 반응하는 몰입형 웹 경험입니다",
+    oneLiner: "이미지와 타이포그래피가 반응하는 몰입형 웹 경험입니다.",
     role: "Frontend Developer",
     year: "2025",
     keywords: ["Creative Code", "3D", "Typography"],
@@ -50,7 +50,7 @@ const spiralProjectData = [
     id: "project-five",
     number: "005",
     title: "Project Five",
-    oneLiner: "콘텐츠 탐색을 새로운 리듬으로 설계한 포트폴리오입니다",
+    oneLiner: "콘텐츠의 흐름을 애니메이션 기반 인터랙션으로 설계했습니다.",
     role: "Design Engineer",
     year: "2024",
     keywords: ["Editorial", "Animation", "Experience"],
@@ -61,7 +61,7 @@ const spiralProjectData = [
     id: "project-six",
     number: "006",
     title: "Project Six",
-    oneLiner: "기존 웹 경험을 분석하고 인터랙션과 레이아웃을 재구현했습니다",
+    oneLiner: "기존 사이트의 구조와 인터랙션을 분석하고 다시 구현했습니다.",
     role: "Clone Coding",
     year: "2024",
     keywords: ["Rebuild", "Interaction", "Frontend"],
@@ -87,7 +87,6 @@ const creamProjectsSection = document.querySelector(".works");
 const aboutRevealItems = document.querySelectorAll(".about-text .word, .about-text-image");
 const projectShowcaseSection = document.querySelector(".project-showcase");
 const spiralSection = document.querySelector(".spiral-section");
-const altShowcaseSection = document.querySelector(".alt-showcase");
 const spiralStage = document.querySelector(".spiral-stage");
 const spiralScrollShell = document.querySelector(".spiral-scroll-shell");
 const spiralGrid = document.querySelector(".spiral-grid");
@@ -246,26 +245,30 @@ const typeHeroTitle = async () => {
   if (!letters.length) return;
 
   if (isFigmaCaptureMode || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    letters.forEach((letter) => letter.classList.add("is-typed"));
+    letters.forEach((letter) => {
+      letter.style.transform = "translate3d(0, 0, 0)";
+    });
     return;
   }
 
-  let skip = false;
-  const finishTyping = () => { skip = true; };
-  window.addEventListener("wheel", finishTyping, { passive: true, once: true });
-  window.addEventListener("pointerdown", finishTyping, { passive: true, once: true });
-  window.addEventListener("keydown", finishTyping, { once: true });
-
-  for (let index = 0; index < letters.length; index += 1) {
-    if (skip) {
-      letters.forEach((letter) => letter.classList.add("is-typed"));
-      break;
+  const animations = letters.map((letter, index) => letter.animate(
+    [
+      { transform: "translate3d(0, 180px, 0)" },
+      { transform: "translate3d(0, 0, 0)" },
+    ],
+    {
+      duration: 700,
+      delay: index * 35,
+      easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      fill: "forwards",
     }
-    letters[index].classList.add("is-typed");
-    await wait(index === 7 ? 180 : 55 + Math.random() * 45);
-  }
+  ));
 
-  await wait(skip ? 30 : 260);
+  await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
+  animations.forEach((animation) => {
+    animation.commitStyles?.();
+    animation.cancel();
+  });
 };
 
 const initLandingEntrance = async () => {
@@ -325,29 +328,28 @@ const initCodeSectionTitles = () => {
   headings.forEach((heading) => {
     if (heading.querySelector(":scope > .code-section-ui")) return;
 
-    const title = heading.dataset.codeTitle || "";
+    const title = (heading.dataset.codeTitle || "").trim();
     const ui = document.createElement("div");
     ui.className = "code-section-ui";
     ui.setAttribute("aria-hidden", "true");
 
-    const path = document.createElement("p");
-    path.className = "code-section-path";
-    path.textContent = heading.dataset.codePath || "";
-
     const displayTitle = document.createElement("div");
     displayTitle.className = "code-display-title";
 
-    [...title].forEach((character) => {
-      const letter = document.createElement("span");
-      letter.className = "code-display-letter";
-      letter.textContent = character === " " ? "\u00a0" : character;
-      displayTitle.appendChild(letter);
+    title.split(/\s+/).forEach((wordText, wordIndex, words) => {
+      const word = document.createElement("span");
+      word.className = "code-display-word";
+      [...wordText].forEach((character) => {
+        const letter = document.createElement("span");
+        letter.className = "code-display-letter";
+        letter.textContent = character;
+        word.appendChild(letter);
+      });
+      displayTitle.appendChild(word);
+      if (wordIndex < words.length - 1) displayTitle.append(" ");
     });
 
-    const caret = document.createElement("span");
-    caret.className = "code-display-caret";
-    displayTitle.appendChild(caret);
-    ui.append(path, displayTitle);
+    ui.append(displayTitle);
     heading.prepend(ui);
   });
 
@@ -355,16 +357,21 @@ const initCodeSectionTitles = () => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     headings.forEach((heading) => {
       const rect = heading.getBoundingClientRect();
-      const start = window.innerHeight * 0.88;
-      const end = window.innerHeight * 0.38;
+      // Measured from k-wu.com at 1440x900: the letters travel exactly
+      // 180px, starting near 78vh and settling near 16vh.
+      const start = window.innerHeight * 0.78;
+      const end = window.innerHeight * 0.16;
       const progress = reducedMotion ? 1 : clamp((start - rect.top) / Math.max(start - end, 1), 0, 1);
       const letters = [...heading.querySelectorAll(".code-display-letter")];
-      const visibleCount = Math.round(progress * letters.length);
-
       heading.style.setProperty("--code-title-progress", progress.toFixed(4));
-      letters.forEach((letter, index) => letter.classList.toggle("is-typed", index < visibleCount));
-      const caret = heading.querySelector(".code-display-caret");
-      if (caret) caret.style.opacity = progress >= 1 ? "0" : "1";
+      const lastIndex = Math.max(letters.length - 1, 1);
+      letters.forEach((letter, index) => {
+        const delay = (index / lastIndex) * 0.27;
+        const localProgress = clamp((progress - delay) / Math.max(1 - delay, 0.01), 0, 1);
+        const easedProgress = 1 - (1 - localProgress) ** 2;
+        const travel = reducedMotion ? 0 : 180 * (1 - easedProgress);
+        letter.style.transform = `translate3d(0, ${travel.toFixed(3)}px, 0)`;
+      });
 
       if (heading.classList.contains("project-section-title")) {
         const exitProgress = reducedMotion
@@ -492,38 +499,6 @@ const initHeroLetterInteraction = () => {
 
   heroTitle.addEventListener("pointerleave", resetLetters);
   window.addEventListener("blur", resetLetters);
-};
-
-const initSectionDecorations = () => {
-  const sections = [
-    { selector: ".hero", left: "LANDING", right: "PORTFOLIO · 2026", theme: "light" },
-    { selector: ".intro", left: "PROFILE", right: "ABOUT ME", theme: "light" },
-    { selector: ".tools-marquee", left: "PHILOSOPHY", right: "DESIGN + CODE", theme: "light" },
-    { selector: ".project1", left: "SELECTED WORK", right: "PROJECTS", theme: "dark" },
-    { selector: ".project2", left: "STUDIES", right: "CLONE CODING", theme: "dark" },
-    { selector: ".project3", left: "CASE STUDIES", right: "DEVICE PREVIEW", theme: "dark" },
-    { selector: ".tools-content-section", left: "CAPABILITIES", right: "SKILLS + TOOLS", theme: "dark" },
-    { selector: ".experience-section", left: "JOURNEY", right: "HISTORY", theme: "dark" },
-    { selector: ".contact", left: "GET IN TOUCH", right: "AVAILABLE FOR WORK", theme: "light" },
-  ];
-
-  sections.forEach(({ selector, left, right, theme }) => {
-    const section = document.querySelector(selector);
-    if (!section || section.querySelector(":scope > .section-decor")) return;
-
-    section.classList.add("section-decorated");
-    section.dataset.decorTheme = theme;
-
-    const decor = document.createElement("div");
-    decor.className = "section-decor";
-    decor.setAttribute("aria-hidden", "true");
-    decor.innerHTML = `
-      <span class="section-decor-grid"></span>
-      <span class="section-decor-label section-decor-label-left">${left}</span>
-      <span class="section-decor-label section-decor-label-right">${right}</span>
-    `;
-    section.appendChild(decor);
-  });
 };
 
 const prepareTimelineWords = () => {
@@ -890,7 +865,7 @@ const updateAboutRevealText = () => {
 };
 
 const updateSpiralNavState = () => {
-  const darkSections = [projectShowcaseSection, spiralSection, altShowcaseSection, toolContentSection, experienceSection].filter(Boolean);
+  const darkSections = [projectShowcaseSection, spiralSection, toolContentSection, experienceSection].filter(Boolean);
   if (!darkSections.length) return;
 
   const isActive = darkSections.some((section) => {
@@ -1952,7 +1927,6 @@ window.addEventListener("resize", () => {
   requestHeroCardUpdate();
 });
 prepareProfileTyping();
-initSectionDecorations();
 initCodeSectionTitles();
 updateHeroCard();
 initHeroLetterInteraction();
@@ -1997,356 +1971,324 @@ const observer = new IntersectionObserver(
 
 revealTargets.forEach((target) => observer.observe(target));
 
-const altItems = [...document.querySelectorAll(".alt-item")];
-const altCanvases = [...document.querySelectorAll("[data-alt-canvas]")];
+const playgroundImages = [
+  "assets/project1/project-01.png",
+  "assets/clone-coding/clone-01.png",
+  "assets/clone-coding/clone-02.png",
+  "assets/clone-coding/clone-03.png",
+  "assets/clone-coding/clone-04.png",
+  "assets/clone-coding/clone-05.png",
+  "assets/clone-coding/clone-06.png",
+];
 
-if (altItems.length && "IntersectionObserver" in window) {
-  const altRevealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("is-inview");
-      });
-    },
-    { threshold: 0.22 }
-  );
-  altItems.forEach((item) => altRevealObserver.observe(item));
-} else {
-  altItems.forEach((item) => item.classList.add("is-inview"));
-}
+// Small alternating jitter so the row reads as a hand-pinned strip of photos rather than a rigid grid.
+const playgroundRotations = [-4, 2, -3, 5, 1, -4, 3, -2, 0, 4, -2, 3];
 
-const createRoundedRectShape = (THREE, w, h, r) => {
-  const shape = new THREE.Shape();
-  const x = -w / 2;
-  const y = -h / 2;
-  shape.moveTo(x, y + r);
-  shape.lineTo(x, y + h - r);
-  shape.quadraticCurveTo(x, y + h, x + r, y + h);
-  shape.lineTo(x + w - r, y + h);
-  shape.quadraticCurveTo(x + w, y + h, x + w, y + h - r);
-  shape.lineTo(x + w, y + r);
-  shape.quadraticCurveTo(x + w, y, x + w - r, y);
-  shape.lineTo(x + r, y);
-  shape.quadraticCurveTo(x, y, x, y + r);
-  return shape;
-};
+const initPlaygroundScroll = () => {
+  const track = document.querySelector("#playground-scroll");
+  const camera = document.querySelector("#playground-camera");
+  const row = document.querySelector("#playground-row");
+  if (!track || !camera || !row) return;
 
-const createRoundedPanel = (THREE, w, h, r, depth, material) => {
-  const shape = createRoundedRectShape(THREE, w, h, r);
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth,
-    bevelEnabled: true,
-    bevelThickness: 0.008,
-    bevelSize: 0.008,
-    bevelSegments: 2,
-    curveSegments: 8,
-  });
-  geometry.translate(0, 0, -depth / 2);
-  const mesh = new THREE.Mesh(geometry, material);
-  geometry.computeBoundingBox();
-  mesh.userData.frontZ = geometry.boundingBox.max.z;
-  return mesh;
-};
+  const cardCount = 12;
+  for (let index = 0; index < cardCount; index += 1) {
+    const card = document.createElement("div");
+    card.className = "playground-card";
+    card.style.setProperty("--playground-rotate", `${playgroundRotations[index % playgroundRotations.length]}deg`);
 
-const buildScreenCanvas = (image, aspectW, aspectH, withNotch) => {
-  const w = 640;
-  const h = Math.round((w * aspectH) / aspectW);
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  const r = Math.min(w, h) * 0.07;
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.arcTo(w, 0, w, h, r);
-  ctx.arcTo(w, h, 0, h, r);
-  ctx.arcTo(0, h, 0, 0, r);
-  ctx.arcTo(0, 0, w, 0, r);
-  ctx.closePath();
-  ctx.save();
-  ctx.clip();
-  const imgAspect = image.width / image.height;
-  const boxAspect = w / h;
-  let dw, dh, dx, dy;
-  if (imgAspect > boxAspect) {
-    dh = h;
-    dw = h * imgAspect;
-    dx = (w - dw) / 2;
-    dy = 0;
-  } else {
-    dw = w;
-    dh = w / imgAspect;
-    dx = 0;
-    dy = (h - dh) / 2;
-  }
-  ctx.drawImage(image, dx, dy, dw, dh);
-  ctx.restore();
-  if (withNotch) {
-    const notchW = w * 0.34;
-    const notchH = h * 0.026;
-    const notchR = notchH / 2;
-    const nx = (w - notchW) / 2;
-    const ny = h * 0.016;
-    ctx.fillStyle = "#0a0a0a";
-    ctx.beginPath();
-    ctx.moveTo(nx + notchR, ny);
-    ctx.arcTo(nx + notchW, ny, nx + notchW, ny + notchH, notchR);
-    ctx.arcTo(nx + notchW, ny + notchH, nx, ny + notchH, notchR);
-    ctx.arcTo(nx, ny + notchH, nx, ny, notchR);
-    ctx.arcTo(nx, ny, nx + notchW, ny, notchR);
-    ctx.closePath();
-    ctx.fill();
-  }
-  return canvas;
-};
+    const img = document.createElement("img");
+    img.src = playgroundImages[index % playgroundImages.length];
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
 
-const applyScreenTexture = (THREE, screenMat, image, aspectW, aspectH, withNotch) => {
-  const canvas = buildScreenCanvas(image, aspectW, aspectH, withNotch);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.needsUpdate = true;
-  screenMat.map = texture;
-  screenMat.color.set(0xffffff);
-  screenMat.needsUpdate = true;
-};
-
-const setupAltDevice = (THREE, textureLoader, canvas) => {
-  const wrap = canvas.closest(".alt-preview");
-  const target = wrap || canvas;
-  const device = canvas.dataset.device === "phone" ? "phone" : "laptop";
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setClearColor(0x000000, 0);
-
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x0c0c0c, 1.15));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 0.85);
-  keyLight.position.set(2.4, 3.2, 3.6);
-  scene.add(keyLight);
-
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.32, metalness: 0.5 });
-  const group = new THREE.Group();
-  const pendingTextures = [];
-  let lidPivot = null;
-  let laptopScreenMesh = null;
-  const hingeOpenX = -0.13;
-  const hingeClosedX = hingeOpenX + Math.PI / 2;
-
-  if (device === "phone") {
-    const phoneW = 1.0;
-    const phoneH = 2.05;
-    const phoneR = 0.16;
-    const phoneDepth = 0.09;
-    const screenInset = 0.07;
-
-    const buildPhone = (screenMat) => {
-      const phoneGroup = new THREE.Group();
-      const body = createRoundedPanel(THREE, phoneW, phoneH, phoneR, phoneDepth, bodyMat);
-      phoneGroup.add(body);
-      const screenMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(phoneW - screenInset, phoneH - screenInset),
-        screenMat
-      );
-      screenMesh.position.z = body.userData.frontZ + 0.006;
-      phoneGroup.add(screenMesh);
-      return phoneGroup;
-    };
-
-    const backScreenMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.DoubleSide });
-    const backPhone = buildPhone(backScreenMat);
-    backPhone.position.set(-0.3, 0.13, -0.32);
-    backPhone.rotation.y = -0.14;
-    backPhone.rotation.z = 0.02;
-    backPhone.scale.setScalar(0.8);
-    group.add(backPhone);
-
-    const frontScreenMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.DoubleSide });
-    const frontPhone = buildPhone(frontScreenMat);
-    frontPhone.position.set(0.26, -0.19, 0.18);
-    frontPhone.rotation.y = 0.09;
-    frontPhone.rotation.z = -0.015;
-    frontPhone.scale.setScalar(0.86);
-    group.add(frontPhone);
-
-    pendingTextures.push(
-      { mat: backScreenMat, src: canvas.dataset.screenSrc, w: phoneW - screenInset, h: phoneH - screenInset },
-      {
-        mat: frontScreenMat,
-        src: canvas.dataset.screenSrc2 || canvas.dataset.screenSrc,
-        w: phoneW - screenInset,
-        h: phoneH - screenInset,
-      }
-    );
-
-    camera.position.set(0, 0, 5.2);
-    camera.lookAt(0, -0.02, 0);
-  } else {
-    const bezelW = 2.6;
-    const bezelH = 1.6;
-    const bezelR = 0.09;
-    const bezelDepth = 0.08;
-    const screenInset = 0.14;
-
-    lidPivot = new THREE.Group();
-    lidPivot.position.set(0, -0.66, -0.06);
-    lidPivot.rotation.x = hingeClosedX;
-    group.add(lidPivot);
-
-    const lid = createRoundedPanel(THREE, bezelW, bezelH, bezelR, bezelDepth, bodyMat);
-    lid.position.set(0, 0.81, -0.34);
-    lidPivot.add(lid);
-
-    const screenMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, transparent: true });
-    const screenMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(bezelW - screenInset, bezelH - screenInset),
-      screenMat
-    );
-    screenMesh.position.set(0, 0, lid.userData.frontZ + 0.006);
-    lid.add(screenMesh);
-    laptopScreenMesh = screenMesh;
-
-    const deck = new THREE.Mesh(new THREE.BoxGeometry(2.66, 0.08, 1.55), bodyMat);
-    deck.position.set(0, -0.72, 0.32);
-    deck.rotation.x = -0.13;
-    group.add(deck);
-
-    const trackpad = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.56, 0.38),
-      new THREE.MeshStandardMaterial({ color: 0x242424, roughness: 0.5, metalness: 0.2 })
-    );
-    trackpad.rotation.x = -Math.PI / 2 - 0.13;
-    trackpad.position.set(0, -0.678, 0.62);
-    group.add(trackpad);
-
-    pendingTextures.push({
-      mat: screenMat,
-      src: canvas.dataset.screenSrc,
-      w: bezelW - screenInset,
-      h: bezelH - screenInset,
-    });
-
-    group.scale.setScalar(1.3);
-    camera.position.set(0, 0.34, 4.9);
-    camera.lookAt(0, -0.02, 0);
+    card.appendChild(img);
+    row.appendChild(card);
   }
 
-  scene.add(group);
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) {
+    track.style.height = "100vh";
+    return;
+  }
 
-  pendingTextures.forEach(({ mat, src, w, h }) => {
-    if (!src) return;
-    textureLoader
-      .loadAsync(src)
-      .then((texture) => {
-        applyScreenTexture(THREE, mat, texture.image, w, h, device === "phone");
-        wrap?.setAttribute("data-loaded", "true");
-      })
-      .catch(() => {});
-  });
+  let maxShift = 0;
+  let ticking = false;
 
-  const resize = () => {
-    const rect = target.getBoundingClientRect();
-    const width = Math.max(rect.width, 1);
-    const height = Math.max(rect.height, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+  const measure = () => {
+    maxShift = Math.max(0, row.scrollWidth - camera.clientWidth);
+    track.style.height = `${window.innerHeight + maxShift}px`;
   };
-  resize();
-  if ("ResizeObserver" in window) new ResizeObserver(resize).observe(target);
-  else window.addEventListener("resize", resize);
 
-  let targetTiltX = 0;
-  let targetTiltY = 0;
-  target.addEventListener("pointermove", (event) => {
-    const rect = target.getBoundingClientRect();
-    const nx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const ny = ((event.clientY - rect.top) / rect.height) * 2 - 1;
-    targetTiltY = nx * 0.22;
-    targetTiltX = ny * -0.14;
+  const applyScroll = () => {
+    ticking = false;
+    const trackTop = track.getBoundingClientRect().top + window.scrollY;
+    const progress = maxShift <= 0
+      ? 0
+      : clamp((window.scrollY - trackTop) / maxShift, 0, 1);
+    row.style.transform = `translate3d(${(-progress * maxShift).toFixed(2)}px, 0, 0)`;
+  };
+
+  const requestScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(applyScroll);
+  };
+
+  const images = [...row.querySelectorAll("img")];
+  let loadedCount = 0;
+  const onImageSettled = () => {
+    loadedCount += 1;
+    if (loadedCount === images.length) {
+      measure();
+      requestScroll();
+    }
+  };
+  images.forEach((img) => {
+    if (img.complete) onImageSettled();
+    else {
+      img.addEventListener("load", onImageSettled, { once: true });
+      img.addEventListener("error", onImageSettled, { once: true });
+    }
   });
-  target.addEventListener("pointerleave", () => {
-    targetTiltX = 0;
-    targetTiltY = 0;
+
+  measure();
+  window.addEventListener("scroll", requestScroll, { passive: true });
+  window.addEventListener("resize", () => {
+    measure();
+    requestScroll();
+  });
+  requestScroll();
+};
+
+initPlaygroundScroll();
+
+const openChatbot = () => {
+  // Stub — wire up the real chat panel later.
+  console.log("open chatbot");
+};
+
+const initHeroBuddy = () => {
+  const buddy = document.querySelector("#hero-buddy");
+  const heroSection = document.querySelector("#home");
+  const footerSection = document.querySelector("#contact");
+  const legLeft = buddy?.querySelector(".buddy-leg-left");
+  const legRight = buddy?.querySelector(".buddy-leg-right");
+  if (!buddy || !heroSection || !footerSection) return;
+
+  const BUDDY_W = 88;
+  const BUDDY_H = 120;
+  const MARGIN = 32;
+  const DOCK_MARGIN = 28;
+  const MAX_SPEED = 480; // px/s, cruising speed across long distances
+  const DECEL_DISTANCE = 160; // ease out once within this many px of the target
+  const KEY_STEP = 46;
+
+  let mode = "hero-roam"; // "hero-roam" | "docked" | "footer-roam"
+  let heroVisible = true;
+  let footerVisible = false;
+  let x = 0;
+  let y = 0;
+  let targetX = 0;
+  let targetY = 0;
+  let facing = 1;
+  let facingScale = 1;
+  let currentSpeed = 0;
+  let walkPhase = 0;
+  let bob = 0;
+  let reactionTimer = null;
+  let blinkTimer = null;
+  let isFallen = false;
+  let fallDirection = 0;
+  let fallRotation = 0;
+
+  const groundYFor = (rect) => {
+    const visibleTop = Math.max(rect.top, 0);
+    const visibleBottom = Math.min(rect.bottom, window.innerHeight);
+    const ground = visibleBottom - MARGIN - BUDDY_H;
+    return Math.max(ground, visibleTop + MARGIN);
+  };
+
+  const heroBounds = () => {
+    const rect = heroSection.getBoundingClientRect();
+    return {
+      minX: rect.left + MARGIN,
+      maxX: rect.right - MARGIN - BUDDY_W,
+      y: groundYFor(rect),
+    };
+  };
+
+  const footerBounds = () => {
+    const rect = footerSection.getBoundingClientRect();
+    return {
+      minX: rect.left + MARGIN,
+      maxX: rect.right - MARGIN - BUDDY_W,
+      y: groundYFor(rect),
+    };
+  };
+
+  const dockPoint = () => ({
+    x: window.innerWidth - DOCK_MARGIN - BUDDY_W,
+    y: window.innerHeight - DOCK_MARGIN - BUDDY_H,
   });
 
-  const baseRotationY = device === "phone" ? 0 : 0.06;
-  let currentTiltX = 0;
-  let currentTiltY = 0;
-  let currentLidProgress = 0;
-  let rafId = null;
-  let inView = false;
-  const clock = new THREE.Clock();
+  const resolveMode = () => {
+    const next = heroVisible ? "hero-roam" : footerVisible ? "footer-roam" : "docked";
+    if (next === mode) return;
+    mode = next;
+    buddy.dataset.mode = mode;
+    if (mode === "docked") {
+      const dock = dockPoint();
+      targetX = dock.x;
+      targetY = dock.y;
+    } else {
+      const bounds = mode === "hero-roam" ? heroBounds() : footerBounds();
+      targetX = clamp(targetX, bounds.minX, bounds.maxX);
+      targetY = bounds.y;
+    }
+  };
 
-  const render = () => {
-    const t = clock.getElapsedTime();
-    currentTiltX += (targetTiltX - currentTiltX) * 0.08;
-    currentTiltY += (targetTiltY - currentTiltY) * 0.08;
-    group.rotation.y = baseRotationY + Math.sin(t * 0.55) * 0.1 + currentTiltY;
-    group.rotation.x = currentTiltX;
-    group.position.y = Math.sin(t * 0.85) * 0.035;
+  const triggerReaction = (name) => {
+    buddy.dataset.reaction = name;
+    window.clearTimeout(reactionTimer);
+    reactionTimer = window.setTimeout(() => {
+      buddy.dataset.reaction = "";
+    }, 280);
+  };
 
-    if (lidPivot) {
-      const rect = target.getBoundingClientRect();
-      const start = window.innerHeight * 0.92;
-      const end = window.innerHeight * 0.4;
-      const openTarget = clamp((start - rect.top) / Math.max(start - end, 1), 0, 1);
-      currentLidProgress += (openTarget - currentLidProgress) * 0.06;
-      lidPivot.rotation.x = hingeClosedX + (hingeOpenX - hingeClosedX) * currentLidProgress;
+  const triggerFall = (direction) => {
+    if (isFallen) return;
+    isFallen = true;
+    fallDirection = direction;
+    buddy.classList.add("is-fallen");
+    triggerReaction("down");
+    window.setTimeout(() => {
+      isFallen = false;
+      buddy.classList.remove("is-fallen");
+    }, 1100);
+  };
 
-      if (laptopScreenMesh) {
-        const screenOpacity = clamp((currentLidProgress - 0.62) / 0.2, 0, 1);
-        laptopScreenMesh.visible = screenOpacity > 0.01;
-        laptopScreenMesh.material.opacity = screenOpacity;
+  const scheduleBlink = () => {
+    window.clearTimeout(blinkTimer);
+    blinkTimer = window.setTimeout(() => {
+      if (!buddy.dataset.reaction) {
+        buddy.classList.add("is-blinking");
+        window.setTimeout(() => buddy.classList.remove("is-blinking"), 140);
       }
+      scheduleBlink();
+    }, 2400 + Math.random() * 2600);
+  };
+
+  const initialBounds = heroBounds();
+  x = targetX = (initialBounds.minX + initialBounds.maxX) / 2;
+  y = targetY = initialBounds.y;
+  buddy.style.transform = `translate3d(${x}px, ${y}px, 0) scaleX(${facing})`;
+  scheduleBlink();
+
+  new IntersectionObserver(([entry]) => {
+    heroVisible = entry.isIntersecting;
+    resolveMode();
+  }, { threshold: 0.35 }).observe(heroSection);
+
+  new IntersectionObserver(([entry]) => {
+    footerVisible = entry.isIntersecting;
+    resolveMode();
+  }, { threshold: 0.35 }).observe(footerSection);
+
+  window.addEventListener("keydown", (event) => {
+    if (mode === "docked" || isFallen) return;
+    const bounds = mode === "hero-roam" ? heroBounds() : footerBounds();
+
+    if (event.key === "ArrowLeft") {
+      const desired = targetX - KEY_STEP;
+      if (desired < bounds.minX && Math.abs(targetX - bounds.minX) < 0.5) {
+        triggerFall(-1);
+      } else {
+        targetX = clamp(desired, bounds.minX, bounds.maxX);
+        facing = -1;
+      }
+    } else if (event.key === "ArrowRight") {
+      const desired = targetX + KEY_STEP;
+      if (desired > bounds.maxX && Math.abs(targetX - bounds.maxX) < 0.5) {
+        triggerFall(1);
+      } else {
+        targetX = clamp(desired, bounds.minX, bounds.maxX);
+        facing = 1;
+      }
+    } else if (event.key === "ArrowUp") {
+      triggerReaction("up");
+    } else if (event.key === "ArrowDown") {
+      triggerReaction("down");
+    } else {
+      return;
+    }
+    event.preventDefault();
+  });
+
+  buddy.addEventListener("click", openChatbot);
+
+  window.addEventListener("resize", resolveMode);
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let lastTime = performance.now();
+
+  const tick = (now) => {
+    const dt = Math.min(64, now - lastTime) / 1000;
+    lastTime = now;
+
+    if (mode !== "docked" && !isFallen) {
+      const bounds = mode === "hero-roam" ? heroBounds() : footerBounds();
+      targetY = bounds.y;
+      targetX = clamp(targetX, bounds.minX, bounds.maxX);
     }
 
-    renderer.render(scene, camera);
-    if (inView) rafId = requestAnimationFrame(render);
+    const dx = targetX - x;
+    const dy = targetY - y;
+    const distance = isFallen ? 0 : Math.hypot(dx, dy);
+
+    if (distance > 0.5) {
+      const desiredSpeed = distance < DECEL_DISTANCE
+        ? MAX_SPEED * Math.pow(distance / DECEL_DISTANCE, 0.6)
+        : MAX_SPEED;
+      currentSpeed += (desiredSpeed - currentSpeed) * Math.min(1, dt * 6);
+      const step = Math.min(distance, Math.max(currentSpeed, 12) * dt);
+      x += (dx / distance) * step;
+      y += (dy / distance) * step;
+      if (Math.abs(dx) > 1) facing = dx > 0 ? 1 : -1;
+      walkPhase += currentSpeed * dt * 0.045;
+      bob = Math.abs(Math.sin(walkPhase)) * 5;
+      buddy.classList.add("is-walking");
+    } else {
+      if (!isFallen) {
+        x = targetX;
+        y = targetY;
+      }
+      currentSpeed = 0;
+      walkPhase = 0;
+      bob += (0 - bob) * Math.min(1, dt * 8);
+      buddy.classList.remove("is-walking");
+    }
+
+    facingScale += (facing - facingScale) * Math.min(1, dt * 9);
+    const lean = facingScale * Math.min(currentSpeed / MAX_SPEED, 1) * 6;
+
+    const fallTarget = isFallen ? fallDirection * 82 : 0;
+    fallRotation += (fallTarget - fallRotation) * Math.min(1, dt * (isFallen ? 12 : 7));
+    buddy.style.transformOrigin = fallDirection >= 0 ? "18% 100%" : "82% 100%";
+
+    if (legLeft && legRight) {
+      const swing = isFallen ? 0 : Math.sin(walkPhase) * 20;
+      legLeft.style.transform = `rotate(${swing.toFixed(2)}deg)`;
+      legRight.style.transform = `rotate(${(-swing).toFixed(2)}deg)`;
+    }
+
+    buddy.style.transform = `translate3d(${x.toFixed(2)}px, ${(y - bob).toFixed(2)}px, 0) scaleX(${facingScale.toFixed(3)}) rotate(${(lean + fallRotation).toFixed(2)}deg)`;
+    requestAnimationFrame(tick);
   };
 
-  new IntersectionObserver(
-    ([entry]) => {
-      const wasInView = inView;
-      inView = entry.isIntersecting;
-      if (inView && !wasInView && rafId === null) render();
-      if (!inView && rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-    },
-    { rootMargin: "10% 0px", threshold: 0 }
-  ).observe(target);
+  requestAnimationFrame(tick);
 };
 
-let altShowcaseInitialized = false;
-const initAltShowcase = async () => {
-  if (altShowcaseInitialized || !altCanvases.length) return;
-  altShowcaseInitialized = true;
-  try {
-    const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
-    const textureLoader = new THREE.TextureLoader();
-    altCanvases.forEach((canvas) => setupAltDevice(THREE, textureLoader, canvas));
-  } catch (error) {
-    console.error("Alt showcase Three.js failed to initialize", error);
-  }
-};
+initHeroBuddy();
 
-if (altShowcaseSection && altCanvases.length) {
-  if (isFigmaCaptureMode) {
-    initAltShowcase();
-  } else if ("IntersectionObserver" in window) {
-    const altInitObserver = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        altInitObserver.disconnect();
-        initAltShowcase();
-      },
-      { rootMargin: "1200px 0px", threshold: 0 }
-    );
-    altInitObserver.observe(altShowcaseSection);
-  } else {
-    initAltShowcase();
-  }
-}
