@@ -46,33 +46,32 @@ window.toolData = FEATURED_TOOLS;
     name.className = "tool-card-name";
     name.textContent = tool.name;
 
-    front.append(iconWrap, name);
-
     const back = document.createElement("div");
     back.className = "tool-card-face tool-card-back";
 
     const svgNamespace = "http://www.w3.org/2000/svg";
     const progress = document.createElementNS(svgNamespace, "svg");
     progress.classList.add("tool-progress");
-    progress.setAttribute("viewBox", "0 0 104 104");
+    progress.setAttribute("viewBox", "0 0 110 110");
     progress.setAttribute("aria-hidden", "true");
 
     const trackCircle = document.createElementNS(svgNamespace, "circle");
     trackCircle.classList.add("tool-progress-track");
-    trackCircle.setAttribute("cx", "52");
-    trackCircle.setAttribute("cy", "52");
-    trackCircle.setAttribute("r", "46");
+    trackCircle.setAttribute("cx", "55");
+    trackCircle.setAttribute("cy", "55");
+    trackCircle.setAttribute("r", "52.5");
     trackCircle.setAttribute("pathLength", "100");
 
     const fillCircle = document.createElementNS(svgNamespace, "circle");
     fillCircle.classList.add("tool-progress-fill");
-    fillCircle.setAttribute("cx", "52");
-    fillCircle.setAttribute("cy", "52");
-    fillCircle.setAttribute("r", "46");
+    fillCircle.setAttribute("cx", "55");
+    fillCircle.setAttribute("cy", "55");
+    fillCircle.setAttribute("r", "52.5");
     fillCircle.setAttribute("pathLength", "100");
     fillCircle.setAttribute("stroke-linecap", "round");
 
     progress.append(trackCircle, fillCircle);
+    front.append(progress, name);
 
     const level = document.createElement("span");
     level.className = "tool-card-level";
@@ -82,7 +81,7 @@ window.toolData = FEATURED_TOOLS;
     desc.className = "tool-card-desc";
     desc.textContent = tool.desc;
 
-    back.append(progress, level, desc);
+    back.append(iconWrap, desc);
 
     inner.append(front, back);
     card.append(inner);
@@ -118,7 +117,7 @@ window.toolData = FEATURED_TOOLS;
         card.style.top = `${topPercent.toFixed(2)}%`;
         rail.append(card);
         const center = Math.min(Math.max(spread, 0.06), 0.94);
-        return { card, center };
+        return { card, center, tool };
       });
   };
 
@@ -127,7 +126,24 @@ window.toolData = FEATURED_TOOLS;
   const leftEntries = buildRail(leftRail, "left");
   const rightEntries = buildRail(rightRail, "right");
   const allEntries = [...leftEntries, ...rightEntries];
+  const toolListItems = [...toolsSection.querySelectorAll(".tools-category li")];
   const railHeights = new Map();
+
+  const getListLabel = (toolName) => {
+    if (toolName === "HTML" || toolName === "CSS") return "HTML / CSS";
+    return toolName;
+  };
+
+  const updateActiveToolLabel = (progress) => {
+    const activeEntry = allEntries
+      .filter(({ center }) => progress > center - halfWindow * 0.35)
+      .sort((a, b) => b.center - a.center)[0];
+    const activeLabel = activeEntry ? getListLabel(activeEntry.tool.name) : "";
+
+    toolListItems.forEach((item) => {
+      item.classList.toggle("is-active-tool", item.textContent.trim() === activeLabel);
+    });
+  };
 
   const measureRails = () => {
     // Travel distance needs to clear the rail's own height so a card fully
@@ -141,14 +157,23 @@ window.toolData = FEATURED_TOOLS;
     entries.forEach(({ card, center }) => {
       const localT = Math.max(Math.min((progress - center) / halfWindow, 1.3), -1.3);
       const lift = -localT * riseDistance;
+      const exitOpacity = Math.max(Math.min((1.16 - localT) / 0.16, 1), 0);
+      const ringIsActive = localT > -0.35 && exitOpacity > 0;
       card.style.transform = `translateY(${lift.toFixed(2)}px)`;
+      card.style.opacity = exitOpacity.toFixed(3);
+      card.style.visibility = exitOpacity === 0 ? "hidden" : "visible";
+      card.classList.toggle("is-ring-active", ringIsActive);
     });
   };
 
   const resetCardStyles = () => {
     allEntries.forEach(({ card }) => {
       card.style.transform = "";
+      card.style.opacity = "";
+      card.style.visibility = "";
+      card.classList.toggle("is-ring-active", reducedMotionQuery.matches);
     });
+    toolListItems.forEach((item) => item.classList.remove("is-active-tool"));
   };
 
   let sectionInView = false;
@@ -168,6 +193,7 @@ window.toolData = FEATURED_TOOLS;
     const progress = Math.min(Math.max(-rect.top / scrollable, 0), 1);
     applyMotion(leftEntries, leftRail, progress);
     applyMotion(rightEntries, rightRail, progress);
+    updateActiveToolLabel(progress);
   };
 
   const requestPaint = () => {

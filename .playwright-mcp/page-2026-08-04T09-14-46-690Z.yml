@@ -1,0 +1,549 @@
+- generic [active] [ref=f1e1]:
+  - banner "Primary navigation" [ref=f1e2]:
+    - link "Back to home" [ref=f1e3] [cursor=pointer]:
+      - /url: "#home"
+      - generic [ref=f1e4]: Haesoo
+    - navigation [ref=f1e7]:
+      - link "About About" [ref=f1e8] [cursor=pointer]:
+        - /url: "#about"
+        - generic [ref=f1e9]: About
+        - generic [ref=f1e10]: About
+      - link "Works Works" [ref=f1e11] [cursor=pointer]:
+        - /url: "#project1"
+        - generic [ref=f1e12]: Works
+        - generic [ref=f1e13]: Works
+      - link "Timeline Timeline" [ref=f1e14] [cursor=pointer]:
+        - /url: "#services"
+        - generic [ref=f1e15]: Timeline
+        - generic [ref=f1e16]: Timeline
+      - link "Go to contact section" [ref=f1e17] [cursor=pointer]:
+        - /url: "#contact"
+        - generic [ref=f1e18]:
+          - generic [ref=f1e19]: Contact
+          - generic [ref=f1e20]: Contact
+  - generic "Animated portfolio card":
+    - article:
+      - generic:
+        - img "Portrait of Haesoo"
+  - main [ref=f1e22]:
+    - region "Landing" [ref=f1e23]:
+      - generic [ref=f1e24]:
+        - generic "Designer Who Codes" [ref=f1e25]:
+          - generic [ref=f1e27]:
+            - generic [ref=f1e28]: D
+            - generic [ref=f1e29]: E
+            - generic [ref=f1e30]: S
+            - generic [ref=f1e31]: I
+            - generic [ref=f1e32]: G
+            - generic [ref=f1e33]: "N"
+            - generic [ref=f1e34]: E
+            - generic [ref=f1e35]: R
+          - generic [ref=f1e36]:
+            - generic [ref=f1e37]:
+              - generic [ref=f1e38]: W
+              - generic [ref=f1e39]: H
+              - generic [ref=f1e40]: O
+            - generic [ref=f1e41]:
+              - generic [ref=f1e42]: C
+              - generic [ref=f1e43]: O
+              - generic [ref=f1e44]: D
+              - generic [ref=f1e45]: E
+              - generic [ref=f1e46]: S
+        - generic [ref=f1e47]:
+          - heading "2026" [level=2] [ref=f1e48]
+          - paragraph [ref=f1e49]: Personal Portfolio
+    - generic [ref=f1e50]:
+      - generic [ref=f1e51]:
+        - generic [ref=f1e53]:
+          - generic [ref=f1e54]:
+            - generic [ref=f1e55]: A
+            - generic [ref=f1e56]: B
+            - generic [ref=f1e57]: O
+            - generic [ref=f1e58]: U
+            - generic [ref=f1e59]: T
+          - generic [ref=f1e60]:
+            - generic [ref=f1e61]: M
+            - generic [ref=f1e62]: E
+        - heading "Hello!" [level=2] [ref=f1e63]
+      - generic "Profile information" [ref=f1e65]:
+        - generic [ref=f1e66]:
+          - heading "최해수" [level=3] [ref=f1e67]
+          - paragraph [ref=f1e68]
+        - list [ref=f1e69]:
+          - listitem [ref=f1e70]:
+            - generic "UX·UI Designer" [ref=f1e71]
+          - listitem [ref=f1e72]:
+            - generic "Yongin, Korea" [ref=f1e73]
+          - listitem [ref=f1e74]:
+            - generic "Open to work" [ref=f1e75]
+        - link "View Project" [ref=f1e76] [cursor=pointer]:
+          - /url: "#project1"
+    - region "Reveal statement" [ref=f1e79]:
+      - paragraph [ref=f1e81]:
+        - generic [ref=f1e82]:
+          - generic [ref=f1e83]:
+            - generic [ref=f1e84]: I
+            - generic [ref=f1e85]: understand
+            - generic [ref=f1e86]: what
+            - generic [ref=f1e87]: users
+            - generic [ref=f1e88]: feel
+            - generic [ref=f1e89]: and
+            - generic [ref=f1e90]: turn
+            - generic [ref=f1e91]: it
+            - generic [ref=f1e92]: into
+            - generic [ref=f1e93]: clear
+            - generic [ref=f1e94]: ideas.
+          - generic: 저는 사용자를 감각으로 읽어내고, 그 감각을 논리로 구현합니다.
+        - generic [ref=f1e95]:
+          - generic [ref=f1e96]:
+            - generic [ref=f1e97]: I
+            - generic [ref=f1e98]: shape
+            - generic [ref=f1e99]: those
+            - generic [ref=f1e100]: ideas
+            - generic [ref=f1e101]: through
+            - generic [ref=f1e102]: design
+            - generic [ref=f1e103]: and
+            - generic [ref=f1e104]: bring
+            - generic [ref=f1e105]: them
+            - generic [ref=f1e106]: to
+            - generic [ref=f1e107]: life
+            - generic [ref=f1e108]: with
+            - generic [ref=f1e109]: code.
+          - generic: 디자인으로 해석하고, 코드로 해독하는 디자이너,
+        - generic [ref=f1e110]:
+          - generic [ref=f1e111]:
+            - generic [ref=f1e112]: I
+            - generic [ref=f1e113]: create
+            - generic [ref=f1e114]: real
+            - generic [ref=f1e115]: tools
+            - generic [ref=f1e116]: from
+            - generic [ref=f1e117]: things
+            - generic [ref=f1e118]: that
+            - generic [ref=f1e119]: once
+            - generic [ref=f1e120]: lived
+            - generic [ref=f1e121]: only
+            - generic [ref=f1e122]: in
+            - generic [ref=f1e123]: imagination.
+          - generic: 상상만 하던 것을 실제로 만질 수 있는 도구로 만들고자 합니다.
+    - region "Project 1 fullscreen showcase" [ref=f1e124]:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: M
+              - generic: "Y"
+            - generic:
+              - generic: W
+              - generic: O
+              - generic: R
+              - generic: K
+              - generic: S
+        - heading "기획부터 구현까지, 아이디어를 실제 경험으로 완성한 프로젝트입니다." [level=2]
+      - generic [ref=f1e127]:
+        - button [ref=f1e128]:
+          - generic [ref=f1e134]:
+            - heading [level=3] [ref=f1e135]:
+              - generic [ref=f1e136]: K브랜드 웹사이트 리뉴얼 팀프로젝트
+              - generic [ref=f1e137]: "|"
+            - generic [ref=f1e139]:
+              - generic [ref=f1e140]: DURATION
+              - generic [ref=f1e141]: 2026.06.04 - 2026.07.03
+            - generic [ref=f1e142]:
+              - generic [ref=f1e143]: WHAT I BUILT
+              - generic [ref=f1e144]: “ 랜딩·마린랩·티켓 페이지 개발을 맡고, 전 페이지가 공유하는 인터랙션 시스템을 설계했습니다 ”
+            - paragraph [ref=f1e145]: 이 프로젝트에서 프론트엔드 개발자로서 랜딩, 마린랩, 티켓 예매 페이지 구현을 담당했습니다. Three.js 기반 3D 크루 캐러셀과 커스텀 커서, GNB, 버블 인터랙션 등 공통 컴포넌트를 설계하고 성능·QA 작업과 배포까지 완료했습니다.
+            - generic [ref=f1e146]: 기획 60% 디자인 70% 개발 90%
+            - generic [ref=f1e147]:
+              - link [ref=f1e148] [cursor=pointer]:
+                - /url: https://ezen-aquaplanet-project.vercel.app/
+                - text: WEBSITE ↗
+              - link [ref=f1e149] [cursor=pointer]:
+                - /url: https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A398&node-id=237-1640&viewport=612%2C783%2C0.08&t=Y3y3Dgch0k1oZkVg-1&scaling=min-zoom&content-scaling=fixed
+                - text: PROPOSAL ↗
+        - button [ref=f1e150]:
+          - generic [ref=f1e156]:
+            - heading [level=3] [ref=f1e157]:
+              - generic [ref=f1e158]: AI 챗봇 커뮤니티 프로젝트
+              - generic [ref=f1e159]: "|"
+            - generic [ref=f1e161]:
+              - generic [ref=f1e162]: DURATION
+              - generic [ref=f1e163]: 2026.07.04 - 2026.07.29
+            - generic [ref=f1e164]:
+              - generic [ref=f1e165]: WHAT I BUILT
+              - generic [ref=f1e166]: “ 온보딩과 홈을 메인으로 개발하고, 앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다 ”
+            - paragraph [ref=f1e167]: React와 Tailwind CSS를 기반으로 앱 전반의 기능을 구현했고, 향수·브랜드·챌린지·매장 서비스의 더미데이터 설계, 이미지 AVIF 변환을 통한 성능 최적화, PC 프레임과 스타일 가이드 제작까지 담당했습니다.
+            - generic [ref=f1e168]: 기획 70% 디자인 70% 개발 90%
+            - generic [ref=f1e169]:
+              - link [ref=f1e170] [cursor=pointer]:
+                - /url: https://ezen-layerproject.vercel.app/
+                - text: WEBSITE ↗
+              - link [ref=f1e171] [cursor=pointer]:
+                - /url: https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A5040&node-id=237-5053&viewport=690%2C571%2C0.03&t=DIbfmwmD9cwUu7El-1&scaling=min-zoom&content-scaling=fixed
+                - text: PROPOSAL ↗
+        - button [ref=f1e172]:
+          - generic [ref=f1e178]:
+            - heading [level=3] [ref=f1e179]:
+              - generic [ref=f1e180]: 선택을 돕는 질문형 결정 도우미 앱
+              - generic [ref=f1e181]: "|"
+            - generic [ref=f1e183]:
+              - generic [ref=f1e184]: DURATION
+              - generic [ref=f1e185]: 2026.03.26 - 2026.05.29
+            - generic [ref=f1e186]:
+              - generic [ref=f1e187]: WHAT I BUILT
+              - generic [ref=f1e188]: “ 사용자가 스스로 기준을 찾도록, UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다 ”
+            - paragraph [ref=f1e189]: 질문에 답하며 스스로 선택 기준을 찾는 서비스를 기획했습니다. 캐릭터와 파스텔 컬러로 친근하게 디자인하고 React와 Vite로 전체 서비스를 개발했으며, PWA 대응과 모바일 뷰포트 최적화까지 1인으로 진행했습니다.
+            - generic [ref=f1e190]: 기획 100% 디자인 100% 개발 100%
+            - generic [ref=f1e191]:
+              - link [ref=f1e192] [cursor=pointer]:
+                - /url: https://moa-app-indol.vercel.app/
+                - text: WEBSITE ↗
+              - link [ref=f1e193] [cursor=pointer]:
+                - /url: https://www.figma.com/proto/IYUwIKFuLk3G0BmvlsoH9h/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%AA%A8%EC%95%84?page-id=1159%3A1255&node-id=1159-2682&viewport=1063%2C1162%2C0.03&t=5qcWExPYTwMcfkE4-1&scaling=contain&content-scaling=fixed&starting-point-node-id=1159%3A2682
+                - text: PROPOSAL ↗
+    - region "Project 2 spiral works" [ref=f1e194]:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: C
+              - generic: L
+              - generic: O
+              - generic: "N"
+              - generic: E
+            - generic:
+              - generic: C
+              - generic: O
+              - generic: D
+              - generic: I
+              - generic: "N"
+              - generic: G
+        - heading "실제 웹사이트의 구조와 인터랙션을 분석하고 직접 재현하며 퍼블리싱과 인터랙션 구현 역량을 키웠습니다." [level=2]:
+          - text: 실제 웹사이트의 구조와 인터랙션을 분석하고 직접 재현하며
+          - strong: 퍼블리싱과 인터랙션 구현 역량
+          - text: 을 키웠습니다.
+      - button "Selected Works spiral" [ref=f1e197]
+    - region "Tools" [ref=f1e198]:
+      - generic [ref=f1e200]:
+        - generic:
+          - generic [ref=f1e202]:
+            - generic [ref=f1e203]: Figma
+            - generic [ref=f1e208]: 와이어프레임부터 프로토타입까지 전 과정에 사용했습니다
+          - generic [ref=f1e213]:
+            - generic [ref=f1e214]: GSAP
+            - generic [ref=f1e219]: 타임라인과 트리거로 정교한 스크롤 연출을 만들었습니다
+          - generic [ref=f1e224]:
+            - generic [ref=f1e225]: TypeScript
+            - generic [ref=f1e230]: 타입을 정의해 재사용 가능한 UI를 구축했습니다
+          - generic [ref=f1e235]:
+            - generic [ref=f1e236]: Blender
+            - generic [ref=f1e241]: AI 스크립트를 통해 3D 애니메이션을 추가했습니다
+          - generic [ref=f1e246]:
+            - generic [ref=f1e247]: CSS
+            - generic [ref=f1e252]: 반응형 레이아웃과 스타일로 화면을 구현했습니다
+        - generic [ref=f1e256]:
+          - heading "SKILLS" [level=3] [ref=f1e257]:
+            - generic [ref=f1e258]:
+              - generic [ref=f1e259]: S
+              - generic [ref=f1e260]: K
+              - generic [ref=f1e261]: I
+              - generic [ref=f1e262]: L
+              - generic [ref=f1e263]: L
+              - generic [ref=f1e264]: S
+          - generic [ref=f1e265]:
+            - generic [ref=f1e266]:
+              - heading "DESIGN" [level=4] [ref=f1e267]
+              - list [ref=f1e268]:
+                - listitem [ref=f1e269]: Figma
+                - listitem [ref=f1e270]: Blender
+            - generic [ref=f1e271]:
+              - heading "FRONTEND" [level=4] [ref=f1e272]
+              - list [ref=f1e273]:
+                - listitem [ref=f1e274]: HTML / CSS
+                - listitem [ref=f1e275]: Vanilla JS
+                - listitem [ref=f1e276]: Three.js
+                - listitem [ref=f1e277]: GSAP
+                - listitem [ref=f1e278]: jQuery
+                - listitem [ref=f1e279]: React
+                - listitem [ref=f1e280]: TypeScript
+                - listitem [ref=f1e281]: Tailwind
+                - listitem [ref=f1e282]: Git / GitHub
+                - listitem [ref=f1e283]: Vercel
+            - generic [ref=f1e284]:
+              - heading "AI" [level=4] [ref=f1e285]
+              - list [ref=f1e286]:
+                - listitem [ref=f1e287]: OpenAI
+                - listitem [ref=f1e288]: Gemini
+                - listitem [ref=f1e289]: Anthropic
+                - listitem [ref=f1e290]: Meshy AI
+        - generic:
+          - generic [ref=f1e292]:
+            - generic [ref=f1e293]: Three.js
+            - generic [ref=f1e298]: 카메라, 조명, 지오메트리를 다뤄 3D 씬을 구현했습니다
+          - generic [ref=f1e303]:
+            - generic [ref=f1e304]: React
+            - generic [ref=f1e309]: 재사용 가능한 컴포넌트와 상태 관리로 화면을 구조화했습니다
+          - generic [ref=f1e314]:
+            - generic [ref=f1e315]: Anthropic
+            - generic [ref=f1e320]: 기획부터 코드까지 효율적인 작업을 진행하였습니다
+          - generic [ref=f1e325]:
+            - generic [ref=f1e326]: HTML
+            - generic [ref=f1e331]: 시맨틱 마크업으로 접근성 높은 구조를 만들었습니다
+    - region "배우고, 만들며, 쌓아온 저의 타임라인을 소개합니다." [ref=f1e335]:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: T
+              - generic: I
+              - generic: M
+              - generic: E
+              - generic: L
+              - generic: I
+              - generic: "N"
+              - generic: E
+        - heading "배우고, 만들며, 쌓아온 저의 타임라인을 소개합니다." [level=3]:
+          - generic:
+            - generic: 배우고,
+            - generic: 만들며,
+            - generic: 쌓아온
+            - generic: 저의
+            - generic: 타임라인을
+            - generic: 소개합니다.
+      - generic [ref=f1e337]:
+        - article [ref=f1e338]:
+          - generic [ref=f1e339]:
+            - heading "In Canada" [level=4] [ref=f1e340]:
+              - generic [ref=f1e341]: In
+              - generic [ref=f1e343]: Canada
+            - paragraph [ref=f1e345]:
+              - generic [ref=f1e346]: 어린
+              - generic [ref=f1e348]: 시절
+              - generic [ref=f1e350]: 캐나다에서
+              - generic [ref=f1e352]: 다양한
+              - generic [ref=f1e354]: 국적의
+              - generic [ref=f1e356]: 친구들과
+              - generic [ref=f1e358]: 영어로
+              - generic [ref=f1e360]: 소통하며
+              - generic [ref=f1e362]: 지냈고,
+              - generic [ref=f1e364]: 그
+              - generic [ref=f1e366]: 경험은
+              - generic [ref=f1e368]: 지금까지
+              - generic [ref=f1e370]: 익숙한
+              - generic [ref=f1e372]: 감각으로
+              - generic [ref=f1e374]: 남아있습니다.
+            - paragraph [ref=f1e376]:
+              - generic [ref=f1e377]: "2007"
+              - generic [ref=f1e379]: –
+              - generic [ref=f1e381]: "2012"
+            - generic [ref=f1e383]: Photo
+        - article [ref=f1e386]:
+          - generic [ref=f1e387]:
+            - heading "Drawing" [level=4] [ref=f1e388]
+            - paragraph [ref=f1e391]:
+              - generic [ref=f1e392]: 미대
+              - generic [ref=f1e394]: 입시를
+              - generic [ref=f1e396]: 준비하며
+              - generic [ref=f1e398]: 매일
+              - generic [ref=f1e400]: 관찰하고
+              - generic [ref=f1e402]: 그렸습니다.
+              - generic [ref=f1e404]: 그렇게
+              - generic [ref=f1e406]: 보고
+              - generic [ref=f1e408]: 그리는
+              - generic [ref=f1e410]: 감각을
+              - generic [ref=f1e412]: 배우며,
+              - generic [ref=f1e414]: 지금의
+              - generic [ref=f1e416]: 디자이너의
+              - generic [ref=f1e418]: 꿈을
+              - generic [ref=f1e420]: 키워왔습니다.
+            - paragraph [ref=f1e422]:
+              - generic [ref=f1e423]: "2021"
+            - generic [ref=f1e425]: Photo
+        - article [ref=f1e428]:
+          - generic [ref=f1e429]:
+            - heading "Volunteer" [level=4] [ref=f1e430]
+            - paragraph [ref=f1e433]:
+              - generic [ref=f1e434]: 매년
+              - generic [ref=f1e436]: 봉사활동에서
+              - generic [ref=f1e438]: 페이스
+              - generic [ref=f1e440]: 페인팅
+              - generic [ref=f1e442]: 부스를
+              - generic [ref=f1e444]: 맡으며,
+              - generic [ref=f1e446]: 제
+              - generic [ref=f1e448]: 재능으로
+              - generic [ref=f1e450]: 누군가를
+              - generic [ref=f1e452]: 기쁘게
+              - generic [ref=f1e454]: 하는
+              - generic [ref=f1e456]: 즐거움을
+              - generic [ref=f1e458]: 배웠습니다.
+            - paragraph [ref=f1e460]:
+              - generic [ref=f1e461]: "2021"
+              - generic [ref=f1e463]: –
+              - generic [ref=f1e465]: Present
+            - generic [ref=f1e467]: Photo
+        - article [ref=f1e470]:
+          - generic [ref=f1e471]:
+            - heading "Latte Art" [level=4] [ref=f1e472]:
+              - generic [ref=f1e473]: Latte
+              - generic [ref=f1e475]: Art
+            - paragraph [ref=f1e477]:
+              - generic [ref=f1e478]: 카페에서
+              - generic [ref=f1e480]: 1년
+              - generic [ref=f1e482]: 반을
+              - generic [ref=f1e484]: 일하며
+              - generic [ref=f1e486]: 커피
+              - generic [ref=f1e488]: 위에
+              - generic [ref=f1e490]: 다양한
+              - generic [ref=f1e492]: 그림을
+              - generic [ref=f1e494]: 그렸습니다.
+              - generic [ref=f1e496]: 손님들이
+              - generic [ref=f1e498]: 행복해하는
+              - generic [ref=f1e500]: 모습을
+              - generic [ref=f1e502]: 보는
+              - generic [ref=f1e504]: 것도,
+              - generic [ref=f1e506]: 매번
+              - generic [ref=f1e508]: 다른
+              - generic [ref=f1e510]: 그림을
+              - generic [ref=f1e512]: 그리는
+              - generic [ref=f1e514]: 것도
+              - generic [ref=f1e516]: 즐거웠습니다.
+            - paragraph [ref=f1e518]:
+              - generic [ref=f1e519]: "2024"
+            - generic [ref=f1e521]: Photo
+        - article [ref=f1e524]:
+          - generic [ref=f1e525]:
+            - heading "Exhibitions" [level=4] [ref=f1e526]
+            - paragraph [ref=f1e529]:
+              - generic [ref=f1e530]: 매달
+              - generic [ref=f1e532]: 전시를
+              - generic [ref=f1e534]: 챙겨보며,
+              - generic [ref=f1e536]: 다른
+              - generic [ref=f1e538]: 사람의
+              - generic [ref=f1e540]: 시선과
+              - generic [ref=f1e542]: 작품해석을
+              - generic [ref=f1e544]: 통해
+              - generic [ref=f1e546]: 제
+              - generic [ref=f1e548]: 생각의
+              - generic [ref=f1e550]: 폭도
+              - generic [ref=f1e552]: 넓힙니다.
+            - paragraph [ref=f1e554]:
+              - generic [ref=f1e555]: Ongoing
+            - generic [ref=f1e557]: Photo
+        - article [ref=f1e560]:
+          - generic [ref=f1e561]:
+            - heading "UX / UI Begin" [level=4] [ref=f1e562]:
+              - generic [ref=f1e563]: UX
+              - generic [ref=f1e565]: /
+              - generic [ref=f1e567]: UI
+              - generic [ref=f1e569]: Begin
+            - paragraph [ref=f1e571]:
+              - generic [ref=f1e572]: 사람들의
+              - generic [ref=f1e574]: 불편함을
+              - generic [ref=f1e576]: 즉시
+              - generic [ref=f1e578]: 해결하는
+              - generic [ref=f1e580]: 디자인에
+              - generic [ref=f1e582]: 매력을
+              - generic [ref=f1e584]: 느꼈습니다.
+              - generic [ref=f1e586]: 직접
+              - generic [ref=f1e588]: 디자인하고
+              - generic [ref=f1e590]: 구현하며,
+              - generic [ref=f1e592]: 시공간
+              - generic [ref=f1e594]: 제약
+              - generic [ref=f1e596]: 없이
+              - generic [ref=f1e598]: 매일
+              - generic [ref=f1e600]: 더
+              - generic [ref=f1e602]: 많은
+              - generic [ref=f1e604]: 사람에게
+              - generic [ref=f1e606]: 편리함을
+              - generic [ref=f1e608]: 전하고
+              - generic [ref=f1e610]: 싶었습니다.
+            - paragraph [ref=f1e612]:
+              - generic [ref=f1e613]: "2026"
+            - generic [ref=f1e615]: Photo
+        - article "현재와 앞으로의 이야기" [ref=f1e618]:
+          - generic [ref=f1e620]:
+            - paragraph [ref=f1e621]:
+              - generic [ref=f1e622]: Growing
+            - paragraph [ref=f1e624]:
+              - generic [ref=f1e625]: 배우고
+              - generic [ref=f1e627]: 만든
+              - generic [ref=f1e629]: 것들이
+              - generic [ref=f1e631]: 쌓여,
+              - generic [ref=f1e633]: 이제
+              - generic [ref=f1e635]: 100%를
+              - generic [ref=f1e637]: 향해
+              - generic [ref=f1e639]: 갑니다.
+    - generic [ref=f1e643]:
+      - generic [ref=f1e644]:
+        - heading "Let’s talk !" [level=2] [ref=f1e645]:
+          - generic [ref=f1e646]:
+            - generic [ref=f1e647]: L
+            - generic [ref=f1e648]: e
+            - generic [ref=f1e649]: t
+            - generic [ref=f1e650]: ’
+            - generic [ref=f1e651]: s
+          - generic [ref=f1e652]:
+            - generic [ref=f1e653]: t
+            - generic [ref=f1e654]: a
+            - generic [ref=f1e655]: l
+            - generic [ref=f1e656]: k
+          - generic [ref=f1e657]: "!"
+        - generic "Contact information" [ref=f1e659]:
+          - link "010 4212 4970" [ref=f1e660] [cursor=pointer]:
+            - /url: tel:+821042124970
+            - generic [ref=f1e661]: "0"
+            - generic [ref=f1e662]: "1"
+            - generic [ref=f1e663]: "0"
+            - generic [ref=f1e665]: "4"
+            - generic [ref=f1e666]: "2"
+            - generic [ref=f1e667]: "1"
+            - generic [ref=f1e668]: "2"
+            - generic [ref=f1e670]: "4"
+            - generic [ref=f1e671]: "9"
+            - generic [ref=f1e672]: "7"
+            - generic [ref=f1e673]: "0"
+          - link "chs041015@gmail.com" [ref=f1e674] [cursor=pointer]:
+            - /url: mailto:chs041015@gmail.com
+            - generic [ref=f1e675]: c
+            - generic [ref=f1e676]: h
+            - generic [ref=f1e677]: s
+            - generic [ref=f1e678]: "0"
+            - generic [ref=f1e679]: "4"
+            - generic [ref=f1e680]: "1"
+            - generic [ref=f1e681]: "0"
+            - generic [ref=f1e682]: "1"
+            - generic [ref=f1e683]: "5"
+            - generic [ref=f1e684]: "@"
+            - generic [ref=f1e685]: g
+            - generic [ref=f1e686]: m
+            - generic [ref=f1e687]: a
+            - generic [ref=f1e688]: i
+            - generic [ref=f1e689]: l
+            - generic [ref=f1e690]: .
+            - generic [ref=f1e691]: c
+            - generic [ref=f1e692]: o
+            - generic [ref=f1e693]: m
+      - generic "It’s Haesoo." [ref=f1e694]:
+        - paragraph [ref=f1e695]:
+          - generic [ref=f1e696]: I
+          - generic [ref=f1e697]: t
+          - generic [ref=f1e698]: ’
+          - generic [ref=f1e699]: s
+        - paragraph [ref=f1e700]:
+          - generic [ref=f1e701]: H
+          - generic [ref=f1e702]: a
+          - generic [ref=f1e703]: e
+          - generic [ref=f1e704]: s
+          - generic [ref=f1e705]: o
+          - generic [ref=f1e706]: o
+          - generic [ref=f1e708]: .
+  - button "포트폴리오 챗봇 열기" [ref=f1e710] [cursor=pointer]:
+    - generic:
+      - generic: ✿
+      - generic: ✿
+      - generic: ✿
+      - generic: ✿
+      - generic: ✿
+      - generic: ✿
+  - generic:
+    - generic: ↗
+    - generic: VIEW SITE

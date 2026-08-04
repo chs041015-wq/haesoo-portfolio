@@ -11,7 +11,7 @@ const spiralProjectData = [
     year: "2026",
     keywords: ["WebGL", "Interaction", "Direction"],
     thumbnail: "assets/clone-coding/clone-01.png",
-    cta_url: "#",
+    cta_url: "https://clonecoding1.vercel.app/",
   },
   {
     id: "project-two",
@@ -22,7 +22,7 @@ const spiralProjectData = [
     year: "2026",
     keywords: ["Identity", "Motion", "Web"],
     thumbnail: "assets/clone-coding/clone-02.png",
-    cta_url: "#",
+    cta_url: "https://clonecoding2.vercel.app/",
   },
   {
     id: "project-three",
@@ -33,7 +33,7 @@ const spiralProjectData = [
     year: "2025",
     keywords: ["Product", "System", "Prototype"],
     thumbnail: "assets/clone-coding/clone-03.png",
-    cta_url: "#",
+    cta_url: "https://clonecoding3.vercel.app/",
   },
   {
     id: "project-four",
@@ -44,7 +44,7 @@ const spiralProjectData = [
     year: "2025",
     keywords: ["Creative Code", "3D", "Typography"],
     thumbnail: "assets/clone-coding/clone-04.png",
-    cta_url: "#",
+    cta_url: "https://clonecoding4.vercel.app/",
   },
   {
     id: "project-five",
@@ -55,7 +55,7 @@ const spiralProjectData = [
     year: "2024",
     keywords: ["Editorial", "Animation", "Experience"],
     thumbnail: "assets/clone-coding/clone-05.png",
-    cta_url: "#",
+    cta_url: "https://clonecoding5.vercel.app/",
   },
   {
     id: "project-six",
@@ -66,7 +66,7 @@ const spiralProjectData = [
     year: "2024",
     keywords: ["Rebuild", "Interaction", "Frontend"],
     thumbnail: "assets/clone-coding/clone-06.png",
-    cta_url: "#",
+    cta_url: "https://clonecodiing6.vercel.app/",
   },
 ];
 
@@ -79,12 +79,14 @@ const introHeading = document.querySelector(".section-heading h2");
 const introCopy = document.querySelector(".intro-copy");
 const introPortraitSlot = document.querySelector(".intro-portrait-slot");
 const flipStack = document.querySelector(".flip-stack");
+const flipCard = document.querySelector(".flip-card");
 const main = document.querySelector("main");
 const darkReveal = document.querySelector(".dark-reveal");
 const toolContentSection = document.querySelector(".tools-content-section");
 const revealContentSection = document.querySelector(".reveal-content-section");
 const creamProjectsSection = document.querySelector(".works");
 const aboutRevealItems = document.querySelectorAll(".about-text .word, .about-text-image");
+const revealTranslationLines = document.querySelectorAll(".reveal-line");
 const projectShowcaseSection = document.querySelector(".project-showcase");
 const spiralSection = document.querySelector(".spiral-section");
 const spiralStage = document.querySelector(".spiral-stage");
@@ -93,6 +95,46 @@ const spiralGrid = document.querySelector(".spiral-grid");
 const spiralCanvas = document.querySelector(".spiral-webgl");
 const spiralProjectCta = document.querySelector(".spiral-project-cta");
 const projectOverlay = document.querySelector(".project-overlay");
+
+if (spiralProjectCta && spiralProjectCta.parentElement !== document.body) {
+  document.body.appendChild(spiralProjectCta);
+}
+
+revealTranslationLines.forEach((line) => {
+  const englishWords = [...line.querySelectorAll(".reveal-language-en .word")];
+
+  line.addEventListener("pointermove", (event) => {
+    const bounds = line.getBoundingClientRect();
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    line.style.setProperty("--lens-x", `${x.toFixed(1)}px`);
+    line.style.setProperty("--lens-y", `${y.toFixed(1)}px`);
+    const translated = line.querySelector(".reveal-language-ko");
+    translated?.style.setProperty("--lens-x", `${x.toFixed(1)}px`);
+    translated?.style.setProperty("--lens-y", `${y.toFixed(1)}px`);
+
+    const radius = 118;
+    englishWords.forEach((word) => {
+      const rect = word.getBoundingClientRect();
+      const dx = rect.left + rect.width / 2 - event.clientX;
+      const dy = rect.top + rect.height / 2 - event.clientY;
+      const distance = Math.max(Math.hypot(dx, dy), 0.001);
+      const strength = Math.max(0, 1 - distance / radius);
+      const easedStrength = Math.pow(strength, 1.6);
+      const offsetX = (dx / distance) * easedStrength * 34;
+      const offsetY = (dy / distance) * easedStrength * 24;
+      const rotation = (dx / radius) * easedStrength * 7;
+      word.style.transform = `translate3d(${offsetX.toFixed(2)}px, ${offsetY.toFixed(2)}px, 0) rotate(${rotation.toFixed(2)}deg)`;
+    });
+  });
+
+  line.addEventListener("pointerleave", () => {
+    englishWords.forEach((word) => {
+      word.style.transform = "translate3d(0, 0, 0) rotate(0deg)";
+    });
+  });
+});
+
 const projectOverlayShade = document.querySelector(".project-overlay-shade");
 const projectOverlayClose = document.querySelector(".project-overlay-close");
 const projectOverlayPrev = document.querySelector(".project-overlay-prev");
@@ -323,7 +365,8 @@ const initLandingEntrance = async () => {
 
 const initCodeSectionTitles = () => {
   const headings = [...document.querySelectorAll(".code-section-heading[data-code-title]")];
-  if (!headings.length) return;
+  const standaloneTitles = [...document.querySelectorAll("[data-scroll-title]")];
+  if (!headings.length && !standaloneTitles.length) return;
 
   headings.forEach((heading) => {
     if (heading.querySelector(":scope > .code-section-ui")) return;
@@ -346,33 +389,89 @@ const initCodeSectionTitles = () => {
         word.appendChild(letter);
       });
       displayTitle.appendChild(word);
-      if (wordIndex < words.length - 1) displayTitle.append(" ");
+      if (wordIndex < words.length - 1) {
+        displayTitle.append(heading.classList.contains("section-heading")
+          ? document.createElement("br")
+          : " ");
+      }
     });
 
     ui.append(displayTitle);
     heading.prepend(ui);
   });
 
+  standaloneTitles.forEach((title) => {
+    if (title.querySelector(":scope > .scroll-title-word")) return;
+    const label = title.textContent.trim();
+    title.textContent = "";
+    title.setAttribute("aria-label", label);
+
+    label.split(/\s+/).forEach((wordText, wordIndex, words) => {
+      const word = document.createElement("span");
+      word.className = "scroll-title-word";
+      word.setAttribute("aria-hidden", "true");
+      [...wordText].forEach((character) => {
+        const letter = document.createElement("span");
+        letter.className = "scroll-title-letter";
+        letter.textContent = character;
+        word.appendChild(letter);
+      });
+      title.appendChild(word);
+      if (wordIndex < words.length - 1) title.append(" ");
+    });
+  });
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const gsap = window.gsap;
+  const titleGroups = [
+    ...headings.map((heading) => ({
+      trigger: heading,
+      letters: [...heading.querySelectorAll(".code-display-letter")],
+    })),
+    ...standaloneTitles.map((title) => ({
+      trigger: title,
+      letters: [...title.querySelectorAll(".scroll-title-letter")],
+    })),
+  ];
+
+  const revealedTitleGroups = new WeakSet();
+  const titleRevealLine = 1.08;
+  const revealTitleGroup = (group) => {
+    if (revealedTitleGroups.has(group.trigger)) return;
+    revealedTitleGroups.add(group.trigger);
+
+    if (reducedMotion || !gsap) {
+      group.letters.forEach((letter) => { letter.style.transform = "none"; });
+      return;
+    }
+
+    gsap.fromTo(group.letters,
+      { yPercent: 145 },
+      {
+        yPercent: 0,
+        duration: 0.72,
+        ease: "power3.out",
+        stagger: 0.028,
+        overwrite: true,
+      });
+  };
+
+  if (reducedMotion || !gsap) {
+    titleGroups.forEach(({ letters }) => {
+      letters.forEach((letter) => { letter.style.transform = "none"; });
+    });
+  }
+
   const paint = () => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    titleGroups.forEach((group) => {
+      const rect = group.trigger.getBoundingClientRect();
+      if (rect.top < window.innerHeight * titleRevealLine) {
+        revealTitleGroup(group);
+      }
+    });
+
     headings.forEach((heading) => {
       const rect = heading.getBoundingClientRect();
-      // Measured from k-wu.com at 1440x900: the letters travel exactly
-      // 180px, starting near 78vh and settling near 16vh.
-      const start = window.innerHeight * 0.78;
-      const end = window.innerHeight * 0.16;
-      const progress = reducedMotion ? 1 : clamp((start - rect.top) / Math.max(start - end, 1), 0, 1);
-      const letters = [...heading.querySelectorAll(".code-display-letter")];
-      heading.style.setProperty("--code-title-progress", progress.toFixed(4));
-      const lastIndex = Math.max(letters.length - 1, 1);
-      letters.forEach((letter, index) => {
-        const delay = (index / lastIndex) * 0.27;
-        const localProgress = clamp((progress - delay) / Math.max(1 - delay, 0.01), 0, 1);
-        const easedProgress = 1 - (1 - localProgress) ** 2;
-        const travel = reducedMotion ? 0 : 180 * (1 - easedProgress);
-        letter.style.transform = `translate3d(0, ${travel.toFixed(3)}px, 0)`;
-      });
-
       if (heading.classList.contains("project-section-title")) {
         const exitProgress = reducedMotion
           ? 0
@@ -381,11 +480,13 @@ const initCodeSectionTitles = () => {
         const contentRect = content?.getBoundingClientRect();
         const contentProgress = reducedMotion || !contentRect
           ? 1
-          : clamp(
-              (window.innerHeight * 0.96 - contentRect.top) / Math.max(window.innerHeight * 0.34, 1),
-              0,
-              1
-            );
+          : heading.classList.contains("experience-intro")
+            ? clamp((exitProgress - 0.78) / 0.22, 0, 1)
+            : clamp(
+                (window.innerHeight * 0.96 - contentRect.top) / Math.max(window.innerHeight * 0.34, 1),
+                0,
+                1
+              );
 
         heading.style.setProperty("--chapter-exit-progress", exitProgress.toFixed(4));
         content?.style.setProperty("--chapter-content-progress", contentProgress.toFixed(4));
@@ -501,6 +602,63 @@ const initHeroLetterInteraction = () => {
   window.addEventListener("blur", resetLetters);
 };
 
+const initContactLinkInteraction = () => {
+  const gsap = window.gsap;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const links = [...document.querySelectorAll(".contact-links a")];
+  if (!gsap || reducedMotion || !canHover || !links.length) return;
+
+  links.forEach((link) => {
+    const label = link.textContent.trim();
+    const fragment = document.createDocumentFragment();
+    const letters = [...label].map((character) => {
+      const letter = document.createElement("span");
+      letter.className = "contact-link-letter";
+      letter.textContent = character === " " ? "\u00a0" : character;
+      letter.setAttribute("aria-hidden", "true");
+      fragment.appendChild(letter);
+      return letter;
+    });
+
+    link.textContent = "";
+    link.setAttribute("aria-label", label);
+    link.appendChild(fragment);
+
+    const motions = letters.map((letter) => ({
+      letter,
+      x: gsap.quickTo(letter, "x", { duration: 0.65, ease: "elastic.out(1, 0.45)" }),
+      y: gsap.quickTo(letter, "y", { duration: 0.65, ease: "elastic.out(1, 0.45)" }),
+      rotation: gsap.quickTo(letter, "rotation", { duration: 0.65, ease: "elastic.out(1, 0.45)" }),
+    }));
+
+    const resetLetters = () => {
+      motions.forEach((motion) => {
+        motion.x(0);
+        motion.y(0);
+        motion.rotation(0);
+      });
+    };
+
+    link.addEventListener("pointermove", (event) => {
+      const radius = 58;
+      motions.forEach((motion) => {
+        const rect = motion.letter.getBoundingClientRect();
+        const dx = rect.left + rect.width / 2 - event.clientX;
+        const dy = rect.top + rect.height / 2 - event.clientY;
+        const distance = Math.max(Math.hypot(dx, dy), 0.001);
+        const strength = Math.pow(Math.max(0, 1 - distance / radius), 1.6);
+        motion.x((dx / distance) * strength * 15);
+        motion.y((dy / distance) * strength * 15);
+        motion.rotation((dx / radius) * strength * 7);
+      });
+    }, { passive: true });
+
+    link.addEventListener("pointerleave", resetLetters);
+    link.addEventListener("blur", resetLetters);
+  });
+};
+
 const prepareTimelineWords = () => {
   const targets = document.querySelectorAll(
     ".experience-intro-text, .timeline-company, .timeline-role, .timeline-description, .timeline-date"
@@ -509,16 +667,22 @@ const prepareTimelineWords = () => {
   targets.forEach((target) => {
     if (target.dataset.wordsReady === "true") return;
 
-    const words = target.textContent.trim().split(/\s+/);
+    const segments = target.innerHTML.split(/<br\s*\/?>/i);
     target.textContent = "";
-    words.forEach((word) => {
-      const clip = document.createElement("span");
-      const inner = document.createElement("span");
-      clip.className = "timeline-word-clip";
-      inner.className = "timeline-word";
-      inner.textContent = word;
-      clip.appendChild(inner);
-      target.appendChild(clip);
+    segments.forEach((segment, segmentIndex) => {
+      const text = segment.replace(/<[^>]+>/g, "").trim();
+      text.split(/\s+/).filter(Boolean).forEach((word) => {
+        const clip = document.createElement("span");
+        const inner = document.createElement("span");
+        clip.className = "timeline-word-clip";
+        inner.className = "timeline-word";
+        inner.textContent = word;
+        clip.appendChild(inner);
+        target.appendChild(clip);
+      });
+      if (segmentIndex < segments.length - 1) {
+        target.appendChild(document.createElement("br"));
+      }
     });
     target.dataset.wordsReady = "true";
   });
@@ -529,6 +693,7 @@ const updateExperienceTimeline = () => {
   if (!timelineShell || !timelineLine || !timelineProgress || !experienceItems.length) return;
 
   const viewportHeight = window.innerHeight;
+  const contentRevealLine = viewportHeight * 0.72;
   const sectionRect = experienceSection?.getBoundingClientRect();
   if (sectionRect && (sectionRect.bottom < -viewportHeight * 0.25 || sectionRect.top > viewportHeight * 1.25)) {
     return;
@@ -553,44 +718,24 @@ const updateExperienceTimeline = () => {
   const introHeading = experienceSection?.querySelector(".experience-intro-text");
   if (introHeading) {
     const introRect = introHeading.getBoundingClientRect();
-    const introReveal = clamp(
-      (viewportHeight * 0.9 - introRect.top) / Math.max(viewportHeight * 0.25, 1),
-      0,
-      1
-    );
-    const introWords = [...introHeading.querySelectorAll(".timeline-word")];
-    const maximumIntroStagger = Math.min(introWords.length * 0.025, 0.3);
-
-    introWords.forEach((word, index) => {
-      const wordProgress = clamp(
-        (introReveal - index * 0.025) / Math.max(1 - maximumIntroStagger, 0.01),
-        0,
-        1
-      );
-      const eased = easeOutCubic(wordProgress);
-      word.style.opacity = eased.toFixed(4);
-      word.style.transform = `translateY(${((1 - eased) * 100).toFixed(3)}%) rotateX(${((1 - eased) * -15).toFixed(3)}deg)`;
-    });
+    if (introRect.top < contentRevealLine) {
+      introHeading.classList.add("is-faded-in");
+    }
   }
 
   experienceItems.forEach((item) => {
     const itemRect = item.getBoundingClientRect();
-    const rawReveal = clamp(
-      (viewportHeight * 0.82 - itemRect.top) / Math.max(viewportHeight * 0.18, 1),
-      0,
-      1
-    );
     const content = item.querySelector(".experience-content");
-    const words = [...item.querySelectorAll(".timeline-word")];
     const isNow = item.classList.contains("experience-now");
-    const easedOpacity = easeOutCubic(rawReveal);
+
+    if (itemRect.top < contentRevealLine) {
+      content?.classList.add("is-faded-in");
+    }
 
     if (isNow) {
       const nowScrollableDistance = Math.max(itemRect.height - viewportHeight, 1);
       const nowReveal = clamp(-itemRect.top / nowScrollableDistance, 0, 1);
-      const maximumNowStagger = Math.min(words.length * 0.045, 0.55);
       const nowRingFill = item.querySelector(".now-progress-ring-fill");
-      if (content) content.style.opacity = "1";
       item.classList.toggle("is-revealed", nowReveal > 0.02);
       item.classList.toggle("is-ring-started", nowReveal > 0.005);
       item.classList.toggle("is-ring-complete", nowReveal > 0.985);
@@ -598,32 +743,8 @@ const updateExperienceTimeline = () => {
         nowRingFill.style.strokeDashoffset = (100 - nowReveal * 100).toFixed(3);
       }
 
-      words.forEach((word, index) => {
-        const wordProgress = clamp(
-          (nowReveal - index * 0.045) / Math.max(1 - maximumNowStagger, 0.01),
-          0,
-          1
-        );
-        const eased = easeOutCubic(wordProgress);
-        word.style.opacity = (0.12 + eased * 0.88).toFixed(4);
-        word.style.transform = `translateY(${((1 - eased) * 18).toFixed(3)}px) rotateX(0deg)`;
-      });
       return;
     }
-
-    if (content) content.style.opacity = easedOpacity.toFixed(4);
-
-    const maximumStagger = Math.min(words.length * 0.018, 0.35);
-    words.forEach((word, index) => {
-      const wordProgress = clamp(
-        (rawReveal - index * 0.018) / Math.max(1 - maximumStagger, 0.01),
-        0,
-        1
-      );
-      const eased = easeOutCubic(wordProgress);
-      word.style.opacity = eased.toFixed(4);
-      word.style.transform = `translateY(${((1 - eased) * 100).toFixed(3)}%) rotateX(${((1 - eased) * -15).toFixed(3)}deg)`;
-    });
   });
 };
 
@@ -700,7 +821,6 @@ const updateHeroCard = () => {
   const compact = window.innerWidth <= 840;
   const cardWidth = compact ? 156 : 200;
   const cardHeight = compact ? 184 : 228;
-  const titleRect = heroTitle.getBoundingClientRect();
   const copyRect = introCopy.getBoundingClientRect();
   const introTop = intro.offsetTop;
   const introTravelEnd = introTop;
@@ -716,9 +836,10 @@ const updateHeroCard = () => {
   const introGapCenter = portraitSlotRect
     ? portraitSlotRect.left + portraitSlotRect.width * 0.5
     : window.innerWidth * 0.5;
-  const belowTitleY = titleRect.bottom + (compact ? 22 : 16);
-  const startY = compact ? belowTitleY : window.innerHeight - cardHeight - 20;
-  const heroEndY = compact ? window.innerHeight * 0.62 : window.innerHeight - cardHeight - 20;
+  const heroDividerTop = window.innerHeight - (compact ? 48 : 80);
+  const cardAboveDividerY = heroDividerTop - cardHeight;
+  const startY = cardAboveDividerY;
+  const heroEndY = cardAboveDividerY;
   const portraitDocumentTop = (portraitSlotRect?.top || copyRect.top) + scrollY;
   const portraitWidth = portraitSlotRect?.width || cardWidth;
   const copyDocumentTop = copyRect.top + scrollY;
@@ -1930,6 +2051,7 @@ prepareProfileTyping();
 initCodeSectionTitles();
 updateHeroCard();
 initHeroLetterInteraction();
+initContactLinkInteraction();
 initLandingEntrance();
 updateDarkRevealCurve();
 updateCreamExitCurve();
@@ -1971,14 +2093,46 @@ const observer = new IntersectionObserver(
 
 revealTargets.forEach((target) => observer.observe(target));
 
-const playgroundImages = [
-  "assets/project1/project-01.png",
-  "assets/clone-coding/clone-01.png",
-  "assets/clone-coding/clone-02.png",
-  "assets/clone-coding/clone-03.png",
-  "assets/clone-coding/clone-04.png",
-  "assets/clone-coding/clone-05.png",
-  "assets/clone-coding/clone-06.png",
+const playgroundProjects = [
+  {
+    variant: "aqua",
+    image: "assets/project1/figma/project-left.png",
+    title: "K브랜드 웹사이트 리뉴얼 팀프로젝트",
+    brand: "aqua planet",
+    logos: ["assets/project1/logos/aqua.svg", "assets/project1/logos/planet.svg"],
+    duration: "2026.06.04 - 2026.07.03",
+    built: "랜딩·마린랩·티켓 페이지 개발을 맡고, 전 페이지가 공유하는 인터랙션 시스템을 설계했습니다",
+    description: "이 프로젝트에서 프론트엔드 개발자로서 랜딩, 마린랩, 티켓 예매 페이지 구현을 담당했습니다. Three.js 기반 3D 크루 캐러셀과 커스텀 커서, GNB, 버블 인터랙션 등 공통 컴포넌트를 설계하고 성능·QA 작업과 배포까지 완료했습니다.",
+    contribution: "기획 60%　 디자인 70%　 개발 90%",
+    website: "https://ezen-aquaplanet-project.vercel.app/",
+    proposal: "https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A398&node-id=237-1640&viewport=612%2C783%2C0.08&t=Y3y3Dgch0k1oZkVg-1&scaling=min-zoom&content-scaling=fixed",
+  },
+  {
+    variant: "layer",
+    image: "assets/project1/figma/project-center.png",
+    title: "AI 챗봇 커뮤니티 프로젝트",
+    brand: "Layer",
+    logos: ["assets/project1/logos/layer.svg"],
+    duration: "2026.07.04 - 2026.07.29",
+    built: "온보딩과 홈을 메인으로 개발하고, 앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다",
+    description: "React와 Tailwind CSS를 기반으로 앱 전반의 기능을 구현했고, 향수·브랜드·챌린지·매장 서비스의 더미데이터 설계, 이미지 AVIF 변환을 통한 성능 최적화, PC 프레임과 스타일 가이드 제작까지 담당했습니다.",
+    contribution: "기획 70%　 디자인 70%　 개발 90%",
+    website: "https://ezen-layerproject.vercel.app/",
+    proposal: "https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A5040&node-id=237-5053&viewport=690%2C571%2C0.03&t=DIbfmwmD9cwUu7El-1&scaling=min-zoom&content-scaling=fixed",
+  },
+  {
+    variant: "moa",
+    image: "assets/project1/figma/project-right.png",
+    title: "선택을 돕는 질문형 결정 도우미 앱",
+    brand: "모아",
+    logos: ["assets/project1/logos/moa.svg"],
+    duration: "2026.03.26 - 2026.05.29",
+    built: "사용자가 스스로 기준을 찾도록, UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다",
+    description: "질문에 답하며 스스로 선택 기준을 찾는 서비스를 기획했습니다. 캐릭터와 파스텔 컬러로 친근하게 디자인하고 React와 Vite로 전체 서비스를 개발했으며, PWA 대응과 모바일 뷰포트 최적화까지 1인으로 진행했습니다.",
+    contribution: "기획 100%　 디자인 100%　 개발 100%",
+    website: "https://moa-app-indol.vercel.app/",
+    proposal: "https://www.figma.com/proto/IYUwIKFuLk3G0BmvlsoH9h/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%AA%A8%EC%95%84?page-id=1159%3A1255&node-id=1159-2682&viewport=1063%2C1162%2C0.03&t=5qcWExPYTwMcfkE4-1&scaling=contain&content-scaling=fixed&starting-point-node-id=1159%3A2682",
+  },
 ];
 
 // Small alternating jitter so the row reads as a hand-pinned strip of photos rather than a rigid grid.
@@ -1990,21 +2144,114 @@ const initPlaygroundScroll = () => {
   const row = document.querySelector("#playground-row");
   if (!track || !camera || !row) return;
 
-  const cardCount = 12;
+  const cardCount = playgroundProjects.length;
   for (let index = 0; index < cardCount; index += 1) {
-    const card = document.createElement("div");
+    const project = playgroundProjects[index % playgroundProjects.length];
+    const card = document.createElement("article");
     card.className = "playground-card";
+    card.dataset.detailCard = "true";
+    card.dataset.characterVariant = project.variant;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${project.title} 카드 앞면 보기`);
+    card.setAttribute("aria-pressed", "false");
+    card.tabIndex = -1;
+    card.dataset.baseRotation = String(playgroundRotations[index % playgroundRotations.length]);
     card.style.setProperty("--playground-rotate", `${playgroundRotations[index % playgroundRotations.length]}deg`);
+    card.style.setProperty("--playground-current-rotate", `${playgroundRotations[index % playgroundRotations.length]}deg`);
+
+    const inner = document.createElement("div");
+    inner.className = "playground-card-inner";
+
+    const front = document.createElement("div");
+    front.className = "playground-card-face playground-card-front";
 
     const img = document.createElement("img");
-    img.src = playgroundImages[index % playgroundImages.length];
-    img.alt = "";
+    img.src = project.image;
+    img.alt = `${project.title} 프로젝트 이미지`;
     img.loading = "lazy";
     img.decoding = "async";
 
-    card.appendChild(img);
+    const back = document.createElement("div");
+    back.className = `playground-card-face playground-card-back playground-card-back--${project.variant}`;
+    back.setAttribute("aria-hidden", "true");
+    const logoMarkup = project.logos
+      .map((logo) => `<img src="${logo}" alt="" />`)
+      .join("");
+    back.innerHTML = `
+      <div class="playground-card-backdrop" style="background-image: url('${project.image}')"></div>
+      <div class="playground-card-copy">
+        <h3>
+          <span>${project.title}</span>
+          <span class="playground-card-title-divider" aria-hidden="true">|</span>
+          <span class="playground-project-logo playground-project-logo--${project.variant}" role="img" aria-label="${project.brand}">${logoMarkup}</span>
+        </h3>
+        <div class="playground-card-duration"><span>DURATION</span><b>${project.duration}</b></div>
+        <div class="playground-card-built"><span>WHAT I BUILT</span><b>“ ${project.built} ”</b></div>
+        <p>${project.description}</p>
+        <div class="playground-card-contribution">${project.contribution}</div>
+        <div class="playground-card-actions" aria-label="프로젝트 링크">
+          <a href="${project.website}" target="_blank" rel="noopener noreferrer">WEBSITE ↗</a>
+          <a href="${project.proposal}" target="_blank" rel="noopener noreferrer">PROPOSAL ↗</a>
+        </div>
+      </div>`;
+
+    front.appendChild(img);
+    inner.append(front, back);
+    card.appendChild(inner);
     row.appendChild(card);
+
+    const toggleFocusedCardFace = () => {
+      if (!card.classList.contains("is-focused")) return;
+      const showFront = card.dataset.manualFront !== "true";
+      card.dataset.manualFront = String(showFront);
+      card.classList.toggle("is-manual-front", showFront);
+      card.setAttribute("aria-pressed", String(showFront));
+      card.setAttribute("aria-label", `${project.title} 카드 ${showFront ? "뒷면" : "앞면"} 보기`);
+      card.style.setProperty("--playground-flip", showFront ? "360deg" : "180deg");
+      front.setAttribute("aria-hidden", String(!showFront));
+      back.setAttribute("aria-hidden", String(showFront));
+      back.querySelectorAll("a").forEach((link) => { link.tabIndex = showFront ? -1 : 0; });
+    };
+
+    card.addEventListener("click", toggleFocusedCardFace);
+    card.addEventListener("keydown", (event) => {
+      if (event.target.closest("a")) return;
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      toggleFocusedCardFace();
+    });
+    back.querySelectorAll("a").forEach((link) => {
+      link.tabIndex = -1;
+      link.addEventListener("click", (event) => event.stopPropagation());
+    });
   }
+
+  const createDecorativeCard = (project, rotation) => {
+    const card = document.createElement("div");
+    card.className = "playground-card playground-card--decorative";
+    card.setAttribute("aria-hidden", "true");
+    card.dataset.baseRotation = String(rotation);
+    card.style.setProperty("--playground-rotate", `${rotation}deg`);
+    card.style.setProperty("--playground-current-rotate", `${rotation}deg`);
+    card.style.setProperty("--playground-focus-scale", "0.88");
+
+    const inner = document.createElement("div");
+    inner.className = "playground-card-inner";
+    const front = document.createElement("div");
+    front.className = "playground-card-face playground-card-front";
+    const image = document.createElement("img");
+    image.src = project.image;
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    front.appendChild(image);
+    inner.appendChild(front);
+    card.appendChild(inner);
+    return card;
+  };
+
+  row.prepend(createDecorativeCard(playgroundProjects.at(-1), -3));
+  row.append(createDecorativeCard(playgroundProjects[0], 3));
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) {
@@ -2013,20 +2260,167 @@ const initPlaygroundScroll = () => {
   }
 
   let maxShift = 0;
+  let rowStartShift = 0;
+  let rowEndShift = 0;
+  let scrollTimelineLength = 0;
+  let focusStops = [];
+  let currentRowShift = 0;
+  let targetRowShift = 0;
+  let hasMeasuredPlayground = false;
   let ticking = false;
+  let pendingCharacterVariant;
+  let characterVariantTimer = null;
+  let characterVariantFinishTimer = null;
+  const getIntroDistance = () => Math.min(window.innerHeight * 0.78, 680);
+  const getOutroDistance = () => Math.min(window.innerHeight * 0.72, 620);
+
+  const setCharacterVariant = (buddy, nextVariant) => {
+    const currentVariant = buddy.dataset.characterVariant || null;
+    if (nextVariant === currentVariant && pendingCharacterVariant === undefined) return;
+    if (nextVariant === pendingCharacterVariant) return;
+
+    pendingCharacterVariant = nextVariant;
+    window.clearTimeout(characterVariantTimer);
+    window.clearTimeout(characterVariantFinishTimer);
+    buddy.classList.remove("is-variant-changing");
+    void buddy.offsetWidth;
+    buddy.classList.add("is-variant-changing");
+    characterVariantTimer = window.setTimeout(() => {
+      if (pendingCharacterVariant) buddy.dataset.characterVariant = pendingCharacterVariant;
+      else delete buddy.dataset.characterVariant;
+      pendingCharacterVariant = undefined;
+    }, 220);
+    characterVariantFinishTimer = window.setTimeout(() => {
+      buddy.classList.remove("is-variant-changing");
+    }, 560);
+  };
 
   const measure = () => {
     maxShift = Math.max(0, row.scrollWidth - camera.clientWidth);
-    track.style.height = `${window.innerHeight + maxShift}px`;
+    const cameraCenter = camera.clientWidth / 2;
+    const stopThreshold = 2;
+    focusStops = [...row.querySelectorAll('[data-detail-card="true"]')]
+      .map((card) => row.offsetLeft + card.offsetLeft + card.offsetWidth / 2 - cameraCenter)
+      .filter((shift) => shift >= 0 && shift <= maxShift)
+      .filter((shift, index, shifts) => index === 0 || Math.abs(shift - shifts[index - 1]) > stopThreshold);
+    rowStartShift = focusStops[0] ?? 0;
+    rowEndShift = focusStops.at(-1) ?? maxShift;
+    const holdDistance = Math.min(window.innerHeight * 0.72, 620);
+    scrollTimelineLength = getIntroDistance()
+      + Math.max(0, rowEndShift - rowStartShift)
+      + focusStops.length * holdDistance
+      + getOutroDistance();
+    track.style.height = `${window.innerHeight + scrollTimelineLength}px`;
+    if (!hasMeasuredPlayground) {
+      currentRowShift = rowStartShift;
+      targetRowShift = rowStartShift;
+      hasMeasuredPlayground = true;
+    }
+  };
+
+  const getShiftWithCardHolds = (scrollDistance) => {
+    const holdDistance = Math.min(window.innerHeight * 0.72, 620);
+    let remaining = clamp(scrollDistance, 0, scrollTimelineLength);
+    let currentShift = rowStartShift;
+
+    if (remaining <= getIntroDistance()) return currentShift;
+    remaining -= getIntroDistance();
+
+    for (const stopShift of focusStops) {
+      const moveDistance = Math.max(0, stopShift - currentShift);
+      if (remaining <= moveDistance) return currentShift + remaining;
+      remaining -= moveDistance;
+      currentShift = stopShift;
+
+      if (remaining <= holdDistance) return currentShift;
+      remaining -= holdDistance;
+    }
+
+    return Math.min(rowEndShift, currentShift + remaining);
   };
 
   const applyScroll = () => {
-    ticking = false;
     const trackTop = track.getBoundingClientRect().top + window.scrollY;
-    const progress = maxShift <= 0
-      ? 0
-      : clamp((window.scrollY - trackTop) / maxShift, 0, 1);
-    row.style.transform = `translate3d(${(-progress * maxShift).toFixed(2)}px, 0, 0)`;
+    const scrollDistance = window.scrollY - trackTop;
+    const introProgress = clamp(scrollDistance / getIntroDistance(), 0, 1);
+    const outroStart = scrollTimelineLength - getOutroDistance();
+    const outroProgress = clamp((scrollDistance - outroStart) / getOutroDistance(), 0, 1);
+    targetRowShift = getShiftWithCardHolds(scrollDistance);
+    currentRowShift += (targetRowShift - currentRowShift) * 0.105;
+    if (Math.abs(targetRowShift - currentRowShift) < 0.08) currentRowShift = targetRowShift;
+    row.style.transform = `translate3d(${(-currentRowShift).toFixed(2)}px, 0, 0)`;
+
+    const cameraRect = camera.getBoundingClientRect();
+    const cameraCenter = cameraRect.left + cameraRect.width / 2;
+    const flipRange = Math.min(cameraRect.width * 0.3, 430);
+    let strongestFocus = 0;
+    [...row.children].forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const cardCenter = rect.left + rect.width / 2;
+      const distanceFromCenter = cardCenter - cameraCenter;
+      const rawFlipProgress = clamp((flipRange - distanceFromCenter) / (flipRange * 2), 0, 1);
+      const rawFocusProgress = clamp(1 - Math.abs(distanceFromCenter) / flipRange, 0, 1);
+      if (card.classList.contains("playground-card--decorative")) {
+        card.style.setProperty("--playground-focus-scale", "0.88");
+        card.style.setProperty("--playground-flip", "0deg");
+        card.style.setProperty("--playground-focus", "0");
+        card.style.zIndex = "1";
+        return;
+      }
+      let flipProgress = rawFlipProgress * introProgress;
+      const focusProgress = rawFocusProgress * introProgress;
+      const isLastDetailCard = card === row.querySelector('[data-detail-card="true"]:last-of-type');
+      if (isLastDetailCard && outroProgress > 0) {
+        const outroFlipProgress = clamp(outroProgress / 0.72, 0, 1);
+        flipProgress = 0.5 + outroFlipProgress * 0.5;
+      }
+      strongestFocus = Math.max(strongestFocus, focusProgress);
+      const baseRotation = Number(card.dataset.baseRotation) || 0;
+      const isFocused = focusProgress > 0.72;
+      let isManuallyFront = card.dataset.manualFront === "true";
+      if (isManuallyFront && focusProgress <= 0.02) {
+        delete card.dataset.manualFront;
+        card.classList.remove("is-manual-front");
+        card.setAttribute("aria-pressed", "false");
+        isManuallyFront = false;
+      }
+      const flipRotation = isManuallyFront ? 360 : flipProgress * 360;
+      const isBackVisible = !isManuallyFront && flipProgress > 0.25 && flipProgress < 0.75;
+
+      card.style.setProperty("--playground-current-rotate", `${(baseRotation * (1 - focusProgress)).toFixed(3)}deg`);
+      const introCenteredScale = rawFocusProgress * (1 - introProgress) * 0.12;
+      card.style.setProperty("--playground-focus-scale", (0.88 + focusProgress * 0.32 + introCenteredScale).toFixed(4));
+      card.style.setProperty("--playground-flip", `${flipRotation.toFixed(2)}deg`);
+      card.style.setProperty("--playground-focus", focusProgress.toFixed(4));
+      card.style.zIndex = String(1 + Math.round(focusProgress * 10));
+      card.classList.toggle("is-focused", isFocused);
+      card.tabIndex = isFocused ? 0 : -1;
+      card.querySelector(".playground-card-front")?.setAttribute("aria-hidden", String(isBackVisible));
+      card.querySelector(".playground-card-back")?.setAttribute("aria-hidden", String(!isBackVisible));
+      card.querySelectorAll(".playground-card-actions a").forEach((link) => { link.tabIndex = isBackVisible ? 0 : -1; });
+    });
+    row.classList.toggle("has-focused-card", strongestFocus > 0.72);
+
+    const trackRect = track.getBoundingClientRect();
+    const buddy = document.querySelector("#hero-buddy");
+    if (buddy && trackRect.bottom > 0 && trackRect.top < window.innerHeight) {
+      const activeCard = [...row.children].reduce((nearest, card) => {
+        const rect = card.getBoundingClientRect();
+        const distance = Math.abs(rect.left + rect.width / 2 - cameraCenter);
+        return !nearest || distance < nearest.distance ? { card, distance } : nearest;
+      }, null)?.card;
+      if (activeCard?.dataset.characterVariant) {
+        setCharacterVariant(buddy, activeCard.dataset.characterVariant);
+      }
+    } else if (buddy) {
+      setCharacterVariant(buddy, null);
+    }
+
+    if (Math.abs(targetRowShift - currentRowShift) > 0.08) {
+      requestAnimationFrame(applyScroll);
+    } else {
+      ticking = false;
+    }
   };
 
   const requestScroll = () => {
@@ -2071,18 +2465,45 @@ const openChatbot = () => {
 const initHeroBuddy = () => {
   const buddy = document.querySelector("#hero-buddy");
   const heroSection = document.querySelector("#home");
+  const heroDivider = heroSection?.querySelector(".hero-divider");
   const footerSection = document.querySelector("#contact");
+  const footerDivider = footerSection?.querySelector(".contact-divider");
+  const footerSignatureLines = [...(footerSection?.querySelectorAll(".contact-signature p") ?? [])];
   const legLeft = buddy?.querySelector(".buddy-leg-left");
   const legRight = buddy?.querySelector(".buddy-leg-right");
   if (!buddy || !heroSection || !footerSection) return;
 
-  const BUDDY_W = 88;
-  const BUDDY_H = 120;
+  const footerLetterStates = footerSignatureLines.flatMap((line) => {
+    const label = line.textContent;
+    const fragment = document.createDocumentFragment();
+    const states = [...label].map((character) => {
+      const letter = document.createElement("span");
+      letter.className = "contact-signature-letter";
+      letter.textContent = character === " " ? "\u00a0" : character;
+      letter.setAttribute("aria-hidden", "true");
+      fragment.appendChild(letter);
+      return { letter, lift: 0, rotation: 0 };
+    });
+    line.textContent = "";
+    line.appendChild(fragment);
+    return states;
+  });
+
+  const ROAM_BUDDY_W = 88;
+  const ROAM_BUDDY_H = 120;
+  const DOCKED_BUDDY_W = 66;
+  const DOCKED_BUDDY_H = 88;
+  const buddySize = () => mode === "docked"
+    ? { width: DOCKED_BUDDY_W, height: DOCKED_BUDDY_H }
+    : { width: ROAM_BUDDY_W, height: ROAM_BUDDY_H };
   const MARGIN = 32;
-  const DOCK_MARGIN = 28;
+  const DOCK_MARGIN_X = 72;
+  const DOCK_MARGIN_Y = 28;
   const MAX_SPEED = 480; // px/s, cruising speed across long distances
   const DECEL_DISTANCE = 160; // ease out once within this many px of the target
   const KEY_STEP = 46;
+  const ROAM_VISIBILITY_THRESHOLD = 0.82;
+  const BUDDY_STATE_KEY = "haesoo-portfolio-buddy-state";
 
   let mode = "hero-roam"; // "hero-roam" | "docked" | "footer-roam"
   let heroVisible = true;
@@ -2098,45 +2519,98 @@ const initHeroBuddy = () => {
   let bob = 0;
   let reactionTimer = null;
   let blinkTimer = null;
-  let isFallen = false;
-  let fallDirection = 0;
-  let fallRotation = 0;
+  let isJumping = false;
+  let jumpOffset = 0;
+  let jumpVelocity = 0;
+  let crouchProgress = 0;
+  let landingImpact = 0;
+  let heroDoorPhase = "idle";
+  let heroDoorDirection = 0;
+  let heroDoorPhaseStartedAt = 0;
+  const pressedArrowKeys = new Set();
 
   const groundYFor = (rect) => {
+    const { height } = buddySize();
     const visibleTop = Math.max(rect.top, 0);
     const visibleBottom = Math.min(rect.bottom, window.innerHeight);
-    const ground = visibleBottom - MARGIN - BUDDY_H;
+    const ground = visibleBottom - MARGIN - height;
     return Math.max(ground, visibleTop + MARGIN);
   };
 
   const heroBounds = () => {
+    const { width, height } = buddySize();
+    const footY = height * (228 / 256);
     const rect = heroSection.getBoundingClientRect();
+    const dividerTop = heroDivider?.getBoundingClientRect().top;
+    const groundY = Number.isFinite(dividerTop)
+      ? dividerTop - footY
+      : groundYFor(rect);
     return {
       minX: rect.left + MARGIN,
-      maxX: rect.right - MARGIN - BUDDY_W,
-      y: groundYFor(rect),
+      maxX: rect.right - MARGIN - width,
+      y: Math.max(groundY, Math.max(rect.top, 0) + MARGIN),
     };
   };
 
   const footerBounds = () => {
+    const { width, height } = buddySize();
+    const footY = height * (228 / 256);
     const rect = footerSection.getBoundingClientRect();
+    const dividerTop = footerDivider?.getBoundingClientRect().top ?? rect.bottom;
+    const visibleGround = Math.min(dividerTop, window.innerHeight - MARGIN);
+
     return {
       minX: rect.left + MARGIN,
-      maxX: rect.right - MARGIN - BUDDY_W,
-      y: groundYFor(rect),
+      maxX: rect.right - MARGIN - width,
+      y: Math.max(visibleGround - footY, Math.max(rect.top, 0) + MARGIN),
     };
   };
 
   const dockPoint = () => ({
-    x: window.innerWidth - DOCK_MARGIN - BUDDY_W,
-    y: window.innerHeight - DOCK_MARGIN - BUDDY_H,
+    x: window.innerWidth - DOCK_MARGIN_X - DOCKED_BUDDY_W,
+    y: window.innerHeight - DOCK_MARGIN_Y - DOCKED_BUDDY_H,
   });
+
+  const sectionIsVisible = (section) => {
+    const rect = section.getBoundingClientRect();
+    const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+    return visibleHeight / Math.max(Math.min(rect.height, window.innerHeight), 1) >= ROAM_VISIBILITY_THRESHOLD;
+  };
+
+  const readSavedBuddyState = () => {
+    try {
+      return JSON.parse(sessionStorage.getItem(BUDDY_STATE_KEY) || "null");
+    } catch {
+      return null;
+    }
+  };
+
+  const saveBuddyState = () => {
+    try {
+      sessionStorage.setItem(BUDDY_STATE_KEY, JSON.stringify({ mode, x, targetX, facing }));
+    } catch {
+      // Storage can be unavailable in privacy-restricted contexts.
+    }
+  };
 
   const resolveMode = () => {
     const next = heroVisible ? "hero-roam" : footerVisible ? "footer-roam" : "docked";
     if (next === mode) return;
     mode = next;
     buddy.dataset.mode = mode;
+    if (mode !== "hero-roam" && heroDoorPhase !== "idle") {
+      heroDoorPhase = "idle";
+      heroDoorDirection = 0;
+      buddy.classList.remove("is-behind-hero-card");
+      buddy.removeAttribute("data-look-direction");
+      flipCard?.classList.remove("is-door-active");
+      flipCard?.style.removeProperty("--card-door-rotate");
+    }
+    if (mode === "docked") {
+      isJumping = false;
+      jumpOffset = 0;
+      jumpVelocity = 0;
+    }
     if (mode === "docked") {
       const dock = dockPoint();
       targetX = dock.x;
@@ -2156,18 +2630,6 @@ const initHeroBuddy = () => {
     }, 280);
   };
 
-  const triggerFall = (direction) => {
-    if (isFallen) return;
-    isFallen = true;
-    fallDirection = direction;
-    buddy.classList.add("is-fallen");
-    triggerReaction("down");
-    window.setTimeout(() => {
-      isFallen = false;
-      buddy.classList.remove("is-fallen");
-    }, 1100);
-  };
-
   const scheduleBlink = () => {
     window.clearTimeout(blinkTimer);
     blinkTimer = window.setTimeout(() => {
@@ -2179,45 +2641,132 @@ const initHeroBuddy = () => {
     }, 2400 + Math.random() * 2600);
   };
 
-  const initialBounds = heroBounds();
-  x = targetX = (initialBounds.minX + initialBounds.maxX) / 2;
+  heroVisible = sectionIsVisible(heroSection);
+  footerVisible = sectionIsVisible(footerSection);
+  mode = heroVisible ? "hero-roam" : footerVisible ? "footer-roam" : "docked";
+  buddy.dataset.mode = mode;
+  const savedBuddyState = readSavedBuddyState();
+  const initialBounds = mode === "hero-roam" ? heroBounds() : mode === "footer-roam" ? footerBounds() : dockPoint();
+  const initialMinX = initialBounds.minX ?? initialBounds.x;
+  const initialMaxX = initialBounds.maxX ?? initialBounds.x;
+  const centeredInitialX = (initialMinX + initialMaxX) / 2;
+  const heroCardRect = mode === "hero-roam" ? flipStack?.getBoundingClientRect() : null;
+  const cardRightStartX = heroCardRect ? heroCardRect.right + 28 : centeredInitialX;
+  const cardLeftStartX = heroCardRect ? heroCardRect.left - ROAM_BUDDY_W - 28 : centeredInitialX;
+  const heroInitialX = cardRightStartX <= initialMaxX
+    ? cardRightStartX
+    : cardLeftStartX >= initialMinX
+      ? cardLeftStartX
+      : centeredInitialX;
+  const savedX = savedBuddyState?.mode === mode && Number.isFinite(savedBuddyState.x)
+    ? savedBuddyState.x
+    : mode === "hero-roam" ? heroInitialX : centeredInitialX;
+  x = clamp(savedX, initialMinX, initialMaxX);
+  targetX = clamp(
+    savedBuddyState?.mode === mode && Number.isFinite(savedBuddyState.targetX) ? savedBuddyState.targetX : x,
+    initialMinX,
+    initialMaxX
+  );
+  facing = savedBuddyState?.mode === mode && Math.abs(savedBuddyState.facing) === 1 ? savedBuddyState.facing : 1;
   y = targetY = initialBounds.y;
-  buddy.style.transform = `translate3d(${x}px, ${y}px, 0) scaleX(${facing})`;
+  if (mode === "hero-roam") {
+    isJumping = true;
+    jumpOffset = -110;
+    jumpVelocity = 0;
+  }
+  buddy.style.transform = `translate3d(${x}px, ${y + jumpOffset}px, 0) scaleX(${facing})`;
+  buddy.dataset.facing = facing < 0 ? "left" : "right";
   scheduleBlink();
 
-  new IntersectionObserver(([entry]) => {
-    heroVisible = entry.isIntersecting;
+  const syncBuddySectionVisibility = () => {
+    heroVisible = sectionIsVisible(heroSection);
+    footerVisible = sectionIsVisible(footerSection);
     resolveMode();
-  }, { threshold: 0.35 }).observe(heroSection);
+  };
 
-  new IntersectionObserver(([entry]) => {
-    footerVisible = entry.isIntersecting;
-    resolveMode();
-  }, { threshold: 0.35 }).observe(footerSection);
+  let visibilityFrame = null;
+  const requestBuddyVisibilitySync = () => {
+    if (visibilityFrame !== null) return;
+    visibilityFrame = requestAnimationFrame(() => {
+      visibilityFrame = null;
+      syncBuddySectionVisibility();
+    });
+  };
+
+  window.addEventListener("scroll", requestBuddyVisibilitySync, { passive: true });
+  window.addEventListener("resize", requestBuddyVisibilitySync);
+
+  const restoreBuddyInPlace = () => {
+    heroVisible = sectionIsVisible(heroSection);
+    footerVisible = sectionIsVisible(footerSection);
+    mode = heroVisible ? "hero-roam" : footerVisible ? "footer-roam" : "docked";
+    buddy.dataset.mode = mode;
+    const savedState = readSavedBuddyState();
+    const bounds = mode === "hero-roam" ? heroBounds() : mode === "footer-roam" ? footerBounds() : dockPoint();
+    const minX = bounds.minX ?? bounds.x;
+    const maxX = bounds.maxX ?? bounds.x;
+    const restoredX = savedState?.mode === mode && Number.isFinite(savedState.x) ? savedState.x : x;
+    x = targetX = clamp(restoredX, minX, maxX);
+    y = targetY = bounds.y;
+    buddy.style.transform = `translate3d(${x}px, ${y}px, 0) scaleX(${facing})`;
+    buddy.dataset.facing = facing < 0 ? "left" : "right";
+  };
+
+  const beginHeroDoorPass = (direction) => {
+    if (mode !== "hero-roam" || heroDoorPhase !== "idle" || !flipStack || !flipCard) return false;
+    const cardRect = flipStack.getBoundingClientRect();
+    const buddyTop = y + jumpOffset;
+    const buddyBottom = buddyTop + ROAM_BUDDY_H;
+    const isActuallyOverlapping = x + ROAM_BUDDY_W >= cardRect.left
+      && x <= cardRect.right
+      && buddyBottom >= cardRect.top
+      && buddyTop <= cardRect.bottom;
+    if (!isActuallyOverlapping) return false;
+
+    heroDoorPhase = "opening";
+    heroDoorDirection = direction;
+    heroDoorPhaseStartedAt = performance.now();
+    targetX = direction > 0
+      ? cardRect.right + 12
+      : cardRect.left - ROAM_BUDDY_W - 12;
+    pressedArrowKeys.clear();
+    buddy.classList.add("is-behind-hero-card");
+    flipCard.classList.add("is-door-active");
+    flipCard.style.setProperty("--card-door-rotate", "180deg");
+    return true;
+  };
+
+  window.addEventListener("pagehide", saveBuddyState);
+  window.addEventListener("pageshow", () => requestAnimationFrame(restoreBuddyInPlace));
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) saveBuddyState();
+  });
 
   window.addEventListener("keydown", (event) => {
-    if (mode === "docked" || isFallen) return;
+    if (mode === "docked") return;
+    if (event.key.startsWith("Arrow")) pressedArrowKeys.add(event.key);
+    if (heroDoorPhase === "opening" || heroDoorPhase === "looking") {
+      if (event.key.startsWith("Arrow")) event.preventDefault();
+      return;
+    }
     const bounds = mode === "hero-roam" ? heroBounds() : footerBounds();
 
     if (event.key === "ArrowLeft") {
       const desired = targetX - KEY_STEP;
-      if (desired < bounds.minX && Math.abs(targetX - bounds.minX) < 0.5) {
-        triggerFall(-1);
-      } else {
-        targetX = clamp(desired, bounds.minX, bounds.maxX);
-        facing = -1;
-      }
+      targetX = clamp(desired, bounds.minX, bounds.maxX);
+      facing = -1;
     } else if (event.key === "ArrowRight") {
       const desired = targetX + KEY_STEP;
-      if (desired > bounds.maxX && Math.abs(targetX - bounds.maxX) < 0.5) {
-        triggerFall(1);
-      } else {
-        targetX = clamp(desired, bounds.minX, bounds.maxX);
-        facing = 1;
-      }
+      targetX = clamp(desired, bounds.minX, bounds.maxX);
+      facing = 1;
     } else if (event.key === "ArrowUp") {
+      if (!isJumping) {
+        isJumping = true;
+        jumpVelocity = -820;
+      }
       triggerReaction("up");
     } else if (event.key === "ArrowDown") {
+      if (isJumping) jumpVelocity += 900;
       triggerReaction("down");
     } else {
       return;
@@ -2225,7 +2774,19 @@ const initHeroBuddy = () => {
     event.preventDefault();
   });
 
+  window.addEventListener("keyup", (event) => {
+    if (event.key.startsWith("Arrow")) pressedArrowKeys.delete(event.key);
+  });
+
+  window.addEventListener("blur", () => pressedArrowKeys.clear());
+
   buddy.addEventListener("click", openChatbot);
+
+  let nextHint = "dpad";
+  buddy.addEventListener("pointerenter", () => {
+    buddy.dataset.hint = nextHint;
+    nextHint = nextHint === "dpad" ? "chat" : "dpad";
+  });
 
   window.addEventListener("resize", resolveMode);
 
@@ -2237,15 +2798,60 @@ const initHeroBuddy = () => {
     const dt = Math.min(64, now - lastTime) / 1000;
     lastTime = now;
 
-    if (mode !== "docked" && !isFallen) {
+    if (mode === "hero-roam" && heroDoorPhase === "idle") {
+      const travelDirection = Math.sign(targetX - x);
+      if (travelDirection !== 0) beginHeroDoorPass(travelDirection);
+    }
+
+    if (heroDoorPhase === "opening" && now - heroDoorPhaseStartedAt >= 960) {
+      heroDoorPhase = "passing";
+      heroDoorPhaseStartedAt = now;
+      flipCard?.classList.remove("is-door-active");
+      flipCard?.style.setProperty("--card-door-rotate", "0deg");
+      const cardRect = flipStack?.getBoundingClientRect();
+      if (cardRect) {
+        targetX = heroDoorDirection > 0
+          ? cardRect.right + 12
+          : cardRect.left - ROAM_BUDDY_W - 12;
+      }
+    } else if (heroDoorPhase === "passing" && flipStack) {
+      const cardRect = flipStack.getBoundingClientRect();
+      const clearedCard = heroDoorDirection > 0
+        ? x >= cardRect.right + 8
+        : x + ROAM_BUDDY_W <= cardRect.left - 8;
+      if (clearedCard) {
+        heroDoorPhase = "looking";
+        heroDoorPhaseStartedAt = now;
+        targetX = x;
+        pressedArrowKeys.clear();
+        buddy.classList.remove("is-behind-hero-card");
+        // The whole character is mirrored while facing left, so the local
+        // "left" eye offset becomes a screen-right glance on the card's left side.
+        buddy.dataset.lookDirection = "left";
+      }
+    } else if (heroDoorPhase === "looking" && now - heroDoorPhaseStartedAt >= 650) {
+      heroDoorPhase = "idle";
+      heroDoorDirection = 0;
+      buddy.removeAttribute("data-look-direction");
+      flipCard?.style.removeProperty("--card-door-rotate");
+    }
+
+    if (mode !== "docked") {
       const bounds = mode === "hero-roam" ? heroBounds() : footerBounds();
+      if (isJumping) {
+        const airDirection = Number(pressedArrowKeys.has("ArrowRight")) - Number(pressedArrowKeys.has("ArrowLeft"));
+        if (airDirection !== 0) {
+          targetX = clamp(targetX + airDirection * 320 * dt, bounds.minX, bounds.maxX);
+          facing = airDirection;
+        }
+      }
       targetY = bounds.y;
       targetX = clamp(targetX, bounds.minX, bounds.maxX);
     }
 
     const dx = targetX - x;
     const dy = targetY - y;
-    const distance = isFallen ? 0 : Math.hypot(dx, dy);
+    const distance = Math.hypot(dx, dy);
 
     if (distance > 0.5) {
       const desiredSpeed = distance < DECEL_DISTANCE
@@ -2260,10 +2866,8 @@ const initHeroBuddy = () => {
       bob = Math.abs(Math.sin(walkPhase)) * 5;
       buddy.classList.add("is-walking");
     } else {
-      if (!isFallen) {
-        x = targetX;
-        y = targetY;
-      }
+      x = targetX;
+      y = targetY;
       currentSpeed = 0;
       walkPhase = 0;
       bob += (0 - bob) * Math.min(1, dt * 8);
@@ -2272,18 +2876,50 @@ const initHeroBuddy = () => {
 
     facingScale += (facing - facingScale) * Math.min(1, dt * 9);
     const lean = facingScale * Math.min(currentSpeed / MAX_SPEED, 1) * 6;
-
-    const fallTarget = isFallen ? fallDirection * 82 : 0;
-    fallRotation += (fallTarget - fallRotation) * Math.min(1, dt * (isFallen ? 12 : 7));
-    buddy.style.transformOrigin = fallDirection >= 0 ? "18% 100%" : "82% 100%";
+    const crouchTarget = pressedArrowKeys.has("ArrowDown") && !isJumping ? 1 : 0;
+    crouchProgress += (crouchTarget - crouchProgress) * Math.min(1, dt * 14);
+    landingImpact += (0 - landingImpact) * Math.min(1, dt * 9);
+    buddy.classList.toggle("is-crouching", crouchProgress > 0.08 || landingImpact > 0.08);
 
     if (legLeft && legRight) {
-      const swing = isFallen ? 0 : Math.sin(walkPhase) * 20;
+      const swing = isJumping ? 32 : crouchProgress > 0.05 ? 42 * crouchProgress : Math.sin(walkPhase) * 20;
       legLeft.style.transform = `rotate(${swing.toFixed(2)}deg)`;
       legRight.style.transform = `rotate(${(-swing).toFixed(2)}deg)`;
     }
 
-    buddy.style.transform = `translate3d(${x.toFixed(2)}px, ${(y - bob).toFixed(2)}px, 0) scaleX(${facingScale.toFixed(3)}) rotate(${(lean + fallRotation).toFixed(2)}deg)`;
+    const currentBuddySize = buddySize();
+    const buddyFootX = x + currentBuddySize.width / 2;
+    if (isJumping) {
+      jumpVelocity += 3000 * dt;
+      jumpOffset += jumpVelocity * dt;
+      if (jumpOffset >= 0) {
+        jumpOffset = 0;
+        jumpVelocity = 0;
+        isJumping = false;
+        landingImpact = 1;
+        triggerReaction("down");
+      }
+    }
+
+    const buddyFootY = y - bob + jumpOffset + currentBuddySize.height * (228 / 256);
+    footerLetterStates.forEach((state) => {
+      const rect = state.letter.getBoundingClientRect();
+      const letterX = rect.left + rect.width / 2;
+      const letterY = rect.top + rect.height / 2;
+      const distance = Math.hypot(letterX - buddyFootX, letterY - buddyFootY);
+      const proximity = mode === "footer-roam" ? Math.max(0, 1 - distance / 170) : 0;
+      const targetLift = -18 * proximity;
+      const targetRotation = ((letterX - buddyFootX) / 170) * proximity * 7;
+      const response = Math.min(1, dt * 10);
+      state.lift += (targetLift - state.lift) * response;
+      state.rotation += (targetRotation - state.rotation) * response;
+      state.letter.style.transform = `translateY(${state.lift.toFixed(2)}px) rotate(${state.rotation.toFixed(2)}deg)`;
+    });
+
+    const poseScaleX = 1 + crouchProgress * 0.12 + landingImpact * 0.16;
+    const poseScaleY = 1 - crouchProgress * 0.18 - landingImpact * 0.22;
+    buddy.style.transform = `translate3d(${x.toFixed(2)}px, ${(y - bob + jumpOffset).toFixed(2)}px, 0) scaleX(${facingScale.toFixed(3)}) rotate(${lean.toFixed(2)}deg) scale(${poseScaleX.toFixed(3)}, ${poseScaleY.toFixed(3)})`;
+    buddy.dataset.facing = facingScale < 0 ? "left" : "right";
     requestAnimationFrame(tick);
   };
 
