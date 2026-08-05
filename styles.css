@@ -450,7 +450,7 @@ html.has-js:not(.landing-complete) .hero-word {
 }
 
 .card-rear img {
-  filter: saturate(1.08) contrast(1.02);
+  filter: grayscale(1) contrast(1.12);
 }
 
 .card-front img {
