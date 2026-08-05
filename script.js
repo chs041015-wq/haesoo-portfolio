@@ -2831,6 +2831,22 @@ const initChatbotModal = () => {
     }
   };
 
+  const projectQuestions = {
+    aqua: "아쿠아플라넷 프로젝트에 대해 알려주세요",
+    layer: "LAYER 프로젝트에 대해 알려주세요",
+    moa: "MOA 프로젝트에 대해 알려주세요",
+  };
+
+  const askAboutProject = (variant) => {
+    const question = projectQuestions[variant];
+    if (!question) {
+      openChatbotModal();
+      return;
+    }
+    openChatbotModal();
+    void sendMessage(question);
+  };
+
   closeButton.addEventListener("click", closeChatbotModal);
 
   document.addEventListener("keydown", (event) => {
@@ -2859,11 +2875,20 @@ const initChatbotModal = () => {
     button.addEventListener("click", () => void sendMessage(button.dataset.topic));
   });
 
-  return { open: openChatbotModal, close: closeChatbotModal, isOpen: () => isOpen };
+  return {
+    open: openChatbotModal,
+    close: closeChatbotModal,
+    isOpen: () => isOpen,
+    askAboutProject,
+  };
 };
 
 const chatbotModalApi = initChatbotModal();
 const openChatbot = () => chatbotModalApi?.open();
+const askChatbotAboutProject = (variant) => {
+  if (chatbotModalApi?.askAboutProject) chatbotModalApi.askAboutProject(variant);
+  else openChatbot();
+};
 
 const initHeroBuddy = () => {
   const buddy = document.querySelector("#hero-buddy");
@@ -3236,7 +3261,9 @@ const initHeroBuddy = () => {
 
   window.addEventListener("blur", () => pressedArrowKeys.clear());
 
-  buddy.addEventListener("click", openChatbot);
+  buddy.addEventListener("click", () => {
+    askChatbotAboutProject(buddy.dataset.characterVariant);
+  });
 
   let nextHint = "dpad";
   buddy.addEventListener("pointerenter", () => {
