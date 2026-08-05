@@ -15,6 +15,12 @@
     <div class="cursor" aria-hidden="true"></div>
 
     <header class="site-nav" aria-label="Primary navigation">
+      <div class="wireframe-gen">
+        <button type="button" class="wireframe-gen-button" data-wireframe-gen aria-label="AI 와이어프레임 생성기 (준비 중)">
+          <span>Sayout</span>
+        </button>
+        <span class="wireframe-gen-toast" data-wireframe-toast role="status" aria-live="polite">곧 만나요! 준비 중이에요</span>
+      </div>
       <a class="brand nav-section-title" href="#home" aria-label="Back to home">
         <span class="nav-section-title-window" aria-live="polite">
           <span data-nav-title-current>Haesoo</span>
@@ -153,6 +159,7 @@
         <div class="spiral-scroll-shell">
           <div class="spiral-stage">
             <canvas class="spiral-webgl" role="button" tabindex="0" aria-label="Selected Works spiral"></canvas>
+            <div class="spiral-webgl-fade" aria-hidden="true"></div>
             <span class="spiral-project-cta" aria-hidden="true">
               <span class="spiral-project-cta-arrow" aria-hidden="true">↗</span>
               <span>VIEW SITE</span>
@@ -303,9 +310,18 @@
       <section class="contact" id="contact" data-nav-title="Contact">
         <div class="contact-topline">
           <h2 data-scroll-title>Let’s talk !</h2>
-          <div class="contact-links" aria-label="Contact information">
-            <a href="tel:+821042124970">010 4212 4970</a>
-            <a href="mailto:chs041015@gmail.com">chs041015@gmail.com</a>
+          <div class="contact-topright">
+            <div class="contact-links" aria-label="Contact information">
+              <a href="tel:+821042124970">010 4212 4970</a>
+              <a href="mailto:chs041015@gmail.com">chs041015@gmail.com</a>
+            </div>
+
+            <nav class="contact-gnb" aria-label="Section navigation">
+              <a class="rolling-link" href="#home"><span>HOME</span><span>HOME</span></a>
+              <a class="rolling-link" href="#about"><span>ABOUT</span><span>ABOUT</span></a>
+              <a class="rolling-link" href="#project1"><span>WORK</span><span>WORK</span></a>
+              <a class="rolling-link" href="#services"><span>TIMELINE</span><span>TIMELINE</span></a>
+            </nav>
           </div>
         </div>
 
@@ -315,6 +331,14 @@
         </div>
 
         <img class="contact-divider" src="assets/figma/footer-line.svg" alt="" aria-hidden="true" />
+
+        <div class="contact-footer-meta">
+          <a class="back-to-top" href="#home">
+            <span class="rolling-link"><span>Back to top</span><span>Back to top</span></span>
+            <span class="back-to-top-arrow" aria-hidden="true">&#8593;</span>
+          </a>
+          <p class="contact-copyright">&copy; 2026 Haesoo All rights reserved</p>
+        </div>
       </section>
     </main>
 
@@ -370,6 +394,45 @@
       <img class="buddy-moa-question buddy-moa-question-large" src="assets/figma/moa-question-large.svg" alt="" aria-hidden="true" />
       <img class="buddy-moa-question buddy-moa-question-small" src="assets/figma/moa-question-small.svg" alt="" aria-hidden="true" />
     </button>
+
+    <div class="chatbot-modal" data-chatbot-modal hidden aria-hidden="true">
+      <div class="chatbot-modal-panel" role="dialog" aria-labelledby="chatbot-modal-recipient">
+        <div class="chat-frame">
+          <div class="chat-header-frame">
+            <span class="chat-header-meta">
+              <svg class="chat-header-avatar" viewBox="0 0 176 134" aria-hidden="true">
+                <rect x="0" y="0" width="176" height="134" rx="36"></rect>
+                <circle class="chat-header-avatar-eye" cx="54" cy="70" r="26"></circle>
+                <circle class="chat-header-avatar-eye" cx="120" cy="70" r="26"></circle>
+                <circle class="chat-header-avatar-pupil" cx="58" cy="70" r="11.2"></circle>
+                <circle class="chat-header-avatar-pupil" cx="124" cy="70" r="11.2"></circle>
+                <circle class="chat-header-avatar-highlight" cx="62.5" cy="65" r="2"></circle>
+                <circle class="chat-header-avatar-highlight" cx="128.5" cy="65" r="2"></circle>
+              </svg>
+              <span id="chatbot-modal-recipient">I'm Haesoo Bot!</span>
+            </span>
+            <button type="button" class="chatbot-modal-close" data-chatbot-close aria-label="챗봇 닫기">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <line x1="5" y1="5" x2="19" y2="19"></line>
+                <line x1="19" y1="5" x2="5" y2="19"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="chat-conversation-frame" data-chat-log aria-live="polite" aria-busy="false"></div>
+          <div class="chat-quick-topics" data-chat-topics role="group" aria-label="빠른 질문">
+            <button type="button" data-topic="프로젝트">프로젝트</button>
+            <button type="button" data-topic="기술">기술</button>
+            <button type="button" data-topic="소개">소개</button>
+            <button type="button" data-topic="취미">취미</button>
+            <button type="button" data-topic="연락">연락</button>
+          </div>
+          <form class="chat-input-frame" data-chat-form>
+            <input type="text" data-chat-input placeholder="메시지를 입력하세요" autocomplete="off" aria-label="메시지 입력" />
+            <button type="submit" data-chat-send>SEND</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <script src="assets/vendor/gsap.min.js"></script>
     <script src="tools.js?v=25"></script>

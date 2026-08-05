@@ -95,6 +95,7 @@ const spiralGrid = document.querySelector(".spiral-grid");
 const spiralCanvas = document.querySelector(".spiral-webgl");
 const spiralProjectCta = document.querySelector(".spiral-project-cta");
 const projectOverlay = document.querySelector(".project-overlay");
+const chatbotModal = document.querySelector(".chatbot-modal");
 
 if (spiralProjectCta && spiralProjectCta.parentElement !== document.body) {
   document.body.appendChild(spiralProjectCta);
@@ -149,6 +150,19 @@ const projectOverlayCta = document.querySelector(".project-overlay-cta");
 const projectOverlayRevealItems = [...document.querySelectorAll("[data-overlay-reveal]")];
 const projectOverlayChrome = [projectOverlayClose, document.querySelector(".project-overlay-navigation")].filter(Boolean);
 const experienceSection = document.querySelector(".experience-section");
+const contactSection = document.querySelector(".contact");
+const contactLinksEl = document.querySelector(".contact-links");
+const contactSignatureEl = document.querySelector(".contact-signature");
+const contactGnbEl = document.querySelector(".contact-gnb");
+const contactDividerEl = document.querySelector(".contact-divider");
+const contactFooterMetaEl = document.querySelector(".contact-footer-meta");
+const contactRevealGroups = [
+  [contactLinksEl],
+  [contactSignatureEl, contactGnbEl],
+  [contactDividerEl, contactFooterMetaEl],
+]
+  .map((group) => group.filter(Boolean))
+  .filter((group) => group.length);
 const timelineShell = document.querySelector(".timeline-shell");
 const timelineLine = document.querySelector(".timeline-line");
 const timelineProgress = document.querySelector(".timeline-progress");
@@ -313,11 +327,19 @@ const typeHeroTitle = async () => {
   });
 };
 
+let resolveHeroBuddyIntro;
+const heroBuddyIntroSignal = new Promise((resolve) => {
+  resolveHeroBuddyIntro = resolve;
+});
+window.setTimeout(() => resolveHeroBuddyIntro(), 1500);
+
 const initLandingEntrance = async () => {
   const root = document.documentElement;
   const gsap = window.gsap;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const compactLanding = window.matchMedia("(max-width: 1279.98px)").matches;
+
+  await heroBuddyIntroSignal;
   const finalState = {
     "--landing-card-opacity": 1,
     "--landing-card-y": "0px",
@@ -462,6 +484,13 @@ const initCodeSectionTitles = () => {
     });
   }
 
+  const lastProgressValues = new WeakMap();
+  const setProgressIfChanged = (element, property, value) => {
+    if (!element || lastProgressValues.get(element) === value) return;
+    lastProgressValues.set(element, value);
+    element.style.setProperty(property, value);
+  };
+
   const paint = () => {
     titleGroups.forEach((group) => {
       const rect = group.trigger.getBoundingClientRect();
@@ -488,8 +517,8 @@ const initCodeSectionTitles = () => {
                 1
               );
 
-        heading.style.setProperty("--chapter-exit-progress", exitProgress.toFixed(4));
-        content?.style.setProperty("--chapter-content-progress", contentProgress.toFixed(4));
+        setProgressIfChanged(heading, "--chapter-exit-progress", exitProgress.toFixed(4));
+        setProgressIfChanged(content, "--chapter-content-progress", contentProgress.toFixed(4));
       }
     });
   };
@@ -545,6 +574,7 @@ const initHeroLetterInteraction = () => {
   }));
 
   const resetLetters = () => {
+    if (!document.documentElement.classList.contains("hero-title-ready")) return;
     motions.forEach((motion) => {
       motion.x(0);
       motion.y(0);
@@ -564,10 +594,7 @@ const initHeroLetterInteraction = () => {
     interactionFrame = requestAnimationFrame(() => {
       interactionFrame = null;
 
-      if (!document.documentElement.classList.contains("hero-title-ready")) {
-        resetLetters();
-        return;
-      }
+      if (!document.documentElement.classList.contains("hero-title-ready")) return;
 
       const titleRect = heroTitle.getBoundingClientRect();
       const radius = Math.min(165, Math.max(125, window.innerWidth * 0.105));
@@ -994,6 +1021,34 @@ const updateSpiralNavState = () => {
     return rect.top < window.innerHeight * 0.36 && rect.bottom > window.innerHeight * 0.36;
   });
   document.body.classList.toggle("is-spiral-active", isActive);
+};
+
+const updateContactNavState = () => {
+  if (!creamProjectsSection) return;
+
+  const rect = creamProjectsSection.getBoundingClientRect();
+  const isInContact = rect.top < window.innerHeight * 0.36;
+  document.body.classList.toggle("is-contact-active", isInContact);
+};
+
+const CONTACT_REVEAL_OFFSET = 56;
+
+const updateContactReveal = () => {
+  if (!contactSection || !contactRevealGroups.length) return;
+
+  const sectionRect = contactSection.getBoundingClientRect();
+  if (sectionRect.top > window.innerHeight * 1.25) return;
+
+  const revealLine = window.innerHeight * 0.98;
+  contactRevealGroups.forEach((group) => {
+    const isRevealed = group.every((el) => {
+      const restingTop = el.classList.contains("is-revealed")
+        ? el.getBoundingClientRect().top
+        : el.getBoundingClientRect().top - CONTACT_REVEAL_OFFSET;
+      return restingTop < revealLine;
+    });
+    if (isRevealed) group.forEach((el) => el.classList.add("is-revealed"));
+  });
 };
 
 const setNavSectionTitle = (title, direction) => {
@@ -1978,6 +2033,7 @@ const initSpiralExperience = async () => {
       const spiralVisibilityObserver = new IntersectionObserver(
         ([entry]) => {
           spiralInView = entry.isIntersecting;
+          spiralScrollShell?.classList.toggle("is-scroll-animating", entry.isIntersecting);
           syncSpiralLoop();
         },
         { rootMargin: "35% 0px", threshold: 0 }
@@ -2021,6 +2077,8 @@ const requestHeroCardUpdate = () => {
     updateCreamExitCurve();
     updateAboutRevealText();
     updateSpiralNavState();
+    updateContactNavState();
+    updateContactReveal();
     updateNavSectionTitle();
     updateExperienceTimeline();
     ticking = false;
@@ -2057,6 +2115,8 @@ updateDarkRevealCurve();
 updateCreamExitCurve();
 updateAboutRevealText();
 updateSpiralNavState();
+updateContactNavState();
+updateContactReveal();
 updateNavSectionTitle();
 prepareTimelineWords();
 updateExperienceTimeline();
@@ -2371,8 +2431,7 @@ const initPlaygroundScroll = () => {
       const focusProgress = rawFocusProgress * introProgress;
       const isLastDetailCard = card === row.querySelector('[data-detail-card="true"]:last-of-type');
       if (isLastDetailCard && outroProgress > 0) {
-        const outroFlipProgress = clamp(outroProgress / 0.72, 0, 1);
-        flipProgress = 0.5 + outroFlipProgress * 0.5;
+        flipProgress = 0.5;
       }
       strongestFocus = Math.max(strongestFocus, focusProgress);
       const baseRotation = Number(card.dataset.baseRotation) || 0;
@@ -2457,10 +2516,354 @@ const initPlaygroundScroll = () => {
 
 initPlaygroundScroll();
 
-const openChatbot = () => {
-  // Stub — wire up the real chat panel later.
-  console.log("open chatbot");
+const initWireframeGenButton = () => {
+  const button = document.querySelector("[data-wireframe-gen]");
+  const toast = document.querySelector("[data-wireframe-toast]");
+  if (!button || !toast) return;
+
+  let hideTimer = 0;
+  button.addEventListener("click", () => {
+    window.clearTimeout(hideTimer);
+    toast.classList.add("is-visible");
+    hideTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 2200);
+  });
 };
+
+initWireframeGenButton();
+
+const initChatbotModal = () => {
+  const modal = chatbotModal;
+  const buddyButton = document.querySelector("#hero-buddy");
+  const closeButton = modal?.querySelector("[data-chatbot-close]");
+  const conversation = modal?.querySelector("[data-chat-log]");
+  const form = modal?.querySelector("[data-chat-form]");
+  const input = modal?.querySelector("[data-chat-input]");
+  const sendButton = modal?.querySelector("[data-chat-send]");
+  const topicsWrapper = modal?.querySelector("[data-chat-topics]");
+  const topicButtons = [...(topicsWrapper?.querySelectorAll("button") ?? [])];
+
+  if (!modal || !closeButton || !conversation || !form || !input || !sendButton) {
+    return null;
+  }
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const config = {
+    greeting: "안녕하세요 ! 저는 최해수입니다. 포트폴리오나 작업 방식 또는 저에 대해 궁금한 점을 물어보세요.",
+    suggestions: [
+      "어떤 프로젝트를 했나요?",
+      "가장 자신 있는 기술은?",
+      "함께 일하려면 어떻게 하나요?",
+    ],
+    qna: [
+      {
+        keywords: ["MOA", "모아", "의사결정", "후보추천"],
+        answer: "MOA는 선택지가 너무 많아서 결정이 어렵거나 남 의견에 자꾸 기대게 되는 문제를 풀려고 만든 서비스예요. 답변 맥락에 따라 질문을 이어가면서 선택 기준을 정리해주고, 마지막엔 후보 세 개랑 추천 이유를 보여줘요.",
+      },
+      {
+        keywords: ["MOA결과", "4.12", "사용자평가", "25명", "984개", "MOA 성과"],
+        answer: "MOA는 25명한테 40문항으로 사용자 평가를 받았어요. 미입력 16개 빼고 984개 응답 기준으로 평균 4.12점(5점 만점) 나왔고, 거기서 발견한 문제들(클릭 표현, 질문 흐름, 홈 화면 구조, 튜토리얼)은 다 개선했어요.",
+      },
+      {
+        keywords: ["아쿠아플라넷", "Aqua Planet", "글래스모피즘"],
+        answer: "아쿠아플라넷의 지점, 해양생물, 프로그램을 깊어지는 바다 느낌으로 소개하는 인터랙티브 웹이에요. 긴 스크롤 배경, 영상, 기포·물결 효과, 3D 생물 모델, 글래스모피즘 UI를 섞어서 수중 공간을 탐색하는 감각을 표현했고, 대용량 영상·3D 자산 때문에 생기는 성능 문제도 같이 줄여봤어요.",
+      },
+      {
+        keywords: ["LAYER", "레이어", "향수"],
+        answer: "LAYER는 어렵고 방대한 향수 정보를 취향이랑 상황에 맞게 탐색하게 도와주는 향수 앱이에요. 향수 성향 진단, 매거진, 후기랑 자유롭게 대화하는 커뮤니티, 사진 보고 어울리는 향 추천해주는 콘텐츠랑 챗봇까지 설계했어요.",
+      },
+      {
+        keywords: ["Sayout", "세이아웃", "명령형", "와이어프레임"],
+        answer: "Sayout은 원하는 화면을 문장으로 입력하면 Figma 와이어프레임을 만들어주는 도구예요. 반복되는 초기 레이아웃 작업 시간을 줄이고, 구조를 빠르게 비교하고 고칠 수 있게 하는 게 목표예요. 최근엔 이 AI 와이어프레임 기능도 작업했어요! 좌상단 버튼 눌러서 체험해보세요.",
+      },
+      {
+        keywords: ["대표 프로젝트", "프로젝트 순서", "무엇부터", "추천 프로젝트"],
+        answer: "UX 문제 정의랑 사용자 검증 과정 보고 싶으면 MOA 먼저 추천해요. 인터랙티브 웹 구현은 아쿠아플라넷, 콘텐츠 구조랑 감각적인 모바일 UI는 LAYER, AI로 새로운 도구 만드는 건 Sayout이랑 이 포트폴리오 챗봇에서 볼 수 있어요.",
+      },
+      {
+        keywords: ["프로젝트", "작업물", "포트폴리오", "만든", "work"],
+        answer: "선택을 돕는 AI 서비스 MOA, 아쿠아플라넷의 해양 경험을 담은 인터랙티브 웹, 향수 탐색 앱 LAYER, 문장으로 와이어프레임 만들어주는 Sayout, 그리고 캐릭터형 챗봇을 넣은 이 포트폴리오까지 진행했어요. Works 버튼 누르면 더 자세히 볼 수 있어요!",
+      },
+      {
+        keywords: ["코딩", "개발", "HTML", "CSS", "React", "GitHub", "기술", "스킬", "skill", "잘하", "자신"],
+        answer: "네, HTML·CSS 기반으로 화면 만들고 React랑 Vite로 프로젝트도 여러 개 진행했어요. Git·GitHub로 협업하고 Vercel로 배포까지 직접 해봤고, 인터랙션이 많이 필요한 프로젝트에선 GSAP·ScrollTrigger·Three.js도 써봤어요.",
+      },
+      {
+        keywords: ["디자인 도구", "디자인툴", "Figma", "프로토타입", "컴포넌트"],
+        answer: "주로 Figma로 와이어프레임, UI, 컴포넌트, 프로토타입까지 다 만들어요. 필요한 이미지나 시각 자산도 다듬고, 인터랙티브 웹으로 옮길 땐 구조를 개발 환경에 맞게 정리해서 써요.",
+      },
+      {
+        keywords: ["앞으로", "커리어 목표", "미래", "프로덕트 디자이너", "되고 싶", "되고싶"],
+        answer: "사용자 행동이랑 감정을 세밀하게 이해하면서도, 아이디어를 실제 제품·서비스로 구현할 수 있는 디자이너가 되고 싶어요. 디자인이랑 개발 사이의 언어를 같이 이해하면서 팀이랑 잘 협업하고, 사용자가 직접 만지고 반응할 수 있는 경험을 만드는 게 목표예요.",
+      },
+      {
+        keywords: ["어떤 디자이너", "디자인 철학", "정체성", "지향점", "한 문장"],
+        answer: "저는 사용자를 감각으로 읽고, 그 감각을 논리로 구현하는 디자이너를 지향해요. 보기 좋은 화면 만드는 데서 끝내지 않고, 사용자가 뭘 이해하고 어떤 행동을 하게 될지까지 설계한 다음 인터랙션이랑 코드로 연결하려고 해요.",
+      },
+      {
+        keywords: ["자기소개", "소개", "지원자", "본인", "누구", "해수", "최해수"],
+        answer: "저는 사용자의 감각이랑 행동을 관찰해서 문제를 찾고, 그걸 논리적인 화면 구조랑 실제 작동하는 인터랙션으로 만드는 디자이너예요. Figma로 기획하고 시각화하는 것부터 HTML·CSS·React로 직접 구현하는 것까지 다 해요.",
+      },
+      {
+        keywords: ["강점", "장점", "차별점", "실행력"],
+        answer: "제 강점은 아이디어를 제안하는 데서 멈추지 않고, 사용자 흐름이랑 인터랙션을 구체화해서 실제 화면으로 구현하는 실행력이에요. 디자인 의도를 코드랑 직접 연결해볼 수 있어서, 구현하다 생기는 제약도 이해하고 더 현실적인 방법을 찾을 수 있어요.",
+      },
+      {
+        keywords: ["성격", "성향", "꾸준함", "끈기"],
+        answer: "목표를 정하면 쉽게 안 놓고 될 때까지 방법을 찾는 편이에요. 미대 입시 준비하면서 학업이랑 알바를 같이 했던 경험 덕분에, 시간이 빠듯해도 계획을 조정해가면서 끝까지 해내는 습관이 생겼어요.",
+      },
+      {
+        keywords: ["디자인 기준", "좋은 디자인", "정보 구조", "인터랙션 목적"],
+        answer: "화면을 보면서 사용자가 뭘 이해하고 다음에 뭘 해야 할지 자연스럽게 드러나는지를 제일 중요하게 봐요. 비주얼이나 인터랙션도 그냥 예뻐 보이려고 넣기보다, 문제랑 브랜드 경험을 더 명확하게 전달하는 방향으로 쓰려고 해요.",
+      },
+      {
+        keywords: ["프로세스", "작업 과정", "문제 해결", "사용자 흐름"],
+        answer: "먼저 사용자가 겪는 문제랑 목표를 정리하고, 핵심 흐름이랑 정보 구조를 설계해요. 그다음 와이어프레임이랑 비주얼 콘셉트를 구체화해서 실제 화면으로 만들어보고, 테스트나 피드백에서 나온 문제는 우선순위 정해서 다시 고쳐요.",
+      },
+      {
+        keywords: ["디자인과 개발", "현실성"],
+        answer: "인터랙션이 중요한 프로젝트는 디자인 파일만으로는 경험을 다 설명하기 어렵더라고요. 직접 구현해보면 속도나 반응, 전환 같은 걸 더 구체적으로 볼 수 있고, 개발 제약을 알고 나서 더 현실적인 디자인 결정을 내릴 수 있어요.",
+      },
+      {
+        keywords: ["인터랙션", "모션", "애니메이션", "스크롤", "스토리텔링"],
+        answer: "인터랙션을 그냥 장식으로 먼저 정하기보다, 콘텐츠 흐름이랑 사용자 시선을 어떻게 연결할지부터 생각해요. 아쿠아플라넷에서는 바다 속으로 들어가는 느낌을 롱스크롤이랑 영상·3D로 표현했고, 제 포트폴리오에서는 캐릭터가 안내하다가 챗봇으로 이어지는 흐름을 짜봤어요.",
+      },
+      {
+        keywords: ["사용자테스트", "사용자 테스트", "피드백", "검증"],
+        answer: "MOA 프로젝트에서 사용자 평가를 해봤는데, 클릭 가능한 요소가 잘 안 보이는 문제, 질문이 반복되는 문제, 홈 화면 정보 우선순위 문제가 나왔어요. 그래서 클릭 가능성을 더 뚜렷하게 표현하고, 질문 흐름이랑 히어로 영역 정리하고, 튜토리얼도 보완했어요.",
+      },
+      {
+        keywords: ["팀 프로젝트", "Git", "브랜치", "커뮤니케이션"],
+        answer: "팀 프로젝트에서 역할 나누고 Git·GitHub로 브랜치 관리하면서 작업했어요. 아쿠아플라넷 할 때는 페이지랑 자산을 브랜치로 나눠서 작업했고, 충돌이나 배포 문제 생기면 원인 찾아서 정리하면서 해결했어요.",
+      },
+      {
+        keywords: ["생성형", "AI 활용", "업무활용"],
+        answer: "AI로 결과물을 대신 결정하게 하기보다, 아이디어 탐색하고 이미지 시안 만들고 문구 정리하는 걸 빠르게 반복하는 용도로 써요. 문장으로 Figma 와이어프레임을 만들어주는 Sayout이나 이 포트폴리오 챗봇처럼, AI 기능 자체를 프로젝트로 만들어보는 것도 재밌어서 하고 있어요.",
+      },
+      {
+        keywords: ["디자인 계기", "산업디자인", "미대입시", "미대 입시", "진로"],
+        answer: "원래 그림 그리는 걸 좋아했고, 아이디어를 실제 형태로 만들 수 있다는 점에 끌려서 산업디자인 진학을 준비했어요. 그러다 화면 안에서 사용자 경험이랑 인터랙션을 설계하고 실제로 작동하게 만들 수 있는 UX/UI, 웹 디자인으로 관심이 넓어졌어요.",
+      },
+      {
+        keywords: ["재수", "삼수", "힘들었던", "극복"],
+        answer: "원하는 대학에 못 붙어서 재수, 삼수하면서 공부랑 알바를 같이 했던 시기가 제일 힘들었어요. 입시 비용이랑 생활비를 직접 마련해야 해서 시간도 돈도 빠듯했는데, 상황에 맞춰서 일이랑 공부 시간을 계속 조정하면서 준비했어요.",
+      },
+      {
+        keywords: ["텍사스로드하우스", "오술차", "알바", "아르바이트", "시간관리", "시간 관리"],
+        answer: "텍사스로드하우스에서 일할 땐 오전 10시부터 오후 4시까지 일하고 나서 공부하고, 주말엔 그림 수업도 들었어요. 오술차에서 일할 땐 낮에 공부하고 저녁부터 새벽까지 일했고요. 환경 탓하기보다 쓸 수 있는 시간을 나누고 우선순위 조정하면서 목표를 계속 이어갔어요.",
+      },
+      {
+        keywords: ["배운 점", "배운점", "그 경험", "영향을"],
+        answer: "처음 세운 방법이 안 통할 때 목표 자체를 포기하기보다, 원인을 찾고 계획을 다시 조정하는 습관이 생겼어요. 디자인할 때도 처음 만든 시안을 정답으로 안 두고, 사용자 피드백이나 구현 제약, 팀 의견 확인하면서 더 나은 방향으로 계속 고쳐요.",
+      },
+      {
+        keywords: ["UX/UI 공부", "교육", "UX/UI 과정", "학습"],
+        answer: "UX/UI 웹디자인 과정에서 Figma로 화면 설계하고 HTML·CSS로 웹 구현하는 걸 배웠고, 그다음 React로 확장했어요. 팀 프로젝트랑 개인 프로젝트 하면서 기획부터 UI 디자인, 프로토타이핑, 구현, 배포까지 한 흐름으로 경험해봤어요.",
+      },
+      {
+        keywords: ["히스토리", "타임라인", "여정", "살아왔", "background", "어떻게 시작", "커리어"],
+        answer: "캐나다에서 어릴 때를 보내서 그런지 그때 감각이 아직도 남아있어요. 미대 입시하면서 관찰하고 그리는 법을 배웠고, 봉사활동 페이스페인팅이랑 카페 라떼아트도 하면서 사람 기쁘게 하는 걸 좋아하게 됐어요. 그러다 보니 자연스럽게 UX/UI로 왔네요.",
+      },
+      {
+        keywords: ["어디 살", "사는 곳", "거주", "지역", "location"],
+        answer: "용인 살아요!",
+      },
+      {
+        keywords: ["취미", "여가", "hobby", "쉴 때", "관심사", "그림", "드로잉"],
+        answer: "그림 그리는 걸 제일 좋아해요. 라떼아트로 커피 위에 그리기도 하고, 시간 날 때 전시 보러 다니거나 여행 다니는 것도 즐겨요.",
+      },
+      {
+        keywords: ["그림과 디자인", "시각화"],
+        answer: "그림 그리면서 머릿속 아이디어를 눈에 보이는 형태로 옮기는 게 익숙해졌어요. 지금은 그 경험을 가만히 있는 이미지에만 안 쓰고, 사용자가 움직이고 선택하고 반응할 수 있는 화면이랑 인터랙션으로 넓혀서 쓰고 있어요.",
+      },
+      {
+        keywords: ["함께", "협업", "연락", "컨택", "채용", "일하", "인터뷰", "이메일"],
+        answer: "010-4212-4970 또는 chs041015@gmail.com으로 편하게 연락 주세요. 프로젝트별 자세한 과정은 Works 섹션에서 더 볼 수 있어요!",
+      },
+    ],
+    fallback: "그건 제가 아직 답을 못 드리는 질문이에요. 프로젝트나 기술, 제 얘기, 협업 방법 같은 거 물어봐 주세요!",
+  };
+
+  const getAnswer = (message) => {
+    const matched = config.qna.find(({ keywords }) => keywords.some((word) => message.includes(word)));
+    return matched?.answer ?? config.fallback;
+  };
+
+  let isOpen = false;
+  let isResponding = false;
+  let suggestionsElement = null;
+  let lastFocusedElement = null;
+  let closeTimer = 0;
+
+  const wait = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
+  const scrollToBottom = () => { conversation.scrollTop = conversation.scrollHeight; };
+
+  const appendBubble = (sender, message) => {
+    const bubble = document.createElement("div");
+    bubble.className = `chat-bubble is-${sender}`;
+    bubble.textContent = message;
+    conversation.appendChild(bubble);
+    scrollToBottom();
+    return bubble;
+  };
+
+  const appendLoadingBubble = () => {
+    const bubble = document.createElement("div");
+    const dots = document.createElement("span");
+    bubble.className = "chat-bubble is-bot is-loading";
+    dots.className = "chat-loading-dots";
+    dots.setAttribute("aria-label", "입력 중");
+    for (let index = 0; index < 3; index += 1) dots.appendChild(document.createElement("i"));
+    bubble.appendChild(dots);
+    conversation.appendChild(bubble);
+    scrollToBottom();
+    return bubble;
+  };
+
+  const removeSuggestions = () => {
+    suggestionsElement?.remove();
+    suggestionsElement = null;
+    topicsWrapper?.classList.add("is-visible");
+  };
+
+  const setControlsDisabled = (disabled) => {
+    input.disabled = disabled;
+    sendButton.disabled = disabled;
+    conversation.setAttribute("aria-busy", String(disabled));
+    suggestionsElement?.querySelectorAll("button").forEach((button) => { button.disabled = disabled; });
+    topicButtons.forEach((button) => { button.disabled = disabled; });
+  };
+
+  const appendSuggestions = () => {
+    suggestionsElement = document.createElement("div");
+    suggestionsElement.className = "chat-suggestions";
+    suggestionsElement.setAttribute("aria-label", "추천 질문");
+    config.suggestions.forEach((label) => {
+      const button = document.createElement("button");
+      button.className = "chat-suggestion";
+      button.type = "button";
+      button.textContent = label;
+      button.addEventListener("click", () => void sendMessage(label));
+      suggestionsElement.appendChild(button);
+    });
+    conversation.appendChild(suggestionsElement);
+    scrollToBottom();
+  };
+
+  const typeBubbleText = (bubble, text) => new Promise((resolve) => {
+    if (reducedMotion) {
+      bubble.textContent = text;
+      scrollToBottom();
+      resolve();
+      return;
+    }
+
+    let index = 0;
+    const step = () => {
+      index += 1;
+      bubble.textContent = text.slice(0, index);
+      scrollToBottom();
+      if (index < text.length) {
+        window.setTimeout(step, 20);
+      } else {
+        resolve();
+      }
+    };
+    step();
+  });
+
+  const sendMessage = async (rawMessage) => {
+    const message = rawMessage.trim();
+    if (!message || isResponding) return;
+
+    isResponding = true;
+    setControlsDisabled(true);
+    removeSuggestions();
+    appendBubble("user", message);
+    input.value = "";
+
+    const loadingBubble = appendLoadingBubble();
+    await wait(700);
+    loadingBubble.remove();
+    const answerBubble = appendBubble("bot", "");
+    await typeBubbleText(answerBubble, getAnswer(message));
+
+    isResponding = false;
+    setControlsDisabled(false);
+    if (isOpen) input.focus({ preventScroll: true });
+  };
+
+  const resetConversation = () => {
+    conversation.replaceChildren();
+    suggestionsElement = null;
+    topicsWrapper?.classList.remove("is-visible");
+    appendBubble("bot", config.greeting);
+    appendSuggestions();
+  };
+
+  const openChatbotModal = () => {
+    if (isOpen) return;
+    window.clearTimeout(closeTimer);
+    isOpen = true;
+    lastFocusedElement = document.activeElement;
+    if (!conversation.children.length) resetConversation();
+
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    buddyButton?.classList.add("is-chat-open");
+
+    requestAnimationFrame(() => modal.classList.add("is-open"));
+  };
+
+  const closeChatbotModal = () => {
+    if (!isOpen) return;
+    isOpen = false;
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    buddyButton?.classList.remove("is-chat-open");
+
+    closeTimer = window.setTimeout(() => {
+      if (!isOpen) modal.hidden = true;
+    }, 260);
+
+    if (lastFocusedElement instanceof HTMLElement) {
+      lastFocusedElement.focus({ preventScroll: true });
+    }
+  };
+
+  closeButton.addEventListener("click", closeChatbotModal);
+
+  document.addEventListener("keydown", (event) => {
+    if (!isOpen || event.key !== "Escape") return;
+    closeChatbotModal();
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!isOpen) return;
+    if (modal.contains(event.target) || buddyButton?.contains(event.target)) return;
+    closeChatbotModal();
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    void sendMessage(input.value);
+  });
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.shiftKey) return;
+    event.preventDefault();
+    form.requestSubmit();
+  });
+
+  topicButtons.forEach((button) => {
+    button.addEventListener("click", () => void sendMessage(button.dataset.topic));
+  });
+
+  return { open: openChatbotModal, close: closeChatbotModal, isOpen: () => isOpen };
+};
+
+const chatbotModalApi = initChatbotModal();
+const openChatbot = () => chatbotModalApi?.open();
 
 const initHeroBuddy = () => {
   const buddy = document.querySelector("#hero-buddy");
@@ -2471,7 +2874,14 @@ const initHeroBuddy = () => {
   const footerSignatureLines = [...(footerSection?.querySelectorAll(".contact-signature p") ?? [])];
   const legLeft = buddy?.querySelector(".buddy-leg-left");
   const legRight = buddy?.querySelector(".buddy-leg-right");
-  if (!buddy || !heroSection || !footerSection) return;
+  const eyePupilLeft = buddy?.querySelector(".buddy-eye-pupil-left");
+  const eyePupilRight = buddy?.querySelector(".buddy-eye-pupil-right");
+  const eyeHighlightLeft = buddy?.querySelector(".buddy-eye-highlight-left");
+  const eyeHighlightRight = buddy?.querySelector(".buddy-eye-highlight-right");
+  if (!buddy || !heroSection || !footerSection) {
+    resolveHeroBuddyIntro();
+    return;
+  }
 
   const footerLetterStates = footerSignatureLines.flatMap((line) => {
     const label = line.textContent;
@@ -2527,7 +2937,49 @@ const initHeroBuddy = () => {
   let heroDoorPhase = "idle";
   let heroDoorDirection = 0;
   let heroDoorPhaseStartedAt = 0;
+  let introHintPending = false;
+  let pointerX = window.innerWidth / 2;
+  let pointerY = window.innerHeight / 2;
   const pressedArrowKeys = new Set();
+
+  const HINT_BUBBLE_APPEAR_MS = 460; // bubble fade-in (220ms) + last d-pad arrow pop (240ms delay + 200ms)
+  const showIntroHint = () => {
+    buddy.dataset.hint = "dpad";
+    buddy.classList.add("is-intro-hint");
+    window.setTimeout(() => buddy.classList.remove("is-intro-hint"), 2200);
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+  }, { passive: true });
+
+  const EYE_GAZE_MAX = 9; // svg user units the pupil may drift from its resting spot
+  const clearEyeGaze = () => {
+    eyePupilLeft?.style.removeProperty("transform");
+    eyePupilRight?.style.removeProperty("transform");
+    eyeHighlightLeft?.style.removeProperty("transform");
+    eyeHighlightRight?.style.removeProperty("transform");
+  };
+
+  const updateEyeGaze = (faceX, faceY, size, facingSign) => {
+    const svgScaleX = size.width / 192;
+    const svgScaleY = size.height / 256;
+    const dx = pointerX - (faceX + 95 * svgScaleX);
+    const dy = pointerY - (faceY + 108 * svgScaleY);
+    const distance = Math.hypot(dx, dy) || 1;
+    const angle = Math.atan2(dy, dx);
+    const pull = Math.min(1, distance / 260);
+    const mag = EYE_GAZE_MAX * pull;
+    const localX = Math.cos(angle) * mag * (facingSign < 0 ? -1 : 1);
+    const localY = Math.sin(angle) * mag;
+    const transform = `translate(${localX.toFixed(2)}px, ${localY.toFixed(2)}px)`;
+    if (eyePupilLeft) eyePupilLeft.style.transform = transform;
+    if (eyePupilRight) eyePupilRight.style.transform = transform;
+    const highlightTransform = `translate(${(localX * 0.7).toFixed(2)}px, ${(localY * 0.7).toFixed(2)}px)`;
+    if (eyeHighlightLeft) eyeHighlightLeft.style.transform = highlightTransform;
+    if (eyeHighlightRight) eyeHighlightRight.style.transform = highlightTransform;
+  };
 
   const groundYFor = (rect) => {
     const { height } = buddySize();
@@ -2673,6 +3125,9 @@ const initHeroBuddy = () => {
     isJumping = true;
     jumpOffset = -110;
     jumpVelocity = 0;
+    introHintPending = true;
+  } else {
+    resolveHeroBuddyIntro();
   }
   buddy.style.transform = `translate3d(${x}px, ${y + jumpOffset}px, 0) scaleX(${facing})`;
   buddy.dataset.facing = facing < 0 ? "left" : "right";
@@ -2744,6 +3199,7 @@ const initHeroBuddy = () => {
 
   window.addEventListener("keydown", (event) => {
     if (mode === "docked") return;
+    if (chatbotModalApi?.isOpen()) return;
     if (event.key.startsWith("Arrow")) pressedArrowKeys.add(event.key);
     if (heroDoorPhase === "opening" || heroDoorPhase === "looking") {
       if (event.key.startsWith("Arrow")) event.preventDefault();
@@ -2790,7 +3246,10 @@ const initHeroBuddy = () => {
 
   window.addEventListener("resize", resolveMode);
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    resolveHeroBuddyIntro();
+    return;
+  }
 
   let lastTime = performance.now();
 
@@ -2898,6 +3357,11 @@ const initHeroBuddy = () => {
         isJumping = false;
         landingImpact = 1;
         triggerReaction("down");
+        if (introHintPending) {
+          introHintPending = false;
+          showIntroHint();
+          window.setTimeout(() => resolveHeroBuddyIntro(), HINT_BUBBLE_APPEAR_MS);
+        }
       }
     }
 
@@ -2915,6 +3379,12 @@ const initHeroBuddy = () => {
       state.rotation += (targetRotation - state.rotation) * response;
       state.letter.style.transform = `translateY(${state.lift.toFixed(2)}px) rotate(${state.rotation.toFixed(2)}deg)`;
     });
+
+    if (mode !== "docked" && heroDoorPhase === "idle") {
+      updateEyeGaze(x, y - bob + jumpOffset, currentBuddySize, facingScale);
+    } else {
+      clearEyeGaze();
+    }
 
     const poseScaleX = 1 + crouchProgress * 0.12 + landingImpact * 0.16;
     const poseScaleY = 1 - crouchProgress * 0.18 - landingImpact * 0.22;
