@@ -5,42 +5,42 @@ const spiralProjectData = [
   {
     id: "project-one",
     number: "001",
-    title: "Project One",
+    title: "Y Studio",
     thumbnail: "assets/clone-coding/clone-01.webp",
     cta_url: "https://clonecoding1.vercel.app/",
   },
   {
     id: "project-two",
     number: "002",
-    title: "Project Two",
+    title: "Crew A La Mode",
     thumbnail: "assets/clone-coding/clone-02.webp",
     cta_url: "https://clonecoding2.vercel.app/",
   },
   {
     id: "project-three",
     number: "003",
-    title: "Project Three",
+    title: "대방산업",
     thumbnail: "assets/clone-coding/clone-03.webp",
     cta_url: "https://clonecoding3.vercel.app/",
   },
   {
     id: "project-four",
     number: "004",
-    title: "Project Four",
+    title: "Musign",
     thumbnail: "assets/clone-coding/clone-04.webp",
     cta_url: "https://clonecoding4.vercel.app/",
   },
   {
     id: "project-five",
     number: "005",
-    title: "Project Five",
+    title: "한국소비자원",
     thumbnail: "assets/clone-coding/clone-05.webp",
     cta_url: "https://clonecoding5.vercel.app/",
   },
   {
     id: "project-six",
     number: "006",
-    title: "Project Six",
+    title: "한화케미컬",
     thumbnail: "assets/clone-coding/clone-06.webp",
     cta_url: "https://clonecodiing6.vercel.app/",
   },
@@ -356,6 +356,13 @@ const initCodeSectionTitles = () => {
   const standaloneTitles = [...document.querySelectorAll("[data-scroll-title]")];
   if (!headings.length && !standaloneTitles.length) return;
 
+  // The two project showcases (#project1, #project2) keep the chapter title's
+  // scale/fade treatment but no longer hijack/hold scroll on entry — only
+  // other chapter headings (e.g. History) still settle-lock.
+  const scrollLockExemptHeadings = new Set(
+    headings.filter((heading) => heading.closest(".project-section"))
+  );
+
   headings.forEach((heading) => {
     if (heading.querySelector(":scope > .code-section-ui")) return;
 
@@ -505,11 +512,16 @@ const initCodeSectionTitles = () => {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
       scrollHoldTimer = null;
+      delete document.documentElement.dataset.chapterGlide;
     }, settleHoldMs);
   };
 
+  // Flags the chapter-title glide/lock as in progress so the global wheel
+  // smoothing below yields scroll control back to it instead of fighting
+  // over window.scrollTo on the same frame.
   const holdScrollAt = (targetY) => {
     if (reducedMotion) return;
+    document.documentElement.dataset.chapterGlide = "";
     if (settleEaseFrame !== null) cancelAnimationFrame(settleEaseFrame);
 
     const startY = window.scrollY;
@@ -559,7 +571,7 @@ const initCodeSectionTitles = () => {
           ? 1
           : clamp((enterStartTop - rect.top) / Math.max(enterStartTop - enterSettleTop, 1), 0, 1);
 
-        if (!reducedMotion) {
+        if (!reducedMotion && !scrollLockExemptHeadings.has(heading)) {
           if (enterProgress > 0 && !settledHeadings.has(heading)) {
             settledHeadings.add(heading);
             holdScrollAt(window.scrollY + rect.top - enterSettleTop);
@@ -2045,7 +2057,7 @@ const initPlaygroundScroll = () => {
 
       card.style.setProperty("--playground-current-rotate", `${(baseRotation * (1 - focusProgress)).toFixed(3)}deg`);
       const introCenteredScale = rawFocusProgress * (1 - introProgress) * 0.12;
-      card.style.setProperty("--playground-focus-scale", (0.88 + focusProgress * 0.32 + introCenteredScale).toFixed(4));
+      card.style.setProperty("--playground-focus-scale", (0.88 + focusProgress * 0.47 + introCenteredScale).toFixed(4));
       card.style.setProperty("--playground-flip", `${flipRotation.toFixed(2)}deg`);
       card.style.setProperty("--playground-focus", focusProgress.toFixed(4));
       card.style.zIndex = String(1 + Math.round(focusProgress * 10));
@@ -3021,4 +3033,75 @@ const initHeroBuddy = () => {
 };
 
 initHeroBuddy();
+
+// Subtle whole-page scroll smoothing: wheel/trackpad input eases the real
+// scroll position toward its target over a few frames instead of jumping
+// straight to it, so section-to-section scrolling glides slightly rather
+// than stepping in raw wheel increments. Kept light (high catch-up rate)
+// and yields to the chapter-title glide/lock above via the shared
+// data-chapter-glide flag so the two never fight over window.scrollTo.
+(() => {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (reducedMotion || !canHover) return;
+
+  const nestedScrollSelector = ".chat-conversation-frame";
+  const smoothing = 0.14;
+  const settleEpsilon = 0.5;
+
+  const maxScrollY = () => document.documentElement.scrollHeight - window.innerHeight;
+  const isGlideLocked = () => "chapterGlide" in document.documentElement.dataset;
+
+  let targetY = window.scrollY;
+  let rafId = null;
+
+  const tick = () => {
+    if (isGlideLocked()) {
+      rafId = null;
+      return;
+    }
+    const current = window.scrollY;
+    const next = lerp(current, targetY, smoothing);
+    if (Math.abs(targetY - next) < settleEpsilon) {
+      window.scrollTo({ top: targetY, behavior: "instant" });
+      rafId = null;
+      return;
+    }
+    window.scrollTo({ top: next, behavior: "instant" });
+    rafId = requestAnimationFrame(tick);
+  };
+
+  window.addEventListener("wheel", (event) => {
+    if (event.ctrlKey || isGlideLocked()) return;
+    if (event.target.closest && event.target.closest(nestedScrollSelector)) return;
+
+    let delta = event.deltaY;
+    if (event.deltaMode === 1) delta *= 16;
+    else if (event.deltaMode === 2) delta *= window.innerHeight;
+
+    event.preventDefault();
+    targetY = clamp(targetY + delta, 0, maxScrollY());
+    if (rafId === null) rafId = requestAnimationFrame(tick);
+  }, { passive: false });
+
+  window.addEventListener("scroll", () => {
+    if (rafId === null) targetY = window.scrollY;
+  }, { passive: true });
+
+  window.addEventListener("resize", () => {
+    targetY = clamp(targetY, 0, maxScrollY());
+  });
+
+  // A stray wheel/trackpad tick right before an in-page link is clicked can
+  // leave this loop chasing a stale targetY, which then fights the browser's
+  // native jump to the section and cancels it outright. Release the loop on
+  // anchor clicks so the native scroll isn't overridden the next frame.
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest || !event.target.closest('a[href^="#"]')) return;
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }, true);
+})();
 
