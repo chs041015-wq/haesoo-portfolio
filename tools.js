@@ -71,7 +71,12 @@ window.toolData = FEATURED_TOOLS;
     fillCircle.setAttribute("stroke-linecap", "round");
 
     progress.append(trackCircle, fillCircle);
-    front.append(progress, name);
+
+    const progressWrap = document.createElement("span");
+    progressWrap.className = "tool-progress-wrap";
+    progressWrap.append(progress, name);
+
+    front.append(progressWrap);
 
     const level = document.createElement("span");
     level.className = "tool-card-level";

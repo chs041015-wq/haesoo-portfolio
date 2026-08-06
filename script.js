@@ -1691,6 +1691,7 @@ if (cursorHint && revealContentSection && revealTranslationLines.length) {
   let overRevealLine = false;
 
   revealContentSection.addEventListener("pointerenter", () => {
+    cursorHint.textContent = "Hover to translate !";
     if (!overRevealLine) cursorHint.classList.add("is-visible");
   });
   revealContentSection.addEventListener("pointerleave", () => {
@@ -1705,6 +1706,30 @@ if (cursorHint && revealContentSection && revealTranslationLines.length) {
     line.addEventListener("pointerleave", () => {
       overRevealLine = false;
       cursorHint.classList.add("is-visible");
+    });
+  });
+}
+
+const timelineShellHoverArea = document.querySelector(".timeline-shell");
+const timelinePhotos = document.querySelectorAll(".timeline-photo");
+if (cursorHint && timelineShellHoverArea) {
+  timelineShellHoverArea.addEventListener("pointerenter", () => {
+    cursorHint.textContent = "Hover image !";
+    cursorHint.classList.add("is-visible");
+  });
+  timelineShellHoverArea.addEventListener("pointerleave", () => {
+    cursorHint.classList.remove("is-visible");
+  });
+}
+if (cursorHint && timelinePhotos.length) {
+  timelinePhotos.forEach((photo) => {
+    photo.addEventListener("pointerenter", () => {
+      cursorHint.classList.remove("is-visible");
+    });
+    photo.addEventListener("pointerleave", () => {
+      if (timelineShellHoverArea?.matches(":hover")) {
+        cursorHint.classList.add("is-visible");
+      }
     });
   });
 }

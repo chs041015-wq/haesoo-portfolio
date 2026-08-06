@@ -101,8 +101,8 @@ a {
   font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.2px;
-  color: var(--paper);
-  background: var(--ink);
+  color: var(--night);
+  background: var(--accent);
   padding: 7px 14px;
   border-radius: 999px;
   will-change: transform, opacity;
@@ -469,14 +469,14 @@ html.has-js:not(.landing-complete) .hero-word {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 32%;
 }
 
 .card-rear {
   transform: rotateY(180deg);
   background-image: url("assets/about/portrait.webp");
   background-size: cover;
-  background-position: center top;
+  background-position: center 32%;
   filter: grayscale(1) contrast(1.12);
 }
 
@@ -869,17 +869,35 @@ html.has-js:not(.landing-complete) .hero-word {
 }
 
 .tool-card-name {
-  font-size: clamp(13px, 1vw, 16px);
+  font-size: clamp(17px, 0.85vw, 20px);
   font-weight: 700;
   letter-spacing: -0.02em;
   text-align: center;
 }
 
+.tool-progress-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-progress-wrap .tool-card-name {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20%;
+  line-height: 1.15;
+  pointer-events: none;
+}
+
 .tool-progress {
   position: relative;
   display: block;
-  width: clamp(48px, 3.6vw, 64px);
-  height: clamp(48px, 3.6vw, 64px);
+  width: clamp(84px, 6.4vw, 116px);
+  height: clamp(84px, 6.4vw, 116px);
   overflow: visible;
   transform: rotate(-90deg);
 }
@@ -4292,8 +4310,8 @@ body.is-spiral-active .nav-contact-arrow-invert {
 }
 
 .tool-progress {
-  width: 110px;
-  height: 110px;
+  width: 150px;
+  height: 150px;
 }
 
 .tool-card-name {
@@ -4301,6 +4319,11 @@ body.is-spiral-active .nav-contact-arrow-invert {
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: -0.02em;
+}
+
+.tool-progress-wrap .tool-card-name {
+  font-size: 21px;
+  padding: 0 22%;
 }
 
 .tool-card-icon-wrap {
