@@ -1,4 +1,4 @@
-﻿const isFigmaCaptureMode = new URLSearchParams(window.location.search).get("figma-export") === "1";
+const isFigmaCaptureMode = new URLSearchParams(window.location.search).get("figma-export") === "1";
 if (isFigmaCaptureMode) document.body.classList.add("is-figma-capture");
 
 const spiralProjectData = [
@@ -6,71 +6,48 @@ const spiralProjectData = [
     id: "project-one",
     number: "001",
     title: "Project One",
-    oneLiner: "기획 단계부터 참여해 WebGL 기반의 인터랙션과 디렉션을 완성했습니다.",
-    role: "Creative Developer",
-    year: "2026",
-    keywords: ["WebGL", "Interaction", "Direction"],
-    thumbnail: "assets/clone-coding/clone-01.png",
+    thumbnail: "assets/clone-coding/clone-01.webp",
     cta_url: "https://clonecoding1.vercel.app/",
   },
   {
     id: "project-two",
     number: "002",
     title: "Project Two",
-    oneLiner: "브랜드의 정체성을 모션과 웹 경험으로 확장한 프로젝트입니다.",
-    role: "Art Direction",
-    year: "2026",
-    keywords: ["Identity", "Motion", "Web"],
-    thumbnail: "assets/clone-coding/clone-02.png",
+    thumbnail: "assets/clone-coding/clone-02.webp",
     cta_url: "https://clonecoding2.vercel.app/",
   },
   {
     id: "project-three",
     number: "003",
     title: "Project Three",
-    oneLiner: "복잡한 제품 흐름을 직관적인 인터페이스로 정리했습니다.",
-    role: "Product Designer",
-    year: "2025",
-    keywords: ["Product", "System", "Prototype"],
-    thumbnail: "assets/clone-coding/clone-03.png",
+    thumbnail: "assets/clone-coding/clone-03.webp",
     cta_url: "https://clonecoding3.vercel.app/",
   },
   {
     id: "project-four",
     number: "004",
     title: "Project Four",
-    oneLiner: "이미지와 타이포그래피가 반응하는 몰입형 웹 경험입니다.",
-    role: "Frontend Developer",
-    year: "2025",
-    keywords: ["Creative Code", "3D", "Typography"],
-    thumbnail: "assets/clone-coding/clone-04.png",
+    thumbnail: "assets/clone-coding/clone-04.webp",
     cta_url: "https://clonecoding4.vercel.app/",
   },
   {
     id: "project-five",
     number: "005",
     title: "Project Five",
-    oneLiner: "콘텐츠의 흐름을 애니메이션 기반 인터랙션으로 설계했습니다.",
-    role: "Design Engineer",
-    year: "2024",
-    keywords: ["Editorial", "Animation", "Experience"],
-    thumbnail: "assets/clone-coding/clone-05.png",
+    thumbnail: "assets/clone-coding/clone-05.webp",
     cta_url: "https://clonecoding5.vercel.app/",
   },
   {
     id: "project-six",
     number: "006",
     title: "Project Six",
-    oneLiner: "기존 사이트의 구조와 인터랙션을 분석하고 다시 구현했습니다.",
-    role: "Clone Coding",
-    year: "2024",
-    keywords: ["Rebuild", "Interaction", "Frontend"],
-    thumbnail: "assets/clone-coding/clone-06.png",
+    thumbnail: "assets/clone-coding/clone-06.webp",
     cta_url: "https://clonecodiing6.vercel.app/",
   },
 ];
 
 const cursor = document.querySelector(".cursor");
+const cursorHint = document.querySelector(".cursor-hint");
 const hero = document.querySelector(".hero");
 const intro = document.querySelector(".intro");
 const heroTitle = document.querySelector(".hero-title");
@@ -94,7 +71,8 @@ const spiralScrollShell = document.querySelector(".spiral-scroll-shell");
 const spiralGrid = document.querySelector(".spiral-grid");
 const spiralCanvas = document.querySelector(".spiral-webgl");
 const spiralProjectCta = document.querySelector(".spiral-project-cta");
-const projectOverlay = document.querySelector(".project-overlay");
+const spiralCaptionIndex = document.querySelector("[data-spiral-caption-index]");
+const spiralCaptionTitle = document.querySelector("[data-spiral-caption-title]");
 const chatbotModal = document.querySelector(".chatbot-modal");
 
 if (spiralProjectCta && spiralProjectCta.parentElement !== document.body) {
@@ -136,19 +114,6 @@ revealTranslationLines.forEach((line) => {
   });
 });
 
-const projectOverlayShade = document.querySelector(".project-overlay-shade");
-const projectOverlayClose = document.querySelector(".project-overlay-close");
-const projectOverlayPrev = document.querySelector(".project-overlay-prev");
-const projectOverlayNext = document.querySelector(".project-overlay-next");
-const projectOverlayNumber = document.querySelector(".project-overlay-number");
-const projectOverlayTitle = document.querySelector(".project-overlay-title");
-const projectOverlayOneLiner = document.querySelector(".project-overlay-oneliner");
-const projectOverlayRole = document.querySelector(".project-overlay-role");
-const projectOverlayYear = document.querySelector(".project-overlay-year");
-const projectOverlayKeywords = document.querySelector(".project-overlay-keywords");
-const projectOverlayCta = document.querySelector(".project-overlay-cta");
-const projectOverlayRevealItems = [...document.querySelectorAll("[data-overlay-reveal]")];
-const projectOverlayChrome = [projectOverlayClose, document.querySelector(".project-overlay-navigation")].filter(Boolean);
 const experienceSection = document.querySelector(".experience-section");
 const contactSection = document.querySelector(".contact");
 const contactLinksEl = document.querySelector(".contact-links");
@@ -202,6 +167,7 @@ const cubicBezierProgress = (progress, x1, y1, x2, y2) => {
 
   return sample(time, y1, y2);
 };
+
 // Keep the card following the scroll instead of snapping to each new target.
 // The longer, near-critically damped response mirrors the original hero flip.
 const heroCardSpring = { stiffness: 110, damping: 24, mass: 1 };
@@ -445,15 +411,17 @@ const initCodeSectionTitles = () => {
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const gsap = window.gsap;
+  // Chapter titles (data-code-title) share the same letter rise-up reveal
+  // as standalone titles; only their trigger element differs.
   const titleGroups = [
-    ...headings.map((heading) => ({
-      trigger: heading,
-      letters: [...heading.querySelectorAll(".code-display-letter")],
-    })),
     ...standaloneTitles.map((title) => ({
       trigger: title,
       letters: [...title.querySelectorAll(".scroll-title-letter")],
     })),
+    ...headings.map((heading) => ({
+      trigger: heading.querySelector(".code-display-title"),
+      letters: [...heading.querySelectorAll(".code-display-letter")],
+    })).filter((group) => group.trigger),
   ];
 
   const revealedTitleGroups = new WeakSet();
@@ -478,6 +446,17 @@ const initCodeSectionTitles = () => {
       });
   };
 
+  // Re-arms the reveal so scrolling back up past the title (it drops back
+  // below the reveal line, which by construction happens just off the
+  // bottom edge of the viewport) resets it to replay on the next scroll-down.
+  const hideTitleGroup = (group) => {
+    if (!revealedTitleGroups.has(group.trigger)) return;
+    revealedTitleGroups.delete(group.trigger);
+
+    if (reducedMotion || !gsap) return;
+    gsap.set(group.letters, { yPercent: 145, overwrite: true });
+  };
+
   if (reducedMotion || !gsap) {
     titleGroups.forEach(({ letters }) => {
       letters.forEach((letter) => { letter.style.transform = "none"; });
@@ -491,13 +470,76 @@ const initCodeSectionTitles = () => {
     element.style.setProperty(property, value);
   };
 
+  // Chapter zoom is smoothed against a lagging current value rather than
+  // snapping straight to the scroll-derived target, so fast/choppy scroll
+  // input doesn't read as jumpy motion.
+  const chapterState = new WeakMap();
+  const chapterSmoothing = 0.16;
+  const chapterSettleEpsilon = 0.0008;
+
+  // As soon as a chapter title starts entering, control of the scroll
+  // position is taken over: it glides the rest of the way to dead center
+  // itself (re-asserting its own eased position every frame, which
+  // overrides whatever delta the user's own scroll/trackpad momentum tries
+  // to add that frame — momentum can't accumulate if it's overwritten
+  // every frame), then locks outright for a beat once centered so the
+  // title reads before the page continues into the section content.
+  // The hard lock uses overflow (not just preventDefault) because trackpad
+  // momentum scrolls the compositor directly, bypassing JS events entirely;
+  // overflow is only safe to apply once the glide is done, since it also
+  // blocks the programmatic scrollTo the glide itself relies on.
+  // Re-arms once the title scrolls back out of the zone.
+  const settleHoldMs = 450;
+  const settleEaseMinMs = 260;
+  const settleEaseMaxMs = 720;
+  const settleEaseMsPerPx = 0.55;
+  const settledHeadings = new WeakSet();
+  let scrollHoldTimer = null;
+  let settleEaseFrame = null;
+
+  const lockScroll = () => {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    if (scrollHoldTimer !== null) clearTimeout(scrollHoldTimer);
+    scrollHoldTimer = window.setTimeout(() => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+      scrollHoldTimer = null;
+    }, settleHoldMs);
+  };
+
+  const holdScrollAt = (targetY) => {
+    if (reducedMotion) return;
+    if (settleEaseFrame !== null) cancelAnimationFrame(settleEaseFrame);
+
+    const startY = window.scrollY;
+    const startTime = performance.now();
+    const duration = clamp(Math.abs(targetY - startY) * settleEaseMsPerPx, settleEaseMinMs, settleEaseMaxMs);
+
+    const tick = (now) => {
+      const progress = clamp((now - startTime) / duration, 0, 1);
+      window.scrollTo({ top: lerp(startY, targetY, easeOutCubic(progress)), behavior: "auto" });
+      if (progress < 1) {
+        settleEaseFrame = requestAnimationFrame(tick);
+      } else {
+        settleEaseFrame = null;
+        lockScroll();
+      }
+    };
+    settleEaseFrame = requestAnimationFrame(tick);
+  };
+
   const paint = () => {
     titleGroups.forEach((group) => {
       const rect = group.trigger.getBoundingClientRect();
       if (rect.top < window.innerHeight * titleRevealLine) {
         revealTitleGroup(group);
+      } else {
+        hideTitleGroup(group);
       }
     });
+
+    let unsettled = false;
 
     headings.forEach((heading) => {
       const rect = heading.getBoundingClientRect();
@@ -505,6 +547,56 @@ const initCodeSectionTitles = () => {
         const exitProgress = reducedMotion
           ? 0
           : clamp(-rect.top / Math.max(rect.height * 0.52, 1), 0, 1);
+
+        // Settle target is where the title's own vertical center lands on
+        // the viewport's vertical center, not where the block's top edge
+        // reaches the viewport's top edge (those differ whenever the block
+        // is shorter than the viewport, which pulled the settle point up
+        // toward the header instead of true screen-center).
+        const enterStartTop = window.innerHeight * 0.85;
+        const enterSettleTop = (window.innerHeight - rect.height) / 2;
+        const enterProgress = reducedMotion
+          ? 1
+          : clamp((enterStartTop - rect.top) / Math.max(enterStartTop - enterSettleTop, 1), 0, 1);
+
+        if (!reducedMotion) {
+          if (enterProgress > 0 && !settledHeadings.has(heading)) {
+            settledHeadings.add(heading);
+            holdScrollAt(window.scrollY + rect.top - enterSettleTop);
+          } else if (enterProgress <= 0) {
+            settledHeadings.delete(heading);
+          }
+        }
+
+        // Entrance is handled by the letter rise-up reveal instead; the
+        // container itself only shrinks/fades on the way out.
+        let targetScale = 1;
+        let targetOpacity = 1;
+        if (!reducedMotion && rect.top <= 0) {
+          targetScale = 1 - exitProgress * 0.08;
+          targetOpacity = 1 - exitProgress * 0.72;
+        }
+
+        let state = chapterState.get(heading);
+        if (!state) {
+          state = { scale: targetScale, opacity: targetOpacity };
+          chapterState.set(heading, state);
+        }
+
+        if (reducedMotion) {
+          state.scale = targetScale;
+          state.opacity = targetOpacity;
+        } else {
+          state.scale = lerp(state.scale, targetScale, chapterSmoothing);
+          state.opacity = lerp(state.opacity, targetOpacity, chapterSmoothing);
+          if (
+            Math.abs(state.scale - targetScale) > chapterSettleEpsilon
+            || Math.abs(state.opacity - targetOpacity) > chapterSettleEpsilon
+          ) {
+            unsettled = true;
+          }
+        }
+
         const content = heading.nextElementSibling;
         const contentRect = content?.getBoundingClientRect();
         const contentProgress = reducedMotion || !contentRect
@@ -518,9 +610,13 @@ const initCodeSectionTitles = () => {
               );
 
         setProgressIfChanged(heading, "--chapter-exit-progress", exitProgress.toFixed(4));
+        setProgressIfChanged(heading, "--chapter-scale", state.scale.toFixed(4));
+        setProgressIfChanged(heading, "--chapter-opacity", state.opacity.toFixed(4));
         setProgressIfChanged(content, "--chapter-content-progress", contentProgress.toFixed(4));
       }
     });
+
+    if (unsettled) requestPaint();
   };
 
   let frame = null;
@@ -913,40 +1009,6 @@ const updateHeroCard = () => {
   setHeroCardTarget({ x, y, rotate, scale, opacity: 1, metaOpacity: heroMetaOpacity });
 };
 
-const updateDarkRevealCurve = () => {
-  if (!projectShowcaseSection) return;
-
-  const rect = projectShowcaseSection.getBoundingClientRect();
-  if (rect.bottom < -window.innerHeight || rect.top > window.innerHeight * 2) return;
-
-  const reference = [
-    { top: 1160, height: 10 },
-    { top: 940, height: 16 },
-    { top: 640, height: 30 },
-    { top: 320, height: 44 },
-    { top: 80, height: 52 },
-    { top: -160, height: 56 },
-  ];
-  let height = reference[reference.length - 1].height;
-
-  if (rect.top >= reference[0].top) {
-    height = reference[0].height;
-  } else {
-    for (let index = 0; index < reference.length - 1; index += 1) {
-      const current = reference[index];
-      const next = reference[index + 1];
-
-      if (rect.top <= current.top && rect.top >= next.top) {
-        const progress = (current.top - rect.top) / (current.top - next.top);
-        height = current.height + (next.height - current.height) * progress;
-        break;
-      }
-    }
-  }
-
-  projectShowcaseSection.style.setProperty("--curve-height", `${height.toFixed(2)}vw`);
-};
-
 const updateCreamExitCurve = () => {
   if (!creamProjectsSection) return;
 
@@ -1013,7 +1075,7 @@ const updateAboutRevealText = () => {
 };
 
 const updateSpiralNavState = () => {
-  const darkSections = [projectShowcaseSection, spiralSection, toolContentSection, experienceSection].filter(Boolean);
+  const darkSections = [toolContentSection, experienceSection].filter(Boolean);
   if (!darkSections.length) return;
 
   const isActive = darkSections.some((section) => {
@@ -1029,6 +1091,40 @@ const updateContactNavState = () => {
   const rect = creamProjectsSection.getBoundingClientRect();
   const isInContact = rect.top < window.innerHeight * 0.36;
   document.body.classList.toggle("is-contact-active", isInContact);
+};
+
+const updateDarkRevealCurve = () => {
+  if (!toolContentSection) return;
+
+  const rect = toolContentSection.getBoundingClientRect();
+  if (rect.bottom < -window.innerHeight || rect.top > window.innerHeight * 2) return;
+
+  const reference = [
+    { top: 1160, height: 10 },
+    { top: 940, height: 16 },
+    { top: 640, height: 30 },
+    { top: 320, height: 44 },
+    { top: 80, height: 52 },
+    { top: -160, height: 56 },
+  ];
+  let height = reference[reference.length - 1].height;
+
+  if (rect.top >= reference[0].top) {
+    height = reference[0].height;
+  } else {
+    for (let index = 0; index < reference.length - 1; index += 1) {
+      const current = reference[index];
+      const next = reference[index + 1];
+
+      if (rect.top <= current.top && rect.top >= next.top) {
+        const progress = (current.top - rect.top) / (current.top - next.top);
+        height = current.height + (next.height - current.height) * progress;
+        break;
+      }
+    }
+  }
+
+  toolContentSection.style.setProperty("--curve-height", `${height.toFixed(2)}vw`);
 };
 
 const CONTACT_REVEAL_OFFSET = 56;
@@ -1132,7 +1228,7 @@ const initSpiralExperience = async () => {
   spiralInitializing = true;
 
   try {
-    const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
+    const THREE = await import("./assets/vendor/three.module.min.js");
     const gsap = window.gsap;
     const imageSources = spiralProjectData.map((project) => project.thumbnail);
     const scene = new THREE.Scene();
@@ -1199,7 +1295,7 @@ const initSpiralExperience = async () => {
 
     // Keep the complete spiral inside the stage, including its lowest cards.
     camera.position.set(0, 0, 8.75);
-    renderer.setClearColor(0x0a0a0a, 0);
+    renderer.setClearColor(0xfaf7f3, 1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     textures.forEach((texture) => {
@@ -1236,63 +1332,22 @@ const initSpiralExperience = async () => {
 
     let currentOffset = 0;
     let previousOffset = 0;
-    let spiralLocked = false;
     let overlayMode = "spiral";
     let isTransitioning = false;
-    let activeProjectIndex = 0;
-    let activePlane = null;
     let hoveredPlane = null;
     let pointerDown = null;
     let suppressNextClick = false;
-    let lockedScrollY = 0;
-    let ghostElement = null;
-    let ghostImage = null;
-    let ghostDim = null;
-    let ghostBaseRect = null;
-    let spiralPoseSnapshots = null;
-    let activeFlatPose = null;
-    let activeFlatRect = null;
-    let bodyLockSnapshot = null;
-    let scrollLockController = null;
-    let activeTransitionTimeline = null;
-    let scrollAudit = {};
     let renderFrameId = null;
     let renderLoopRunning = false;
     let spiralInView = isFigmaCaptureMode;
     let spiralScrollStart = 0;
     let spiralScrollDistance = 1;
-    let lastFocusedElement = null;
     const mobileQuery = window.matchMedia("(max-width: 768px)");
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     spiralProjectData.forEach((project) => {
       const image = new Image();
       image.src = project.thumbnail;
     });
-
-    const renderOverlayProject = (projectId) => {
-      const resolvedIndex = spiralProjectData.findIndex((project) => project.id === projectId);
-      const project = spiralProjectData[resolvedIndex];
-      if (!project || !projectOverlay) return null;
-
-      activeProjectIndex = resolvedIndex;
-      projectOverlay.dataset.projectId = project.id;
-      projectOverlayNumber.textContent = project.number;
-      projectOverlayTitle.textContent = project.title;
-      projectOverlayOneLiner.textContent = project.oneLiner;
-      projectOverlayRole.textContent = project.role;
-      projectOverlayYear.textContent = project.year;
-      projectOverlayCta.href = project.cta_url;
-      if (ghostImage) ghostImage.src = project.thumbnail;
-      projectOverlayKeywords.replaceChildren(
-        ...project.keywords.map((keyword) => {
-          const item = document.createElement("li");
-          item.textContent = keyword;
-          return item;
-        })
-      );
-      return project;
-    };
 
     const getProjectedPlaneRect = (plane) => {
       const canvasRect = spiralCanvas.getBoundingClientRect();
@@ -1330,499 +1385,6 @@ const initSpiralExperience = async () => {
         angle: THREE.MathUtils.radToDeg(Math.atan2(corners[1].y - corners[0].y, corners[1].x - corners[0].x)),
         borderRadius: Math.min(18, height * radiusRatio),
       };
-    };
-
-    const capturePlanePose = (plane) => ({
-      position: plane.position.clone(),
-      rotation: plane.rotation.clone(),
-      scale: plane.scale.clone(),
-      focusProgress: plane.material.uniforms.uFocusProgress.value,
-      opacity: plane.material.uniforms.uOpacity.value,
-      scrollSpeed: plane.material.uniforms.uScrollSpeed.value,
-      renderOrder: plane.renderOrder,
-      visible: plane.visible,
-    });
-
-    const applyPlanePose = (plane, pose) => {
-      if (!plane || !pose) return;
-      plane.position.copy(pose.position);
-      plane.rotation.copy(pose.rotation);
-      plane.scale.copy(pose.scale);
-      plane.material.uniforms.uFocusProgress.value = pose.focusProgress;
-      plane.material.uniforms.uOpacity.value = pose.opacity;
-      plane.material.uniforms.uScrollSpeed.value = pose.scrollSpeed;
-      plane.renderOrder = pose.renderOrder;
-      plane.visible = pose.visible;
-      plane.updateMatrixWorld(true);
-    };
-
-    const makeFlatPose = (plane) => {
-      const sourcePose = spiralPoseSnapshots?.get(plane) || capturePlanePose(plane);
-      return {
-        position: new THREE.Vector3(0, 0, 5.1),
-        rotation: new THREE.Euler(0, 0, 0, sourcePose.rotation.order),
-        scale: sourcePose.scale.clone().multiplyScalar(1.12),
-        focusProgress: 1,
-        opacity: 1,
-        scrollSpeed: 0,
-        renderOrder: 100000,
-        visible: true,
-      };
-    };
-
-    const measurePoseRect = (plane, pose) => {
-      const currentPose = capturePlanePose(plane);
-      applyPlanePose(plane, pose);
-      const rect = getProjectedPlaneRect(plane);
-      applyPlanePose(plane, currentPose);
-      return { ...rect, angle: 0 };
-    };
-
-    const setPlaneToBackgroundState = (plane) => {
-      const pose = spiralPoseSnapshots?.get(plane);
-      if (!pose) return;
-      applyPlanePose(plane, {
-        ...pose,
-        position: pose.position.clone().setZ(pose.position.z - 1.25),
-        scale: pose.scale.clone().multiplyScalar(0.9),
-        opacity: 0,
-        visible: true,
-      });
-    };
-
-    const getGhostFullscreenTransform = (rect) => {
-      const scale = Math.max(window.innerWidth / rect.width, window.innerHeight / rect.height);
-      return {
-        x: window.innerWidth * 0.5 - (rect.left + rect.width * 0.5),
-        y: window.innerHeight * 0.5 - (rect.top + rect.height * 0.5),
-        scale,
-      };
-    };
-
-    const getGhostRectTransform = (baseRect, targetRect) => ({
-      x: targetRect.left + targetRect.width * 0.5 - (baseRect.left + baseRect.width * 0.5),
-      y: targetRect.top + targetRect.height * 0.5 - (baseRect.top + baseRect.height * 0.5),
-      scaleX: targetRect.width / Math.max(baseRect.width, 1),
-      scaleY: targetRect.height / Math.max(baseRect.height, 1),
-      rotation: targetRect.angle,
-      borderRadius: targetRect.borderRadius,
-    });
-
-    const setGhostBaseRect = (rect, fullscreen = false) => {
-      if (!ghostElement || !rect) return;
-      ghostBaseRect = rect;
-      gsap.set(ghostElement, {
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-        transformOrigin: "50% 50%",
-      });
-
-      if (fullscreen) {
-        const target = getGhostFullscreenTransform(rect);
-        gsap.set(ghostElement, {
-          x: target.x,
-          y: target.y,
-          scale: target.scale,
-          rotation: 0,
-          borderRadius: 0,
-        });
-      } else {
-        gsap.set(ghostElement, {
-          x: 0,
-          y: 0,
-          scale: 1,
-          rotation: rect.angle,
-          borderRadius: rect.borderRadius,
-        });
-      }
-    };
-
-    const prepareGhost = (project, rect) => {
-      ghostDim = document.createElement("div");
-      ghostDim.className = "project-transition-dim";
-      ghostDim.setAttribute("aria-hidden", "true");
-      ghostElement = document.createElement("div");
-      ghostElement.className = "project-transition-ghost";
-      ghostElement.setAttribute("aria-hidden", "true");
-      ghostImage = document.createElement("img");
-      ghostImage.alt = "";
-      ghostImage.draggable = false;
-      ghostImage.src = project.thumbnail;
-      ghostElement.append(ghostImage);
-      document.body.append(ghostDim);
-      gsap.set(ghostDim, { opacity: 0 });
-      setGhostBaseRect(rect);
-      gsap.set(ghostElement, { visibility: "hidden" });
-    };
-
-    const mountGhostOverPlane = () => {
-      if (!ghostElement || !activePlane) return;
-      document.body.append(ghostElement);
-      gsap.set(ghostElement, { visibility: "visible" });
-      activePlane.visible = false;
-      renderer.render(scene, camera);
-    };
-
-    const removeGhost = () => {
-      if (ghostElement) gsap.killTweensOf([ghostElement, ghostImage]);
-      if (ghostDim) gsap.killTweensOf(ghostDim);
-      ghostElement?.remove();
-      ghostDim?.remove();
-      ghostElement = null;
-      ghostImage = null;
-      ghostDim = null;
-      ghostBaseRect = null;
-    };
-
-    const getBestPlaneForProject = (projectId) => {
-      let bestPlane = null;
-      let bestScore = Number.POSITIVE_INFINITY;
-
-      planes.forEach((plane) => {
-        if (plane.userData.projectId !== projectId) return;
-        const projected = plane.position.clone().project(camera);
-        const outsidePenalty = Math.abs(projected.x) > 1.15 || Math.abs(projected.y) > 1.15 ? 100 : 0;
-        const score = outsidePenalty + Math.abs(projected.x) * 0.8 + Math.abs(projected.y) + projected.z * 0.15;
-        if (score < bestScore) {
-          bestScore = score;
-          bestPlane = plane;
-        }
-      });
-
-      return bestPlane || planes.find((plane) => plane.userData.projectId === projectId);
-    };
-
-    const lockPage = () => {
-      if (bodyLockSnapshot) return;
-
-      const body = document.body;
-      lockedScrollY = window.scrollY;
-      scrollAudit = { beforeLock: lockedScrollY };
-      bodyLockSnapshot = { scrollY: lockedScrollY };
-      body.dataset.scrollY = String(lockedScrollY);
-      scrollLockController = new AbortController();
-      const listenerOptions = { passive: false, signal: scrollLockController.signal };
-      const preventScroll = (event) => event.preventDefault();
-      const preventScrollKey = (event) => {
-        if (!["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) return;
-        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
-        event.preventDefault();
-      };
-      window.addEventListener("wheel", preventScroll, listenerOptions);
-      window.addEventListener("touchmove", preventScroll, listenerOptions);
-      document.addEventListener("keydown", preventScrollKey, { signal: scrollLockController.signal });
-      document.documentElement.classList.add("is-project-open");
-      document.body.classList.add("is-project-open");
-      scrollAudit.afterLock = window.scrollY;
-      console.debug("[project-transition] scroll lock", { ...scrollAudit });
-    };
-
-    const unlockPage = () => {
-      if (!bodyLockSnapshot) return;
-
-      const body = document.body;
-      const restoreY = Number(body.dataset.scrollY || lockedScrollY);
-      scrollAudit.beforeUnlock = window.scrollY;
-      scrollLockController?.abort();
-      scrollLockController = null;
-      document.documentElement.classList.remove("is-project-open");
-      body.classList.remove("is-project-open");
-      delete body.dataset.scrollY;
-      if (Math.abs(window.scrollY - restoreY) > 0.5) {
-        const root = document.documentElement;
-        const previousScrollBehavior = root.style.scrollBehavior;
-        root.style.scrollBehavior = "auto";
-        window.scrollTo({ top: restoreY, left: 0, behavior: "instant" });
-        root.style.scrollBehavior = previousScrollBehavior;
-      }
-      bodyLockSnapshot = null;
-      scrollAudit.afterUnlock = window.scrollY;
-      console.debug("[project-transition] scroll unlock", { ...scrollAudit });
-    };
-
-    const setOverlayInteractive = (interactive) => {
-      projectOverlay?.classList.toggle("is-interactive", interactive);
-      projectOverlay?.setAttribute("aria-busy", String(!interactive));
-    };
-
-    const finishOpening = () => {
-      overlayMode = "open";
-      activeTransitionTimeline = null;
-      const reducedMotion = reducedMotionQuery.matches;
-
-      isTransitioning = false;
-      setOverlayInteractive(true);
-      projectOverlayClose?.focus({ preventScroll: true });
-
-      gsap.to(projectOverlayRevealItems, {
-        opacity: 1,
-        y: 0,
-        duration: reducedMotion ? 0.18 : 0.48,
-        stagger: reducedMotion ? 0.03 : 0.1,
-        ease: "power3.out",
-      });
-    };
-
-    const addPlanePoseTween = (timeline, plane, pose, start, duration, ease) => {
-      timeline.to(plane.position, {
-        x: pose.position.x,
-        y: pose.position.y,
-        z: pose.position.z,
-        duration,
-        ease,
-      }, start);
-      timeline.to(plane.rotation, {
-        x: pose.rotation.x,
-        y: pose.rotation.y,
-        z: pose.rotation.z,
-        duration,
-        ease,
-      }, start);
-      timeline.to(plane.scale, {
-        x: pose.scale.x,
-        y: pose.scale.y,
-        z: pose.scale.z,
-        duration,
-        ease,
-      }, start);
-      timeline.to(plane.material.uniforms.uFocusProgress, {
-        value: pose.focusProgress,
-        duration,
-        ease,
-      }, start);
-      timeline.to(plane.material.uniforms.uOpacity, {
-        value: pose.opacity,
-        duration,
-        ease,
-      }, start);
-      timeline.to(plane.material.uniforms.uScrollSpeed, {
-        value: pose.scrollSpeed,
-        duration,
-        ease,
-      }, start);
-    };
-
-    const openProject = (plane) => {
-      if (!gsap || !plane || mobileQuery.matches || overlayMode !== "spiral" || isTransitioning) return;
-
-      const reducedMotion = reducedMotionQuery.matches;
-      const project = renderOverlayProject(plane.userData.projectId);
-      if (!project) return;
-      isTransitioning = true;
-      overlayMode = "opening";
-      spiralLocked = true;
-      activePlane = plane;
-      lastFocusedElement = document.activeElement;
-      stopSpiralLoop();
-      spiralPoseSnapshots = new Map(planes.map((item) => [item, capturePlanePose(item)]));
-      activeFlatPose = makeFlatPose(activePlane);
-      activeFlatRect = measurePoseRect(activePlane, activeFlatPose);
-      prepareGhost(project, activeFlatRect);
-      lockPage();
-
-      projectOverlay.classList.add("is-visible");
-      projectOverlay.setAttribute("aria-hidden", "false");
-      setOverlayInteractive(false);
-      gsap.killTweensOf([
-        projectOverlay,
-        projectOverlayShade,
-        ...projectOverlayRevealItems,
-        ...projectOverlayChrome,
-      ]);
-      gsap.set(projectOverlay, { opacity: 1 });
-      gsap.set(projectOverlayShade, { opacity: 0 });
-      gsap.set(projectOverlayRevealItems, { opacity: 0, y: reducedMotion ? 0 : 24 });
-      gsap.set(projectOverlayChrome, { opacity: 0 });
-
-      activePlane.renderOrder = activeFlatPose.renderOrder;
-      const timeline = gsap.timeline({ onComplete: finishOpening });
-      activeTransitionTimeline = timeline;
-      timeline.eventCallback("onUpdate", () => renderer.render(scene, camera));
-      timeline.to(ghostDim, { opacity: 0.6, duration: reducedMotion ? 0.24 : 0.95, ease: "power2.inOut" }, 0);
-      if (spiralGrid) timeline.to(spiralGrid, {
-        opacity: 0.08,
-        scale: 0.94,
-        duration: reducedMotion ? 0.24 : 0.72,
-        ease: "power2.inOut",
-      }, 0);
-
-      if (reducedMotion) {
-        const target = getGhostFullscreenTransform(ghostBaseRect);
-        mountGhostOverPlane();
-        gsap.set(ghostElement, {
-          x: target.x,
-          y: target.y,
-          scale: target.scale,
-          rotation: 0,
-          borderRadius: 0,
-          opacity: 0,
-        });
-        timeline.to(ghostElement, { opacity: 1, duration: 0.24 }, 0);
-      } else {
-        planes.forEach((item) => {
-          if (item === activePlane) return;
-          const pose = spiralPoseSnapshots.get(item);
-          const backgroundPose = {
-            ...pose,
-            position: pose.position.clone().setZ(pose.position.z - 1.25),
-            scale: pose.scale.clone().multiplyScalar(0.9),
-            opacity: 0,
-          };
-          addPlanePoseTween(timeline, item, backgroundPose, 0, 0.58, "power2.inOut");
-        });
-        addPlanePoseTween(timeline, activePlane, activeFlatPose, 0, 0.42, "power2.inOut");
-
-        const target = getGhostFullscreenTransform(ghostBaseRect);
-        timeline.add(mountGhostOverPlane, 0.42);
-        timeline.to(ghostElement, {
-          x: target.x,
-          y: target.y,
-          scale: target.scale,
-          rotation: 0,
-          borderRadius: 0,
-          duration: 0.53,
-          ease: "power3.out",
-        }, 0.42);
-      }
-      timeline.to(projectOverlayShade, { opacity: 1, duration: reducedMotion ? 0.2 : 0.2 }, reducedMotion ? 0.04 : 0.75);
-      timeline.to(projectOverlayChrome, { opacity: 1, duration: 0.2, stagger: 0.04 }, reducedMotion ? 0.04 : 0.76);
-    };
-
-    const selectActivePlane = (projectId) => {
-      if (activePlane) setPlaneToBackgroundState(activePlane);
-      activePlane = getBestPlaneForProject(projectId);
-      if (!activePlane) return;
-      activeFlatPose = makeFlatPose(activePlane);
-      activeFlatRect = measurePoseRect(activePlane, activeFlatPose);
-      setPlaneToBackgroundState(activePlane);
-      activePlane.visible = false;
-      setGhostBaseRect(activeFlatRect, true);
-      renderer.render(scene, camera);
-    };
-
-    const navigateProject = (direction) => {
-      if (!gsap || overlayMode !== "open" || isTransitioning) return;
-
-      const reducedMotion = reducedMotionQuery.matches;
-      const nextIndex = (activeProjectIndex + direction + spiralProjectData.length) % spiralProjectData.length;
-      const nextProject = spiralProjectData[nextIndex];
-      isTransitioning = true;
-      setOverlayInteractive(false);
-
-      gsap.timeline({
-        defaults: { ease: "power3.inOut" },
-        onComplete: () => {
-          isTransitioning = false;
-          setOverlayInteractive(true);
-        },
-      })
-        .to(projectOverlayRevealItems, {
-          opacity: 0,
-          y: reducedMotion ? 0 : -16,
-          duration: reducedMotion ? 0.16 : 0.25,
-          stagger: 0.025,
-        }, 0)
-        .to(ghostImage, { opacity: 0, scale: 1.02, duration: reducedMotion ? 0.18 : 0.3 }, 0)
-        .add(() => {
-          selectActivePlane(nextProject.id);
-          renderOverlayProject(nextProject.id);
-          gsap.set(ghostImage, { opacity: 0, scale: 1.02 });
-          gsap.set(projectOverlayRevealItems, { opacity: 0, y: reducedMotion ? 0 : 24 });
-        }, reducedMotion ? 0.18 : 0.3)
-        .to(ghostImage, { opacity: 1, scale: 1, duration: reducedMotion ? 0.2 : 0.4 }, reducedMotion ? 0.18 : 0.3)
-        .to(projectOverlayRevealItems, {
-          opacity: 1,
-          y: 0,
-          duration: reducedMotion ? 0.18 : 0.42,
-          stagger: reducedMotion ? 0.025 : 0.1,
-          ease: "power3.out",
-        }, reducedMotion ? 0.22 : 0.4);
-    };
-
-    const resetOverlay = () => {
-      activeTransitionTimeline?.kill();
-      activeTransitionTimeline = null;
-      spiralPoseSnapshots?.forEach((pose, plane) => applyPlanePose(plane, pose));
-      if (spiralGrid) gsap.set(spiralGrid, { clearProps: "opacity,transform" });
-      gsap.set(projectOverlay, { opacity: 0 });
-      gsap.set(projectOverlayShade, { opacity: 0 });
-      gsap.set(projectOverlayRevealItems, { opacity: 0, y: 24 });
-      gsap.set(projectOverlayChrome, { opacity: 0 });
-      projectOverlay.classList.remove("is-visible", "is-interactive");
-      projectOverlay.setAttribute("aria-hidden", "true");
-      projectOverlay.removeAttribute("aria-busy");
-      overlayMode = "spiral";
-      isTransitioning = false;
-      spiralLocked = false;
-      hoveredPlane = null;
-      spiralCanvas.classList.remove("is-project-hover");
-      renderer.render(scene, camera);
-      removeGhost();
-      unlockPage();
-      spiralPoseSnapshots = null;
-      activeFlatPose = null;
-      activeFlatRect = null;
-      activePlane = null;
-      syncSpiralLoop();
-      requestHeroCardUpdate();
-      (lastFocusedElement instanceof HTMLElement ? lastFocusedElement : spiralCanvas).focus({ preventScroll: true });
-    };
-
-    const closeProject = () => {
-      if (!gsap || overlayMode !== "open" || isTransitioning) return;
-
-      const reducedMotion = reducedMotionQuery.matches;
-      const returnPose = activePlane ? spiralPoseSnapshots?.get(activePlane) : null;
-      const returnRect = activePlane && returnPose ? measurePoseRect(activePlane, returnPose) : null;
-      isTransitioning = true;
-      overlayMode = "closing";
-      setOverlayInteractive(false);
-      gsap.killTweensOf(projectOverlayRevealItems);
-
-      const timeline = gsap.timeline({
-        onComplete: resetOverlay,
-      });
-      activeTransitionTimeline = timeline;
-      timeline.eventCallback("onUpdate", () => renderer.render(scene, camera));
-
-      timeline.to(projectOverlayRevealItems, {
-        opacity: 0,
-        duration: reducedMotion ? 0.14 : 0.22,
-        stagger: 0.02,
-      }, 0);
-      timeline.to(projectOverlayChrome, { opacity: 0, duration: 0.16 }, 0);
-      timeline.to(projectOverlayShade, { opacity: 0, duration: 0.18 }, 0);
-      timeline.to(ghostDim, { opacity: 0, duration: reducedMotion ? 0.24 : 0.95, ease: "power2.inOut" }, 0);
-      if (spiralGrid) timeline.to(spiralGrid, {
-        opacity: 0.42,
-        scale: 1,
-        duration: reducedMotion ? 0.24 : 0.72,
-        ease: "power2.inOut",
-      }, reducedMotion ? 0 : 0.23);
-
-      if (reducedMotion || !returnRect || !returnPose || !ghostBaseRect) {
-        timeline.to(ghostElement, { opacity: 0, duration: 0.24 }, 0);
-      } else {
-        const returnTransform = getGhostRectTransform(ghostBaseRect, returnRect);
-        timeline.to(ghostElement, {
-          ...returnTransform,
-          duration: 0.95,
-          ease: "power3.inOut",
-        }, 0);
-        timeline.add(() => {
-          applyPlanePose(activePlane, returnPose);
-          renderer.render(scene, camera);
-          gsap.set(ghostElement, { visibility: "hidden" });
-        }, 0.95);
-
-        planes.forEach((item) => {
-          if (item === activePlane) return;
-          const pose = spiralPoseSnapshots.get(item);
-          addPlanePoseTween(timeline, item, pose, 0.2, 0.75, "power3.out");
-        });
-      }
     };
 
     const raycastPlane = (event) => {
@@ -1901,23 +1463,49 @@ const initSpiralExperience = async () => {
       renderer.setSize(width, height, false);
       spiralScrollStart = window.scrollY + shellRect.top;
       spiralScrollDistance = Math.max(scrollShell.offsetHeight - window.innerHeight, 1);
+    };
 
-      if (activePlane && ghostElement && overlayMode === "open") {
-        setGhostBaseRect(getProjectedPlaneRect(activePlane), true);
-        renderer.render(scene, camera);
-      }
+    let closestPlane = null;
+    let activeCaptionId = null;
+
+    // Fills the otherwise-empty flanks of the spiral with the number/title
+    // of whichever card is currently front-and-center, crossfading between
+    // projects instead of scrolling continuously alongside the spiral.
+    const updateActiveCaption = (plane) => {
+      const projectId = plane?.userData.projectId ?? null;
+      if (projectId === activeCaptionId) return;
+      activeCaptionId = projectId;
+      if (!spiralCaptionIndex || !spiralCaptionTitle) return;
+
+      const project = spiralProjectData.find((item) => item.id === projectId);
+      spiralCaptionIndex.classList.remove("is-visible");
+      spiralCaptionTitle.classList.remove("is-visible");
+      if (!project) return;
+
+      window.setTimeout(() => {
+        if (activeCaptionId !== projectId) return;
+        spiralCaptionIndex.textContent = project.number;
+        spiralCaptionTitle.textContent = project.title;
+        spiralCaptionIndex.classList.add("is-visible");
+        spiralCaptionTitle.classList.add("is-visible");
+      }, 220);
     };
 
     const render = () => {
       if (!renderLoopRunning) return;
       const progress = clamp((window.scrollY - spiralScrollStart) / spiralScrollDistance, 0, 1);
-      const targetOffset = progress * planes.length;
+      // Ring geometry needs enough planes (repeated textures) to look like a
+      // complete loop, but the scroll itself should only travel one lap of
+      // the *unique* projects — otherwise a single top-to-bottom scroll
+      // shows every project twice.
+      const targetOffset = progress * spiralProjectData.length;
       currentOffset = lerp(currentOffset, targetOffset, 0.1);
       if (Math.abs(targetOffset - currentOffset) < 0.0005) currentOffset = targetOffset;
       const scrollSpeed = currentOffset - previousOffset;
       previousOffset = currentOffset;
       const centerIndex = Math.floor(planes.length / 2);
       const fadeRange = 1.65;
+      let closestDistance = Infinity;
 
       planes.forEach((plane, index) => {
         let normalizedIndex = index - currentOffset;
@@ -1932,8 +1520,13 @@ const initSpiralExperience = async () => {
         plane.renderOrder = Math.round((plane.position.z + 3) * 1000) + index;
         plane.material.uniforms.uScrollSpeed.value = scrollSpeed;
         plane.material.uniforms.uOpacity.value = edgeOpacity;
+        if (Math.abs(relativeIndex) < closestDistance) {
+          closestDistance = Math.abs(relativeIndex);
+          closestPlane = plane;
+        }
       });
 
+      updateActiveCaption(closestPlane);
       renderer.render(scene, camera);
       if (Math.abs(targetOffset - currentOffset) > 0.0005 || Math.abs(scrollSpeed) > 0.0001) {
         renderFrameId = requestAnimationFrame(render);
@@ -2014,16 +1607,6 @@ const initSpiralExperience = async () => {
       visitProject(hoveredPlane || getCenterPlane());
     });
 
-    projectOverlayClose?.addEventListener("click", closeProject);
-    projectOverlayPrev?.addEventListener("click", () => navigateProject(-1));
-    projectOverlayNext?.addEventListener("click", () => navigateProject(1));
-    projectOverlayCta?.addEventListener("click", (event) => {
-      if (projectOverlayCta.getAttribute("href") === "#") event.preventDefault();
-    });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeProject();
-    });
-
     resize();
     window.addEventListener("resize", resize);
     if (isFigmaCaptureMode) {
@@ -2048,17 +1631,6 @@ const initSpiralExperience = async () => {
       camera,
       planes,
       resize,
-      openProjectById: (projectId) => openProject(getBestPlaneForProject(projectId)),
-      closeProject,
-      navigateProject,
-      getState: () => ({
-        overlayMode,
-        isTransitioning,
-        activeProjectIndex,
-        spiralLocked,
-        lockedScrollY,
-        scrollAudit: { ...scrollAudit },
-      }),
     };
     if (!gsap) console.error("GSAP failed to initialize; project expansion is unavailable.");
   } catch (error) {
@@ -2073,10 +1645,10 @@ const requestHeroCardUpdate = () => {
   ticking = true;
   requestAnimationFrame(() => {
     updateHeroCard();
-    updateDarkRevealCurve();
     updateCreamExitCurve();
     updateAboutRevealText();
     updateSpiralNavState();
+    updateDarkRevealCurve();
     updateContactNavState();
     updateContactReveal();
     updateNavSectionTitle();
@@ -2096,9 +1668,34 @@ window.addEventListener("pointermove", (event) => {
 
   cursorFrame = requestAnimationFrame(() => {
     cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+    if (cursorHint) {
+      cursorHint.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(20px, 20px)`;
+    }
     cursorFrame = null;
   });
 });
+
+if (cursorHint && revealContentSection && revealTranslationLines.length) {
+  let overRevealLine = false;
+
+  revealContentSection.addEventListener("pointerenter", () => {
+    if (!overRevealLine) cursorHint.classList.add("is-visible");
+  });
+  revealContentSection.addEventListener("pointerleave", () => {
+    cursorHint.classList.remove("is-visible");
+  });
+
+  revealTranslationLines.forEach((line) => {
+    line.addEventListener("pointerenter", () => {
+      overRevealLine = true;
+      cursorHint.classList.remove("is-visible");
+    });
+    line.addEventListener("pointerleave", () => {
+      overRevealLine = false;
+      cursorHint.classList.add("is-visible");
+    });
+  });
+}
 
 window.addEventListener("scroll", requestHeroCardUpdate, { passive: true });
 window.addEventListener("resize", () => {
@@ -2111,10 +1708,10 @@ updateHeroCard();
 initHeroLetterInteraction();
 initContactLinkInteraction();
 initLandingEntrance();
-updateDarkRevealCurve();
 updateCreamExitCurve();
 updateAboutRevealText();
 updateSpiralNavState();
+updateDarkRevealCurve();
 updateContactNavState();
 updateContactReveal();
 updateNavSectionTitle();
@@ -2156,7 +1753,7 @@ revealTargets.forEach((target) => observer.observe(target));
 const playgroundProjects = [
   {
     variant: "aqua",
-    image: "assets/project1/figma/project-left.png",
+    image: "assets/project1/figma/project-left.webp",
     title: "K브랜드 웹사이트 리뉴얼 팀프로젝트",
     brand: "aqua planet",
     logos: ["assets/project1/logos/aqua.svg", "assets/project1/logos/planet.svg"],
@@ -2169,7 +1766,7 @@ const playgroundProjects = [
   },
   {
     variant: "layer",
-    image: "assets/project1/figma/project-center.png",
+    image: "assets/project1/figma/project-center.webp",
     title: "AI 챗봇 커뮤니티 프로젝트",
     brand: "Layer",
     logos: ["assets/project1/logos/layer.svg"],
@@ -2182,7 +1779,7 @@ const playgroundProjects = [
   },
   {
     variant: "moa",
-    image: "assets/project1/figma/project-right.png",
+    image: "assets/project1/figma/project-right.webp",
     title: "선택을 돕는 질문형 결정 도우미 앱",
     brand: "모아",
     logos: ["assets/project1/logos/moa.svg"],

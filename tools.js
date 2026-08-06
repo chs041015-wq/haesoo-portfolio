@@ -1,13 +1,13 @@
 const FEATURED_TOOLS = [
-  { name: "Figma", icon: "assets/tools/figma.png", level: "상", fillPercent: 90, desc: "와이어프레임부터 프로토타입까지 전 과정에 사용했습니다" },
-  { name: "Three.js", icon: "assets/tools/three-js.png", level: "중상", fillPercent: 75, desc: "카메라, 조명, 지오메트리를\n다뤄 3D 씬을 구현했습니다" },
-  { name: "GSAP", icon: "assets/tools/gsap.png", level: "중상", fillPercent: 75, desc: "타임라인과 트리거로 정교한 스크롤 연출을 만들었습니다" },
-  { name: "React", icon: "assets/tools/react.png", level: "중상", fillPercent: 75, desc: "재사용 가능한 컴포넌트와\n 상태 관리로 화면을 \n구조화했습니다" },
-  { name: "TypeScript", icon: "assets/tools/typescript.png", level: "중상", fillPercent: 75, desc: "타입을 정의해 재사용 가능한 UI를 구축했습니다" },
-  { name: "Anthropic", icon: "assets/tools/anthropic.png", level: "상", fillPercent: 90, desc: "기획부터 코드까지 효율적인 작업을 진행하였습니다" },
-  { name: "Blender", icon: "assets/tools/blender.png", level: "중", fillPercent: 60, desc: "AI 스크립트를 통해\n 3D 애니메이션을 추가했습니다" },
-  { name: "HTML", icon: "assets/tools/html.png?v=2", level: "상", fillPercent: 90, desc: "시맨틱 마크업으로 접근성\n높은 구조를 만들었습니다" },
-  { name: "CSS", icon: "assets/tools/css.png?v=2", level: "상", fillPercent: 90, desc: "반응형 레이아웃과 스타일로 화면을 구현했습니다" },
+  { name: "Figma", icon: "assets/tools/figma.webp", level: "상", fillPercent: 90, desc: "와이어프레임부터 프로토타입까지 전 과정에 사용했습니다" },
+  { name: "Three.js", icon: "assets/tools/three-js.webp", level: "중상", fillPercent: 75, desc: "카메라, 조명, 지오메트리를\n다뤄 3D 씬을 구현했습니다" },
+  { name: "GSAP", icon: "assets/tools/gsap.webp", level: "중상", fillPercent: 75, desc: "타임라인과 트리거로 정교한 스크롤 연출을 만들었습니다" },
+  { name: "React", icon: "assets/tools/react.webp", level: "중상", fillPercent: 75, desc: "재사용 가능한 컴포넌트와\n 상태 관리로 화면을 \n구조화했습니다" },
+  { name: "TypeScript", icon: "assets/tools/typescript.webp", level: "중상", fillPercent: 75, desc: "타입을 정의해 재사용 가능한 UI를 구축했습니다" },
+  { name: "Anthropic", icon: "assets/tools/anthropic.webp", level: "상", fillPercent: 90, desc: "기획부터 코드까지 효율적인 작업을 진행하였습니다" },
+  { name: "Blender", icon: "assets/tools/blender.webp", level: "중", fillPercent: 60, desc: "AI 스크립트를 통해\n 3D 애니메이션을 추가했습니다" },
+  { name: "HTML", icon: "assets/tools/html.webp?v=2", level: "상", fillPercent: 90, desc: "시맨틱 마크업으로 접근성\n높은 구조를 만들었습니다" },
+  { name: "CSS", icon: "assets/tools/css.webp?v=2", level: "상", fillPercent: 90, desc: "반응형 레이아웃과 스타일로 화면을 구현했습니다" },
 ];
 
 window.toolData = FEATURED_TOOLS;
@@ -157,11 +157,13 @@ window.toolData = FEATURED_TOOLS;
     entries.forEach(({ card, center }) => {
       const localT = Math.max(Math.min((progress - center) / halfWindow, 1.3), -1.3);
       const lift = -localT * riseDistance;
+      const enterOpacity = Math.max(Math.min((localT + 1.3) / 0.85, 1), 0);
       const exitOpacity = Math.max(Math.min((1.16 - localT) / 0.16, 1), 0);
-      const ringIsActive = localT > -0.35 && exitOpacity > 0;
+      const opacity = Math.min(enterOpacity, exitOpacity);
+      const ringIsActive = localT > -0.35 && opacity > 0;
       card.style.transform = `translateY(${lift.toFixed(2)}px)`;
-      card.style.opacity = exitOpacity.toFixed(3);
-      card.style.visibility = exitOpacity === 0 ? "hidden" : "visible";
+      card.style.opacity = opacity.toFixed(3);
+      card.style.visibility = opacity === 0 ? "hidden" : "visible";
       card.classList.toggle("is-ring-active", ringIsActive);
     });
   };

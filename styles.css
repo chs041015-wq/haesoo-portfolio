@@ -36,11 +36,13 @@ html.has-js:not(.landing-complete) {
 
 * {
   box-sizing: border-box;
+  cursor: none !important;
 }
 
 html {
   overflow-x: clip;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -84,6 +86,31 @@ a {
 .cursor.is-active {
   width: 54px;
   height: 54px;
+}
+
+.cursor-hint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  transform: translate3d(0, 0, 0) translate(20px, 20px);
+  pointer-events: none;
+  opacity: 0;
+  white-space: nowrap;
+  font-family: "Pretendard", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 7px 14px;
+  border-radius: 999px;
+  will-change: transform, opacity;
+  transition: opacity 200ms ease;
+}
+
+.cursor-hint.is-visible {
+  opacity: 1;
 }
 
 .site-nav {
@@ -346,7 +373,7 @@ body.is-spiral-active .nav-contact-arrow {
   font-weight: 900;
   line-height: 0.99;
   text-align: center;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 
 .hero-title-line {
@@ -447,9 +474,9 @@ html.has-js:not(.landing-complete) .hero-word {
 
 .card-rear {
   transform: rotateY(180deg);
-}
-
-.card-rear img {
+  background-image: url("assets/about/portrait.webp");
+  background-size: cover;
+  background-position: center top;
   filter: saturate(0.4) contrast(1);
 }
 
@@ -495,7 +522,7 @@ html.has-js:not(.landing-complete) .hero-word {
   top: 323px;
   width: 140px;
   height: 140px;
-  background-image: url("assets/hero/accent-star.png");
+  background-image: url("assets/hero/accent-star.webp");
 }
 
 .orb.right {
@@ -503,7 +530,7 @@ html.has-js:not(.landing-complete) .hero-word {
   top: 608px;
   width: 198px;
   height: 198px;
-  background-image: url("assets/hero/accent-bolt.png");
+  background-image: url("assets/hero/accent-bolt.webp");
   animation-direction: reverse;
 }
 
@@ -711,7 +738,7 @@ html.has-js:not(.landing-complete) .hero-word {
   color: var(--ink);
   font-size: 32px;
   font-weight: 800;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   line-height: 1.05;
   white-space: nowrap;
 }
@@ -723,7 +750,7 @@ html.has-js:not(.landing-complete) .hero-word {
   color: var(--muted);
   font-size: 18px;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   line-height: 1.4;
   opacity: 0.72;
 }
@@ -887,7 +914,7 @@ html.has-js:not(.landing-complete) .hero-word {
 .tool-card-level {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   opacity: 0.68;
 }
@@ -901,6 +928,15 @@ html.has-js:not(.landing-complete) .hero-word {
   text-align: center;
   white-space: pre-line;
   opacity: 0.85;
+}
+
+/* .tool-card-face keeps its own dark chip background regardless of the
+   section theme, so its text stays explicitly light instead of inheriting
+   .dark-reveal's (transitioning) color. */
+.tool-card-name,
+.tool-card-level,
+.tool-card-desc {
+  color: var(--night-ink);
 }
 
 .tools-center {
@@ -933,8 +969,8 @@ html.has-js:not(.landing-complete) .hero-word {
   margin: 0 0 14px;
   color: var(--accent);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
 }
 
@@ -949,7 +985,7 @@ html.has-js:not(.landing-complete) .hero-word {
 
 .tools-category li {
   color: rgba(250, 250, 250, 0.78);
-  font-size: clamp(13px, 1vw, 16px);
+  font-size: clamp(16px, 1.2vw, 19px);
   letter-spacing: -0.01em;
 }
 
@@ -967,7 +1003,10 @@ html.has-js:not(.landing-complete) .hero-word {
 .dark-reveal {
   position: relative;
   min-height: 0;
-  margin-top: 0;
+  /* Extra breathing room before the entry curve, so it rises clear of
+     Clone Coding's still-visible card content instead of overlapping it. */
+  margin-top: 320px;
+  --curve-height: 7.7vw;
   padding: var(--section-start-space) 0 var(--section-end-space);
   overflow-x: clip;
   overflow-y: visible;
@@ -976,7 +1015,9 @@ html.has-js:not(.landing-complete) .hero-word {
   isolation: isolate;
 }
 
-.project-showcase::before {
+/* Entry curve: Clone Coding (cream) rises into Tools (black), same ellipse
+   technique as .works::before's black->cream curve, mirrored. */
+.dark-reveal::before {
   content: "";
   position: absolute;
   z-index: 0;
@@ -993,6 +1034,32 @@ html.has-js:not(.landing-complete) .hero-word {
 
 .dark-reveal::after {
   content: none;
+}
+
+/* Works/Clone Coding share .project-section-title and .code-section-heading
+   with Timeline's dark header (.experience-intro), so their light-theme text
+   colors are overridden here, scoped by ancestor, instead of touching the
+   shared base rules Timeline still relies on. */
+.project-showcase .project-section-title,
+.spiral-section .project-section-title {
+  color: var(--ink);
+}
+
+.project-showcase .project-section-title h2,
+.spiral-section .project-section-title h2 {
+  color: rgba(17, 17, 17, 0.9);
+}
+
+.project-showcase .project-section-title .code-section-ui,
+.spiral-section .project-section-title .code-section-ui {
+  color: var(--ink);
+}
+
+.project-showcase .code-section-heading > h2,
+.project-showcase .code-section-heading > h3,
+.spiral-section .code-section-heading > h2,
+.spiral-section .code-section-heading > h3 {
+  color: rgba(17, 17, 17, 0.7);
 }
 
 .dark-reveal .section-title p {
@@ -1074,6 +1141,7 @@ html.has-js:not(.landing-complete) .hero-word {
 .reveal-ko-icon.is-cross { width: 68px; height: 68px; transform: rotate(12deg); }
 .reveal-ko-icon.is-star { width: 40px; height: 40px; transform: rotate(50deg); }
 .reveal-ko-icon.is-bolt { width: 54px; height: 54px; transform: rotate(16deg); }
+.reveal-ko-icon.is-equals { width: 58px; height: 58px; transform: rotate(-4deg); }
 
 .about-text .word {
   display: inline-block;
@@ -1129,9 +1197,19 @@ html.has-js:not(.landing-complete) .hero-word {
 .about-text-image.is-bolt {
   width: 54px;
   height: 54px;
+  --icon-y: 0.32em;
   --icon-rotate: 16deg;
   animation-duration: 3.5s;
   animation-delay: -0.8s;
+}
+
+.about-text-image.is-equals {
+  width: 58px;
+  height: 58px;
+  --icon-y: 0.32em;
+  --icon-rotate: -4deg;
+  animation-duration: 4.2s;
+  animation-delay: -1.8s;
 }
 
 @keyframes revealIconDrift {
@@ -1177,17 +1255,18 @@ body.is-figma-capture .timeline-progress {
 .project-showcase {
   position: relative;
   z-index: 1;
-  --curve-height: 7.7vw;
   width: 100%;
   margin-top: -32px;
-  padding-top: var(--section-start-space);
-  background: var(--night);
-  color: #fff;
+  padding-top: calc(var(--section-start-space) / 4);
+  background: var(--paper);
+  color: var(--ink);
   isolation: isolate;
 }
 
 .project-section-title {
   --chapter-exit-progress: 0;
+  --chapter-scale: 1;
+  --chapter-opacity: 1;
   position: relative;
   z-index: 20;
   min-height: clamp(560px, 78vh, 820px);
@@ -1199,16 +1278,27 @@ body.is-figma-capture .timeline-progress {
 .project-section-title .code-section-ui,
 .project-section-title > h2,
 .project-section-title > h3 {
-  transform: translateY(calc(var(--chapter-exit-progress) * -7vh))
-    scale(calc(1 - var(--chapter-exit-progress) * 0.08));
-  transform-origin: left center;
-  opacity: calc(1 - var(--chapter-exit-progress) * 0.72);
+  transform: translateY(calc(var(--chapter-exit-progress) * -7vh)) scale(var(--chapter-scale));
+  transform-origin: center center;
+  opacity: var(--chapter-opacity);
   transition: opacity 80ms linear;
 }
 
+.project-section-title .code-section-ui {
+  text-align: center;
+}
+
+.section-title.project-section-title.code-section-heading > h2,
+.section-title.project-section-title.code-section-heading > h3 {
+  align-self: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0;
+  text-align: center;
+}
+
 .has-js .project-section-title + .canvas__wr,
-.has-js .project-section-title + .spiral-scroll-shell,
-.has-js .project-section-title + .timeline-shell {
+.has-js .project-section-title + .spiral-scroll-shell {
   opacity: var(--chapter-content-progress, 0);
   transform: translateY(calc((1 - var(--chapter-content-progress, 0)) * 56px));
   transition: opacity 120ms linear;
@@ -1219,7 +1309,7 @@ body.is-figma-capture .timeline-progress {
 }
 
 .project-section-title h2 {
-  color: rgba(250, 250, 250, 0.72);
+  color: rgba(250, 250, 250, 0.9);
 }
 
 .section-anchor {
@@ -1235,7 +1325,7 @@ body.is-figma-capture .timeline-progress {
   position: relative;
   width: 100%;
   height: 400vh;
-  background: var(--night);
+  background: var(--paper);
 }
 
 .playground-camera {
@@ -1295,7 +1385,7 @@ body.is-figma-capture .timeline-progress {
   border-radius: inherit;
   transform: rotateY(var(--playground-flip, 0deg));
   transform-style: preserve-3d;
-  box-shadow: 0 calc(18px + var(--playground-focus, 0) * 18px) calc(42px + var(--playground-focus, 0) * 32px) rgba(0, 0, 0, calc(0.3 + var(--playground-focus, 0) * 0.2));
+  box-shadow: 0 calc(18px + var(--playground-focus, 0) * 18px) calc(42px + var(--playground-focus, 0) * 32px) rgba(17, 17, 17, calc(0.12 + var(--playground-focus, 0) * 0.14));
   will-change: transform;
 }
 
@@ -1437,15 +1527,15 @@ body.is-figma-capture .timeline-progress {
   height: auto;
   margin-top: 0;
   padding-top: var(--section-start-space);
-  background: var(--night);
-  color: #fafafa;
+  background: var(--paper);
+  color: var(--ink);
   isolation: isolate;
 }
 
 .spiral-scroll-shell {
   position: relative;
   height: 420vh;
-  background: var(--night);
+  background: var(--paper);
 }
 
 /* Pre-promote the shell to its own GPU layer only while its chapter-progress
@@ -1462,7 +1552,18 @@ body.is-figma-capture .timeline-progress {
   height: 100vh;
   min-height: 680px;
   overflow: hidden;
-  background: var(--night);
+  background: var(--paper);
+}
+
+/* Soft vignette so the stage reads as a stage instead of flat white now that
+   it's cream, without darkening the section itself. */
+.spiral-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 50% 46%, transparent 32%, rgba(17, 17, 17, 0.14) 100%);
 }
 
 .spiral-brand {
@@ -1510,7 +1611,7 @@ body.is-figma-capture .timeline-progress {
 
 .spiral-switch button {
   height: 18px;
-  color: #fafafa;
+  color: var(--ink);
   opacity: 0.4;
   text-transform: lowercase;
   transition: opacity 180ms ease;
@@ -1536,8 +1637,8 @@ body.is-figma-capture .timeline-progress {
   width: 86.5px;
   height: 48px;
   border-radius: 999px;
-  background: #fafafa;
-  color: #0a0a0a;
+  background: var(--ink);
+  color: var(--paper);
   font-size: 18px;
   line-height: 1;
 }
@@ -1571,7 +1672,7 @@ body.is-figma-capture .timeline-progress {
     rotateY(var(--ry, 0deg))
     rotateZ(var(--rz, 0deg));
   transform-origin: 50% 50%;
-  box-shadow: 0 22px 64px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 34px 90px rgba(17, 17, 17, 0.32);
   will-change: transform, width, height, opacity;
 }
 
@@ -1607,7 +1708,7 @@ body.is-figma-capture .timeline-progress {
   height: 225px;
   transform: rotate(-15deg);
   transform-origin: 50% 50%;
-  color: #fafafa;
+  color: var(--ink);
 }
 
 .showreel-thumb {
@@ -1625,7 +1726,7 @@ body.is-figma-capture .timeline-progress {
   top: -10px;
   width: 311px;
   white-space: nowrap;
-  color: #fafafa;
+  color: var(--ink);
   font-size: 18px;
   font-weight: 500;
   line-height: 1;
@@ -1641,7 +1742,7 @@ body.is-figma-capture .timeline-progress {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #fafafa;
+  background: var(--ink);
 }
 
 .spiral-sound span {
@@ -1651,7 +1752,7 @@ body.is-figma-capture .timeline-progress {
   width: 19px;
   height: 2px;
   border-radius: 999px;
-  background: #0a0a0a;
+  background: var(--paper);
   transform: translate(-50%, -50%) rotate(3deg);
 }
 
@@ -1726,7 +1827,7 @@ body.is-figma-capture .timeline-progress {
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  background: linear-gradient(to bottom, transparent 0%, transparent 84%, var(--night) 100%);
+  background: linear-gradient(to bottom, transparent 0%, transparent 84%, var(--paper) 100%);
 }
 
 /* Editorial code language */
@@ -1811,13 +1912,13 @@ body.is-figma-capture .timeline-progress {
   margin: clamp(28px, 3vw, 44px) 0 0;
   color: var(--muted);
   font-family: "Poppins", "Pretendard", sans-serif;
-  font-size: clamp(14px, 1vw, 17px);
-  font-weight: 500;
+  font-size: clamp(18px, 1.5vw, 28px);
+  font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.55;
-  opacity: 0.66;
+  line-height: 1.5;
+  opacity: 0.85;
   text-align: left;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .section-title.code-section-heading > h2,
@@ -1979,6 +2080,50 @@ body.is-figma-capture .timeline-progress {
   cursor: grabbing;
 }
 
+.spiral-active-caption {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(24px, 5vw, 72px);
+  pointer-events: none;
+}
+
+.spiral-active-caption-index,
+.spiral-active-caption-title {
+  color: rgba(17, 17, 17, 0.55);
+  font-family: "Poppins", "Pretendard", sans-serif;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.spiral-active-caption-index.is-visible,
+.spiral-active-caption-title.is-visible {
+  opacity: 1;
+}
+
+.spiral-active-caption-index {
+  font-size: clamp(13px, 1.1vw, 18px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.spiral-active-caption-title {
+  max-width: 220px;
+  font-size: clamp(15px, 1.3vw, 20px);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: right;
+}
+
+@media (max-width: 840px) {
+  .spiral-active-caption {
+    display: none;
+  }
+}
+
 .spiral-scene {
   width: 1px;
   height: 1px;
@@ -1991,203 +2136,9 @@ body.is-figma-capture .timeline-progress {
   display: none;
 }
 
-.project-transition-dim {
-  position: fixed;
-  z-index: 2498;
-  inset: 0;
-  background: #000000;
-  opacity: 0;
-  pointer-events: none;
-  will-change: opacity;
-}
-
-.project-transition-ghost {
-  position: fixed;
-  z-index: 2499;
-  overflow: hidden;
-  pointer-events: none;
-  contain: layout paint;
-  will-change: transform, border-radius, opacity;
-}
-
-.project-transition-ghost img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  will-change: transform, opacity;
-}
-
-.project-overlay {
-  position: fixed;
-  z-index: 2500;
-  inset: 0;
-  overflow: hidden;
-  background: transparent;
-  color: #ffffff;
-  font-family: "Poppins", "Pretendard", sans-serif;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.project-overlay.is-visible {
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.project-overlay[aria-busy="true"] button,
-.project-overlay[aria-busy="true"] a {
-  pointer-events: none;
-}
-
-.project-overlay-shade {
-  position: absolute;
-  inset: 0;
-}
-
-.project-overlay-shade {
-  background:
-    linear-gradient(90deg, rgba(5, 5, 5, 0.83) 0%, rgba(5, 5, 5, 0.38) 45%, rgba(5, 5, 5, 0.08) 72%),
-    linear-gradient(0deg, rgba(5, 5, 5, 0.68) 0%, transparent 48%);
-}
-
-.project-overlay-close {
-  position: absolute;
-  z-index: 3;
-  top: 36px;
-  right: 40px;
-  display: grid;
-  width: 52px;
-  height: 52px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  background: rgba(8, 8, 8, 0.28);
-  color: #ffffff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 36px;
-  font-weight: 300;
-  line-height: 1;
-  backdrop-filter: blur(10px);
-}
-
-.project-overlay-close span {
-  transform: translateY(-2px);
-}
-
-.project-overlay-copy {
-  position: absolute;
-  z-index: 2;
-  left: clamp(40px, 6vw, 116px);
-  bottom: clamp(126px, 16vh, 184px);
-  width: min(920px, calc(100vw - 180px));
-}
-
-.project-overlay-copy [data-overlay-reveal] {
-  opacity: 0;
-  transform: translateY(24px);
-  will-change: opacity, transform;
-}
-
-.project-overlay-kicker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 12px;
-  margin: 0 0 28px;
-  font-size: clamp(32px, 4.9vw, 94px);
-  font-weight: 700;
-  line-height: 0.96;
-}
-
-.project-overlay-oneliner {
-  max-width: 760px;
-  margin: 0 0 24px;
-  font-size: clamp(22px, 2vw, 38px);
-  font-weight: 500;
-  line-height: 1.15;
-}
-
-.project-overlay-meta {
-  display: flex;
-  gap: 10px;
-  margin: 0 0 28px;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 15px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.project-overlay-keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 30px;
-  padding: 0;
-  list-style: none;
-}
-
-.project-overlay-keywords li {
-  padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.48);
-  border-radius: 999px;
-  background: rgba(8, 8, 8, 0.2);
-  font-size: 13px;
-  font-weight: 600;
-  backdrop-filter: blur(8px);
-}
-
-.project-overlay-cta {
-  display: inline-flex;
-  min-height: 46px;
-  align-items: center;
-  gap: 12px;
-  padding: 0 18px;
-  border: 1px solid #ffffff;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #0a0a0a;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.project-overlay-navigation {
-  position: absolute;
-  z-index: 3;
-  right: 40px;
-  bottom: 36px;
-  left: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.project-overlay-navigation button {
-  min-width: 112px;
-  min-height: 46px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 999px;
-  background: rgba(8, 8, 8, 0.24);
-  color: #ffffff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-}
-
-.project-overlay button:focus-visible,
-.project-overlay a:focus-visible,
 .spiral-webgl:focus-visible {
   outline: 2px solid #6ee7ff;
   outline-offset: 4px;
-}
-
-@media (max-width: 768px) {
-  .project-overlay {
-    display: none;
-  }
 }
 
 .experience-section {
@@ -2215,7 +2166,7 @@ body.is-figma-capture .timeline-progress {
 }
 
 .experience-intro h3 {
-  color: rgba(250, 250, 250, 0.55);
+  color: rgba(250, 250, 250, 0.9);
 }
 
 .experience-intro p {
@@ -2287,7 +2238,7 @@ body.is-figma-capture .timeline-progress {
   display: flex;
   min-height: 268px;
   align-items: center;
-  margin-bottom: 80vh;
+  margin-bottom: 42vh;
 }
 
 .experience-item:last-child {
@@ -2323,7 +2274,7 @@ body.is-figma-capture .timeline-progress {
 .timeline-description,
 .timeline-date {
   margin-top: 0;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 
 .timeline-company {
@@ -2415,7 +2366,7 @@ body.is-figma-capture .timeline-progress {
   font-family: "Poppins", "Pretendard", sans-serif;
   font-size: 13px;
   font-weight: 300;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
 }
 
 .experience-item:nth-child(even) .timeline-photo {
@@ -2588,11 +2539,11 @@ body.is-figma-capture .timeline-progress {
   position: absolute;
   z-index: 0;
   left: 50%;
-  top: calc(var(--cream-curve-height) * -0.36 - 12px);
+  top: calc(var(--cream-curve-height) * -0.64 + 12px);
   width: 120%;
   height: var(--cream-curve-height);
   border-radius: 50%;
-  background: var(--paper);
+  background: var(--night);
   transform: translateX(-50%);
   will-change: height, top;
 }
@@ -2612,27 +2563,6 @@ body.is-figma-capture .timeline-progress {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
-}
-
-.chatbot-section {
-  display: grid;
-  min-height: 100vh;
-  align-items: center;
-}
-
-.chatbot-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.22fr) minmax(340px, 1fr);
-  gap: clamp(40px, 6vw, 96px);
-  align-items: center;
-  width: min(1500px, 100%);
-  margin: 0 auto;
-}
-
-.chat-mail {
-  display: grid;
-  min-width: 0;
-  gap: 10px;
 }
 
 .chat-frame {
@@ -2865,133 +2795,6 @@ body.is-figma-capture .timeline-progress {
 .chat-input-frame input:disabled {
   cursor: default;
   opacity: 0.5;
-}
-
-.character-panel {
-  display: grid;
-  min-width: 0;
-  min-height: 620px;
-  place-items: center;
-}
-
-#character-mount {
-  position: relative;
-  display: grid;
-  width: min(100%, 430px);
-  height: 560px;
-  grid-template-rows: minmax(0, 1fr) auto;
-  place-items: center;
-}
-
-.character-figure {
-  position: relative;
-  width: 340px;
-  height: 440px;
-  transform-origin: 50% 82%;
-  will-change: transform;
-}
-
-.character-head,
-.character-body {
-  position: absolute;
-  left: 50%;
-  display: block;
-  background: var(--ink);
-  transform: translateX(-50%);
-}
-
-.character-head {
-  z-index: 2;
-  top: 34px;
-  width: 184px;
-  height: 184px;
-  border-radius: 50%;
-}
-
-.character-head i {
-  position: absolute;
-  top: 82px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--paper);
-}
-
-.character-head i:first-child {
-  left: 50px;
-}
-
-.character-head i:last-child {
-  right: 50px;
-}
-
-.character-body {
-  bottom: 18px;
-  width: 318px;
-  height: 268px;
-  border-radius: 48% 48% 12% 12%;
-}
-
-.character-status {
-  min-width: 96px;
-  padding: 7px 10px;
-  border: 1px solid var(--ink);
-  background: var(--paper);
-  color: var(--ink);
-  font-family: "Poppins", "Pretendard", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  text-align: center;
-}
-
-.chatbot-fab {
-  position: fixed;
-  z-index: 1200;
-  right: 28px;
-  bottom: 28px;
-  display: grid;
-  width: 58px;
-  height: 58px;
-  place-items: center;
-  border: 1px solid var(--ink);
-  border-radius: 50%;
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
-}
-
-.chatbot-fab:hover,
-.chatbot-fab:focus-visible {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.chatbot-fab.is-hidden {
-  visibility: hidden;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.chatbot-fab-icon {
-  position: relative;
-  width: 22px;
-  height: 17px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-}
-
-.chatbot-fab-icon::after {
-  content: "";
-  position: absolute;
-  right: 1px;
-  bottom: -5px;
-  width: 7px;
-  height: 7px;
-  border-right: 2px solid currentColor;
-  transform: rotate(25deg);
 }
 
 @keyframes chatDot {
@@ -3450,20 +3253,20 @@ body.is-figma-capture .timeline-progress {
 
   .dark-reveal {
     min-height: 0;
-    margin-top: 0;
+    margin-top: 140px;
     padding: var(--section-start-space) 0 var(--section-end-space);
+  }
+
+  .dark-reveal::before {
+    top: calc(var(--curve-height) * -0.36 - 8px);
+    width: 150vw;
+    height: var(--curve-height);
   }
 
   .tools-marquee.reveal-content-section {
     height: 420vh;
     min-height: 420vh;
     padding: 0 20px;
-  }
-
-  .project-showcase::before {
-    top: calc(var(--curve-height) * -0.36 - 8px);
-    width: 150vw;
-    height: var(--curve-height);
   }
 
   .reveal-copy {
@@ -3490,51 +3293,8 @@ body.is-figma-capture .timeline-progress {
 }
 
 @media (min-width: 769px) and (max-height: 820px) {
-  .chatbot-section {
-    padding: 110px 50px 80px;
-  }
-
   .chat-conversation-frame {
     height: 360px;
-  }
-
-  .character-panel {
-    min-height: 480px;
-  }
-
-  #character-mount {
-    height: 470px;
-  }
-
-  .character-figure {
-    width: 280px;
-    height: 360px;
-  }
-
-  .character-head {
-    top: 22px;
-    width: 150px;
-    height: 150px;
-  }
-
-  .character-head i {
-    top: 67px;
-    width: 15px;
-    height: 15px;
-  }
-
-  .character-head i:first-child {
-    left: 40px;
-  }
-
-  .character-head i:last-child {
-    right: 40px;
-  }
-
-  .character-body {
-    bottom: 14px;
-    width: 260px;
-    height: 218px;
   }
 }
 
@@ -3564,62 +3324,19 @@ body.is-figma-capture .timeline-progress {
 }
 
 @media (max-width: 768px) {
-  .cursor {
+  .cursor,
+  .cursor-hint {
     display: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    cursor: auto !important;
   }
 
   .tools-category-grid {
     gap: 32px;
-  }
-
-  .chatbot-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 34px;
-  }
-
-  .character-panel {
-    grid-row: 1;
-    min-height: 300px;
-  }
-
-  .chat-mail {
-    grid-row: 2;
-  }
-
-  #character-mount {
-    width: 260px;
-    height: 300px;
-  }
-
-  .character-figure {
-    width: 220px;
-    height: 240px;
-  }
-
-  .character-head {
-    top: 12px;
-    width: 104px;
-    height: 104px;
-  }
-
-  .character-head i {
-    top: 46px;
-    width: 11px;
-    height: 11px;
-  }
-
-  .character-head i:first-child {
-    left: 29px;
-  }
-
-  .character-head i:last-child {
-    right: 29px;
-  }
-
-  .character-body {
-    bottom: 8px;
-    width: 188px;
-    height: 156px;
   }
 
   .chat-header-frame {
@@ -3628,12 +3345,6 @@ body.is-figma-capture .timeline-progress {
     gap: 10px;
     padding: 11px 12px;
     font-size: 11px;
-  }
-
-  .chat-header-frame [data-chat-email] {
-    max-width: 150px;
-    text-align: right;
-    overflow-wrap: anywhere;
   }
 
   .chat-conversation-frame {
@@ -3655,13 +3366,6 @@ body.is-figma-capture .timeline-progress {
     min-width: 72px;
     padding-inline: 12px;
   }
-
-  .chatbot-fab {
-    right: 18px;
-    bottom: 18px;
-    width: 54px;
-    height: 54px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3674,8 +3378,15 @@ body.is-figma-capture .timeline-progress {
     transition-duration: 1ms !important;
   }
 
-  .cursor {
+  .cursor,
+  .cursor-hint {
     display: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    cursor: auto !important;
   }
 
   .tool-card {
@@ -4404,8 +4115,8 @@ body.is-spiral-active .nav-contact-arrow-default {
 
 .code-display-title {
   font-size: clamp(72px, 7.292vw, 140px);
-  font-weight: 500;
-  line-height: 1.4;
+  font-weight: 600;
+  line-height: 1;
   letter-spacing: -0.02em;
 }
 
@@ -4414,12 +4125,12 @@ body.is-spiral-active .nav-contact-arrow-default {
   width: min(1100px, 100%);
   margin-top: 0;
   padding-left: 24px;
-  color: rgba(250, 250, 250, 0.72);
+  color: rgba(250, 250, 250, 0.9);
   font-family: "Pretendard", sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0;
+  font-size: clamp(18px, 1.5vw, 28px);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
   opacity: 1;
 }
 
@@ -4440,6 +4151,19 @@ body.is-spiral-active .nav-contact-arrow-default {
   letter-spacing: -0.02em;
 }
 
+/* Timeline's title reuses .tools-center-title (Skill's title) verbatim for
+   a unified look, but it sits inside .code-section-heading, whose > h2 rule
+   otherwise wins on specificity -- reassert here. */
+.experience-intro .tools-center-title {
+  width: auto;
+  margin: 0;
+  color: #fafafa;
+  font-size: 140px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
 .tools-category-grid {
   width: 414px;
   justify-content: space-between;
@@ -4450,7 +4174,7 @@ body.is-spiral-active .nav-contact-arrow-default {
 .tools-category h4 {
   margin-bottom: 14px;
   color: #6ee7ff;
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .experience-intro.project-section-title .code-section-ui,
@@ -4543,7 +4267,7 @@ body.is-spiral-active .nav-contact-arrow-default {
   font-size: 80px;
   font-weight: 500;
   line-height: 0.95;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   white-space: nowrap;
 }
 
@@ -4587,7 +4311,7 @@ body.is-spiral-active .nav-contact-arrow-default {
   color: var(--ink);
   font-family: "Poppins", sans-serif;
   font-weight: 500;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 
 .contact-signature p {
@@ -4770,6 +4494,7 @@ body.is-spiral-active .hero-buddy::before {
   .code-section-heading > h3 { font-size: 18px; white-space: normal; }
   .tools-center { width: min(419px, 78vw); }
   .tools-center-title { font-size: clamp(52px, 15vw, 100px); }
+  .experience-intro .tools-center-title { font-size: clamp(52px, 15vw, 100px); }
   .tools-category-grid { width: 100%; }
   .contact { min-height: 760px; padding: 0; }
   .contact-topline { top: 144px; left: 24px; right: 24px; flex-direction: column; gap: 28px; }
