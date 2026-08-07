@@ -5,43 +5,43 @@ const spiralProjectData = [
   {
     id: "project-one",
     number: "001",
-    title: "Y Studio",
-    thumbnail: "assets/clone-coding/clone-01.webp",
+    title: "한국소비자원",
+    thumbnail: "assets/clone-coding/clone-03.webp",
     cta_url: "https://clonecoding1.vercel.app/",
   },
   {
     id: "project-two",
     number: "002",
-    title: "Crew A La Mode",
-    thumbnail: "assets/clone-coding/clone-02.webp",
+    title: "한화케미컬",
+    thumbnail: "assets/clone-coding/clone-04.webp",
     cta_url: "https://clonecoding2.vercel.app/",
   },
   {
     id: "project-three",
     number: "003",
-    title: "대방산업",
-    thumbnail: "assets/clone-coding/clone-03.webp",
+    title: "Y Studio",
+    thumbnail: "assets/clone-coding/clone-05.webp",
     cta_url: "https://clonecoding3.vercel.app/",
   },
   {
     id: "project-four",
     number: "004",
-    title: "Musign",
-    thumbnail: "assets/clone-coding/clone-04.webp",
+    title: "Crew À La Mode",
+    thumbnail: "assets/clone-coding/clone-06.webp",
     cta_url: "https://clonecoding4.vercel.app/",
   },
   {
     id: "project-five",
     number: "005",
-    title: "한국소비자원",
-    thumbnail: "assets/clone-coding/clone-05.webp",
+    title: "대방산업",
+    thumbnail: "assets/clone-coding/clone-01.webp",
     cta_url: "https://clonecoding5.vercel.app/",
   },
   {
     id: "project-six",
     number: "006",
-    title: "한화케미컬",
-    thumbnail: "assets/clone-coding/clone-06.webp",
+    title: "Musign",
+    thumbnail: "assets/clone-coding/clone-02.webp",
     cta_url: "https://clonecodiing6.vercel.app/",
   },
 ];
@@ -81,6 +81,9 @@ if (spiralProjectCta && spiralProjectCta.parentElement !== document.body) {
 
 revealTranslationLines.forEach((line) => {
   const englishWords = [...line.querySelectorAll(".reveal-language-en .word")];
+
+  line.addEventListener("pointerenter", () => cursor?.classList.add("is-translating"));
+  line.addEventListener("pointerleave", () => cursor?.classList.remove("is-translating"));
 
   line.addEventListener("pointermove", (event) => {
     const bounds = line.getBoundingClientRect();
@@ -1293,7 +1296,6 @@ const initSpiralExperience = async () => {
           vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
           vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
         );
-        uv.y *= 0.91;
         float hoverZoom = mix(1.0, 1.09, uHoverDim);
         uv = (uv - 0.5) / hoverZoom + 0.5;
         vec4 color = texture2D(uTexture, uv);
@@ -1797,7 +1799,7 @@ const playgroundProjects = [
     duration: "2026.06.04 - 2026.07.03",
     built: "랜딩·마린랩·티켓 페이지 개발을 맡고, 전 페이지가 공유하는 인터랙션 시스템을 설계했습니다",
     description: "이 프로젝트에서 프론트엔드 개발자로서 랜딩, 마린랩, 티켓 예매 페이지 구현을 담당했습니다. Three.js 기반 3D 크루 캐러셀과 커스텀 커서, GNB, 버블 인터랙션 등 공통 컴포넌트를 설계하고 성능·QA 작업과 배포까지 완료했습니다.",
-    contribution: "기획 60%　 디자인 70%　 개발 90%",
+    contribution: "기획 60%　디자인 70%　개발 90%",
     website: "https://ezen-aquaplanet-project.vercel.app/",
     proposal: "https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A398&node-id=237-1640&viewport=612%2C783%2C0.08&t=Y3y3Dgch0k1oZkVg-1&scaling=min-zoom&content-scaling=fixed",
   },
@@ -1810,7 +1812,7 @@ const playgroundProjects = [
     duration: "2026.07.04 - 2026.07.29",
     built: "온보딩과 홈을 메인으로 개발하고, 앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다",
     description: "React와 Tailwind CSS를 기반으로 앱 전반의 기능을 구현했고, 향수·브랜드·챌린지·매장 서비스의 더미데이터 설계, 이미지 AVIF 변환을 통한 성능 최적화, PC 프레임과 스타일 가이드 제작까지 담당했습니다.",
-    contribution: "기획 70%　 디자인 70%　 개발 90%",
+    contribution: "기획 70%　디자인 70%　개발 90%",
     website: "https://ezen-layerproject.vercel.app/",
     proposal: "https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A5040&node-id=237-5053&viewport=690%2C571%2C0.03&t=DIbfmwmD9cwUu7El-1&scaling=min-zoom&content-scaling=fixed",
   },
@@ -1823,7 +1825,7 @@ const playgroundProjects = [
     duration: "2026.03.26 - 2026.05.29",
     built: "사용자가 스스로 기준을 찾도록, UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다",
     description: "질문에 답하며 스스로 선택 기준을 찾는 서비스를 기획했습니다. 캐릭터와 파스텔 컬러로 친근하게 디자인하고 React와 Vite로 전체 서비스를 개발했으며, PWA 대응과 모바일 뷰포트 최적화까지 1인으로 진행했습니다.",
-    contribution: "기획 100%　 디자인 100%　 개발 100%",
+    contribution: "기획 100%　디자인 100%　개발 100%",
     website: "https://moa-app-indol.vercel.app/",
     proposal: "https://www.figma.com/proto/IYUwIKFuLk3G0BmvlsoH9h/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%AA%A8%EC%95%84?page-id=1159%3A1255&node-id=1159-2682&viewport=1063%2C1162%2C0.03&t=5qcWExPYTwMcfkE4-1&scaling=contain&content-scaling=fixed&starting-point-node-id=1159%3A2682",
   },
@@ -1838,6 +1840,16 @@ const initPlaygroundScroll = () => {
   const row = document.querySelector("#playground-row");
   if (!track || !camera || !row) return;
 
+  if (cursorHint) {
+    camera.addEventListener("pointerenter", () => {
+      cursorHint.textContent = "Click!";
+      cursorHint.classList.add("is-visible");
+    });
+    camera.addEventListener("pointerleave", () => {
+      cursorHint.classList.remove("is-visible");
+    });
+  }
+
   const cardCount = playgroundProjects.length;
   for (let index = 0; index < cardCount; index += 1) {
     const project = playgroundProjects[index % playgroundProjects.length];
@@ -1847,7 +1859,6 @@ const initPlaygroundScroll = () => {
     card.dataset.characterVariant = project.variant;
     card.setAttribute("role", "button");
     card.setAttribute("aria-label", `${project.title} 카드 앞면 보기`);
-    card.setAttribute("aria-pressed", "false");
     card.tabIndex = -1;
     card.dataset.baseRotation = String(playgroundRotations[index % playgroundRotations.length]);
     card.style.setProperty("--playground-rotate", `${playgroundRotations[index % playgroundRotations.length]}deg`);
@@ -1879,10 +1890,9 @@ const initPlaygroundScroll = () => {
           <span class="playground-card-title-divider" aria-hidden="true">|</span>
           <span class="playground-project-logo playground-project-logo--${project.variant}" role="img" aria-label="${project.brand}">${logoMarkup}</span>
         </h3>
-        <div class="playground-card-duration"><span>DURATION</span><b>${project.duration}</b></div>
-        <div class="playground-card-built"><span>WHAT I BUILT</span><b>“ ${project.built} ”</b></div>
+        <div class="playground-card-duration"><b>${project.duration}　${project.contribution}</b></div>
+        <div class="playground-card-built"><span>WHAT I BUILT</span><b> ${project.built}</b></div>
         <p>${project.description}</p>
-        <div class="playground-card-contribution">${project.contribution}</div>
         <div class="playground-card-actions" aria-label="프로젝트 링크">
           <a href="${project.website}" target="_blank" rel="noopener noreferrer">WEBSITE ↗</a>
           <a href="${project.proposal}" target="_blank" rel="noopener noreferrer">PROPOSAL ↗</a>
@@ -1894,25 +1904,24 @@ const initPlaygroundScroll = () => {
     card.appendChild(inner);
     row.appendChild(card);
 
-    const toggleFocusedCardFace = () => {
+    const toggleFocusedCardFlip = () => {
       if (!card.classList.contains("is-focused")) return;
-      const showFront = card.dataset.manualFront !== "true";
-      card.dataset.manualFront = String(showFront);
-      card.classList.toggle("is-manual-front", showFront);
-      card.setAttribute("aria-pressed", String(showFront));
-      card.setAttribute("aria-label", `${project.title} 카드 ${showFront ? "뒷면" : "앞면"} 보기`);
-      card.style.setProperty("--playground-flip", showFront ? "360deg" : "180deg");
-      front.setAttribute("aria-hidden", String(!showFront));
-      back.setAttribute("aria-hidden", String(showFront));
-      back.querySelectorAll("a").forEach((link) => { link.tabIndex = showFront ? -1 : 0; });
+      const showBack = card.dataset.flipped !== "true";
+      card.dataset.flipped = String(showBack);
+      card.classList.toggle("is-flipped", showBack);
+      card.setAttribute("aria-label", `${project.title} 카드 ${showBack ? "뒷면" : "앞면"} 보기`);
+      card.style.setProperty("--playground-flip", showBack ? "180deg" : "0deg");
+      front.setAttribute("aria-hidden", String(showBack));
+      back.setAttribute("aria-hidden", String(!showBack));
+      back.querySelectorAll("a").forEach((link) => { link.tabIndex = showBack ? 0 : -1; });
     };
 
-    card.addEventListener("click", toggleFocusedCardFace);
+    card.addEventListener("click", toggleFocusedCardFlip);
     card.addEventListener("keydown", (event) => {
       if (event.target.closest("a")) return;
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
-      toggleFocusedCardFace();
+      toggleFocusedCardFlip();
     });
     back.querySelectorAll("a").forEach((link) => {
       link.tabIndex = -1;
@@ -2037,8 +2046,6 @@ const initPlaygroundScroll = () => {
     const trackTop = track.getBoundingClientRect().top + window.scrollY;
     const scrollDistance = window.scrollY - trackTop;
     const introProgress = clamp(scrollDistance / getIntroDistance(), 0, 1);
-    const outroStart = scrollTimelineLength - getOutroDistance();
-    const outroProgress = clamp((scrollDistance - outroStart) / getOutroDistance(), 0, 1);
     targetRowShift = getShiftWithCardHolds(scrollDistance);
     currentRowShift += (targetRowShift - currentRowShift) * 0.105;
     if (Math.abs(targetRowShift - currentRowShift) < 0.08) currentRowShift = targetRowShift;
@@ -2046,51 +2053,39 @@ const initPlaygroundScroll = () => {
 
     const cameraRect = camera.getBoundingClientRect();
     const cameraCenter = cameraRect.left + cameraRect.width / 2;
-    const flipRange = Math.min(cameraRect.width * 0.3, 430);
+    const focusRange = Math.min(cameraRect.width * 0.3, 430);
     let strongestFocus = 0;
     [...row.children].forEach((card) => {
       const rect = card.getBoundingClientRect();
       const cardCenter = rect.left + rect.width / 2;
       const distanceFromCenter = cardCenter - cameraCenter;
-      const rawFlipProgress = clamp((flipRange - distanceFromCenter) / (flipRange * 2), 0, 1);
-      const rawFocusProgress = clamp(1 - Math.abs(distanceFromCenter) / flipRange, 0, 1);
+      const rawFocusProgress = clamp(1 - Math.abs(distanceFromCenter) / focusRange, 0, 1);
       if (card.classList.contains("playground-card--decorative")) {
         card.style.setProperty("--playground-focus-scale", "0.88");
-        card.style.setProperty("--playground-flip", "0deg");
         card.style.setProperty("--playground-focus", "0");
         card.style.zIndex = "1";
         return;
       }
-      let flipProgress = rawFlipProgress * introProgress;
       const focusProgress = rawFocusProgress * introProgress;
-      const isLastDetailCard = card === row.querySelector('[data-detail-card="true"]:last-of-type');
-      if (isLastDetailCard && outroProgress > 0) {
-        flipProgress = 0.5;
-      }
       strongestFocus = Math.max(strongestFocus, focusProgress);
       const baseRotation = Number(card.dataset.baseRotation) || 0;
       const isFocused = focusProgress > 0.72;
-      let isManuallyFront = card.dataset.manualFront === "true";
-      if (isManuallyFront && focusProgress <= 0.02) {
-        delete card.dataset.manualFront;
-        card.classList.remove("is-manual-front");
-        card.setAttribute("aria-pressed", "false");
-        isManuallyFront = false;
+      let isFlipped = card.dataset.flipped === "true";
+      if (isFlipped && focusProgress <= 0.02) {
+        delete card.dataset.flipped;
+        card.classList.remove("is-flipped");
+        isFlipped = false;
       }
-      const flipRotation = isManuallyFront ? 360 : flipProgress * 360;
-      const isBackVisible = !isManuallyFront && flipProgress > 0.25 && flipProgress < 0.75;
 
       card.style.setProperty("--playground-current-rotate", `${(baseRotation * (1 - focusProgress)).toFixed(3)}deg`);
       const introCenteredScale = rawFocusProgress * (1 - introProgress) * 0.12;
       card.style.setProperty("--playground-focus-scale", (0.88 + focusProgress * 0.47 + introCenteredScale).toFixed(4));
-      card.style.setProperty("--playground-flip", `${flipRotation.toFixed(2)}deg`);
+      card.style.setProperty("--playground-flip", isFlipped ? "180deg" : "0deg");
       card.style.setProperty("--playground-focus", focusProgress.toFixed(4));
       card.style.zIndex = String(1 + Math.round(focusProgress * 10));
       card.classList.toggle("is-focused", isFocused);
       card.tabIndex = isFocused ? 0 : -1;
-      card.querySelector(".playground-card-front")?.setAttribute("aria-hidden", String(isBackVisible));
-      card.querySelector(".playground-card-back")?.setAttribute("aria-hidden", String(!isBackVisible));
-      card.querySelectorAll(".playground-card-actions a").forEach((link) => { link.tabIndex = isBackVisible ? 0 : -1; });
+      card.querySelectorAll(".playground-card-actions a").forEach((link) => { link.tabIndex = isFlipped ? 0 : -1; });
     });
     row.classList.toggle("has-focused-card", strongestFocus > 0.72);
 
@@ -2752,6 +2747,38 @@ const initHeroBuddy = () => {
     }, 2400 + Math.random() * 2600);
   };
 
+  const autoBubble = buddy.querySelector(".buddy-auto-bubble");
+  const autoBubbleText = buddy.querySelector(".buddy-auto-bubble-text");
+  const AUTO_BUBBLE_MESSAGES = [
+    "방향키로 움직여보세요!",
+    "저를 누르면 대화할 수 있어요",
+  ];
+  let autoBubbleIndex = 0;
+  let autoBubbleShowTimer = null;
+  let autoBubbleHideTimer = null;
+  let buddyHovering = false;
+
+  const hideAutoBubble = () => {
+    window.clearTimeout(autoBubbleHideTimer);
+    autoBubble?.classList.remove("is-visible");
+  };
+
+  const scheduleAutoBubble = () => {
+    window.clearTimeout(autoBubbleShowTimer);
+    autoBubbleShowTimer = window.setTimeout(() => {
+      if (mode !== "docked" && pressedArrowKeys.size === 0 && !buddyHovering) {
+        autoBubbleText.textContent = AUTO_BUBBLE_MESSAGES[autoBubbleIndex % AUTO_BUBBLE_MESSAGES.length];
+        autoBubbleIndex += 1;
+        autoBubble.classList.add("is-visible");
+        window.clearTimeout(autoBubbleHideTimer);
+        autoBubbleHideTimer = window.setTimeout(() => {
+          autoBubble.classList.remove("is-visible");
+        }, 3000);
+      }
+      scheduleAutoBubble();
+    }, 8000);
+  };
+
   heroVisible = sectionIsVisible(heroSection);
   footerVisible = sectionIsVisible(footerSection);
   mode = heroVisible ? "hero-roam" : footerVisible ? "footer-roam" : "docked";
@@ -2791,6 +2818,7 @@ const initHeroBuddy = () => {
   buddy.style.transform = `translate3d(${x}px, ${y + jumpOffset}px, 0) scaleX(${facing})`;
   buddy.dataset.facing = facing < 0 ? "left" : "right";
   scheduleBlink();
+  if (autoBubble && autoBubbleText) scheduleAutoBubble();
 
   const syncBuddySectionVisibility = () => {
     heroVisible = sectionIsVisible(heroSection);
@@ -2859,7 +2887,10 @@ const initHeroBuddy = () => {
   window.addEventListener("keydown", (event) => {
     if (mode === "docked") return;
     if (chatbotModalApi?.isOpen()) return;
-    if (event.key.startsWith("Arrow")) pressedArrowKeys.add(event.key);
+    if (event.key.startsWith("Arrow")) {
+      pressedArrowKeys.add(event.key);
+      hideAutoBubble();
+    }
     if (heroDoorPhase === "opening" || heroDoorPhase === "looking") {
       if (event.key.startsWith("Arrow")) event.preventDefault();
       return;
@@ -2903,6 +2934,18 @@ const initHeroBuddy = () => {
   buddy.addEventListener("pointerenter", () => {
     buddy.dataset.hint = nextHint;
     nextHint = nextHint === "dpad" ? "chat" : "dpad";
+    buddyHovering = true;
+    hideAutoBubble();
+  });
+  buddy.addEventListener("pointerleave", () => {
+    buddyHovering = false;
+  });
+  buddy.addEventListener("focus", () => {
+    buddyHovering = true;
+    hideAutoBubble();
+  });
+  buddy.addEventListener("blur", () => {
+    buddyHovering = false;
   });
 
   window.addEventListener("resize", resolveMode);
@@ -2926,7 +2969,6 @@ const initHeroBuddy = () => {
     if (heroDoorPhase === "opening" && now - heroDoorPhaseStartedAt >= 960) {
       heroDoorPhase = "passing";
       heroDoorPhaseStartedAt = now;
-      flipCard?.classList.remove("is-door-active");
       flipCard?.style.setProperty("--card-door-rotate", "0deg");
       const cardRect = flipStack?.getBoundingClientRect();
       if (cardRect) {
@@ -2953,6 +2995,7 @@ const initHeroBuddy = () => {
       heroDoorPhase = "idle";
       heroDoorDirection = 0;
       buddy.removeAttribute("data-look-direction");
+      flipCard?.classList.remove("is-door-active");
       flipCard?.style.removeProperty("--card-door-rotate");
     }
 
