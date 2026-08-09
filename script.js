@@ -395,7 +395,9 @@ const initCodeSectionTitles = () => {
     });
 
     ui.append(displayTitle);
-    heading.prepend(ui);
+    const titleRow = heading.querySelector(":scope > .code-title-row");
+    if (titleRow) titleRow.prepend(ui);
+    else heading.prepend(ui);
   });
 
   standaloneTitles.forEach((title) => {

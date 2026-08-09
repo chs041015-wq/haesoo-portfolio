@@ -1268,14 +1268,13 @@ html.has-js:not(.landing-complete) .hero-word {
   margin: 0 0.08em;
   vertical-align: middle;
   object-fit: contain;
-  filter: hue-rotate(118deg) saturate(0.9);
 }
 
-.reveal-ko-icon.is-loop { width: 54px; height: 54px; transform: rotate(-8deg); }
-.reveal-ko-icon.is-cross { width: 68px; height: 68px; transform: rotate(12deg); }
-.reveal-ko-icon.is-star { width: 40px; height: 40px; transform: rotate(50deg); }
-.reveal-ko-icon.is-bolt { width: 54px; height: 54px; transform: rotate(16deg); }
-.reveal-ko-icon.is-equals { width: 58px; height: 58px; transform: rotate(-4deg); }
+.reveal-ko-icon.is-loop { transform: rotate(-8deg); }
+.reveal-ko-icon.is-cross { transform: rotate(12deg); }
+.reveal-ko-icon.is-star { transform: rotate(50deg); }
+.reveal-ko-icon.is-bolt { transform: rotate(16deg); }
+.reveal-ko-icon.is-equals { transform: rotate(-4deg); }
 
 .about-text .word {
   display: inline-block;
@@ -1290,7 +1289,6 @@ html.has-js:not(.landing-complete) .hero-word {
   height: 48px;
   margin: 0 0.08em;
   vertical-align: baseline;
-  filter: hue-rotate(118deg) saturate(0.9);
   opacity: var(--icon-opacity, 0);
   transform:
     translateX(var(--icon-wobble-x, 0px))
@@ -1305,15 +1303,11 @@ html.has-js:not(.landing-complete) .hero-word {
 }
 
 .about-text-image.is-loop {
-  width: 54px;
-  height: 54px;
   --icon-rotate: -8deg;
   animation-duration: 3.8s;
 }
 
 .about-text-image.is-cross {
-  width: 68px;
-  height: 68px;
   --icon-y: 0.42em;
   --icon-rotate: 12deg;
   animation-duration: 4.6s;
@@ -1321,16 +1315,12 @@ html.has-js:not(.landing-complete) .hero-word {
 }
 
 .about-text-image.is-star {
-  width: 40px;
-  height: 40px;
   --icon-rotate: 50deg;
   animation-duration: 5.2s;
   animation-delay: -2.1s;
 }
 
 .about-text-image.is-bolt {
-  width: 54px;
-  height: 54px;
   --icon-y: 0.32em;
   --icon-rotate: 16deg;
   animation-duration: 3.5s;
@@ -1338,8 +1328,6 @@ html.has-js:not(.landing-complete) .hero-word {
 }
 
 .about-text-image.is-equals {
-  width: 58px;
-  height: 58px;
   --icon-y: 0.32em;
   --icon-rotate: -4deg;
   animation-duration: 4.2s;
@@ -2061,6 +2049,75 @@ body.is-figma-capture .timeline-progress {
 .project-section-title .code-section-ui,
 .experience-intro .code-section-ui {
   color: #fafafa;
+}
+
+.code-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(12px, 2.6vw, 32px);
+}
+
+.section-buddy {
+  flex: none;
+  width: clamp(64px, 8vw, 128px);
+  height: auto;
+  overflow: visible;
+}
+
+.section-buddy-body {
+  fill: var(--ink);
+}
+
+.section-buddy-leg line {
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.section-buddy-leg rect {
+  fill: var(--ink);
+}
+
+.section-buddy-eye-white {
+  fill: #fafafa;
+}
+
+.section-buddy-eye-pupil {
+  fill: var(--ink);
+}
+
+.section-buddy-laptop-base,
+.section-buddy-laptop-screen {
+  fill: var(--ink);
+}
+
+.section-buddy-laptop-display {
+  fill: var(--paper);
+}
+
+.section-buddy-laptop-bar {
+  fill: rgba(17, 17, 17, 0.18);
+}
+
+.section-buddy-laptop-bar--accent {
+  fill: var(--accent);
+}
+
+.section-buddy-laptop-blink {
+  fill: var(--accent);
+  animation: section-buddy-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes section-buddy-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-buddy-laptop-blink {
+    animation: none;
+  }
 }
 
 .section-heading.code-section-heading {
