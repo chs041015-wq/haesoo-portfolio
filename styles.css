@@ -1327,18 +1327,12 @@ html.has-js:not(.landing-complete) .hero-word {
 
 .reveal-ko-icon {
   display: inline-block;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   margin: 0 0.08em;
   vertical-align: middle;
   object-fit: contain;
 }
-
-.reveal-ko-icon.is-loop { transform: rotate(-8deg); }
-.reveal-ko-icon.is-cross { transform: rotate(12deg); }
-.reveal-ko-icon.is-star { transform: rotate(50deg); }
-.reveal-ko-icon.is-bolt { transform: rotate(16deg); }
-.reveal-ko-icon.is-equals { transform: rotate(-4deg); }
 
 .about-text .word {
   display: inline-block;
@@ -1349,8 +1343,8 @@ html.has-js:not(.landing-complete) .hero-word {
 
 .about-text-image {
   display: inline-block;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   margin: 0 0.08em;
   vertical-align: baseline;
   opacity: var(--icon-opacity, 0);
@@ -1367,62 +1361,45 @@ html.has-js:not(.landing-complete) .hero-word {
 }
 
 .about-text-image.is-loop {
-  --icon-rotate: -8deg;
+  scale: 0.85;
   animation-duration: 3.8s;
 }
 
 .about-text-image.is-cross {
   --icon-y: 0.42em;
-  --icon-rotate: 12deg;
+  rotate: -7deg;
   animation-duration: 4.6s;
   animation-delay: -1.4s;
 }
 
 .about-text-image.is-star {
-  --icon-rotate: 50deg;
   animation-duration: 5.2s;
   animation-delay: -2.1s;
 }
 
 .about-text-image.is-bolt {
   --icon-y: 0.32em;
-  --icon-rotate: 16deg;
   animation-duration: 3.5s;
   animation-delay: -0.8s;
 }
 
 .about-text-image.is-equals {
   --icon-y: 0.32em;
-  --icon-rotate: -4deg;
+  scale: 0.88;
   animation-duration: 4.2s;
   animation-delay: -1.8s;
 }
 
-/* Normalize each glyph to the visible footprint of the Möbius icon. */
-.reveal-ko-icon.is-loop,
-.about-text-image.is-loop {
-  width: 42px;
-  height: 42px;
+.reveal-ko-icon.is-loop {
+  scale: 0.85;
 }
 
-.reveal-ko-icon.is-cross,
-.about-text-image.is-cross {
-  width: 48px;
-  height: 48px;
+.reveal-ko-icon.is-cross {
+  rotate: -7deg;
 }
 
-.reveal-ko-icon.is-star,
-.about-text-image.is-star,
-.reveal-ko-icon.is-bolt,
-.about-text-image.is-bolt {
-  width: 38px;
-  height: 38px;
-}
-
-.reveal-ko-icon.is-equals,
-.about-text-image.is-equals {
-  width: 40px;
-  height: 40px;
+.reveal-ko-icon.is-equals {
+  scale: 0.88;
 }
 
 @keyframes revealIconDrift {
@@ -3792,8 +3769,13 @@ body.is-figma-capture .timeline-progress {
   }
 
   .about-text-image {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .reveal-ko-icon {
+    width: 38px;
+    height: 38px;
   }
 
 }
