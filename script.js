@@ -135,9 +135,66 @@ const timelineShell = document.querySelector(".timeline-shell");
 const timelineLine = document.querySelector(".timeline-line");
 const timelineProgress = document.querySelector(".timeline-progress");
 const experienceItems = [...document.querySelectorAll(".experience-item")];
+const timelineAmbient = document.querySelector(".timeline-ambient");
+const timelineAmbientYear = document.querySelector("[data-timeline-ambient-year]");
+let activeTimelineAmbientIndex = -1;
+let timelineAmbientTransitionId = 0;
+
+const setTimelineAmbientYear = (label, force = false) => {
+  if (!timelineAmbientYear || (!force && timelineAmbientYear.dataset.label === label)) return;
+  const transitionId = ++timelineAmbientTransitionId;
+  const gsap = window.gsap;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const revealNextYear = () => {
+    if (transitionId !== timelineAmbientTransitionId) return;
+    timelineAmbientYear.textContent = "";
+    timelineAmbientYear.dataset.label = label;
+    const nextLetters = [];
+    [...label].forEach((character) => {
+      const clip = document.createElement("span");
+      const letter = document.createElement("span");
+      clip.className = "timeline-ambient-letter-clip";
+      letter.className = "timeline-ambient-letter";
+      letter.textContent = character === " " ? "\u00a0" : character;
+      clip.appendChild(letter);
+      timelineAmbientYear.appendChild(clip);
+      nextLetters.push(letter);
+    });
+
+    if (reducedMotion || !gsap) {
+      nextLetters.forEach((letter) => {
+        letter.style.opacity = "1";
+        letter.style.transform = "translateY(0)";
+      });
+      return;
+    }
+    gsap.fromTo(
+      nextLetters,
+      { yPercent: 135, opacity: 0 },
+      {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.72,
+        ease: "power3.out",
+        stagger: 0.035,
+        overwrite: true,
+        immediateRender: true,
+      }
+    );
+  };
+
+  if (gsap) gsap.killTweensOf(timelineAmbientYear.querySelectorAll(".timeline-ambient-letter"));
+  revealNextYear();
+};
 const navTitleCurrent = document.querySelector("[data-nav-title-current]");
 const navTitleNext = document.querySelector("[data-nav-title-next]");
 const navTitleSections = [...document.querySelectorAll("[data-nav-title]")];
+const sectionCaption = document.querySelector(".section-caption");
+const sectionCaptionIndex = document.querySelector("[data-section-caption-index]");
+const sectionCaptionText = document.querySelector("[data-section-caption-text]");
+const sectionCaptionSections = [...document.querySelectorAll("[data-section-caption]")];
+let activeCaptionSection = null;
 const profileTypingTargets = [
   document.querySelector(".section-heading h2"),
   document.querySelector(".profile-summary h3"),
@@ -835,8 +892,64 @@ const updateExperienceTimeline = () => {
   const viewportHeight = window.innerHeight;
   const contentRevealLine = viewportHeight * 0.72;
   const sectionRect = experienceSection?.getBoundingClientRect();
+  const isTimelineVisible = Boolean(
+    sectionRect
+    && sectionRect.top < viewportHeight * 0.72
+    && sectionRect.bottom > viewportHeight * 0.28
+  );
+  timelineAmbient?.classList.toggle("is-visible", isTimelineVisible);
   if (sectionRect && (sectionRect.bottom < -viewportHeight * 0.25 || sectionRect.top > viewportHeight * 1.25)) {
     return;
+  }
+
+  const ambientActivationLine = viewportHeight * 0.55;
+  const isIntroAmbient = experienceItems[0].getBoundingClientRect().top > ambientActivationLine;
+  if (isIntroAmbient && timelineAmbient && timelineAmbientYear) {
+    if (activeTimelineAmbientIndex !== -2) {
+      activeTimelineAmbientIndex = -2;
+      setTimelineAmbientYear("2004");
+      timelineAmbient.classList.remove("is-left");
+      timelineAmbient.classList.remove("is-now");
+      timelineAmbient.classList.add("is-center", "is-intro");
+      timelineAmbient.classList.remove("is-changing");
+      void timelineAmbient.offsetWidth;
+      timelineAmbient.classList.add("is-changing");
+    }
+  } else {
+    const nowAmbientItem = experienceItems.at(-1);
+    const nowAmbientRect = nowAmbientItem?.getBoundingClientRect();
+    const isNowStage = Boolean(
+      nowAmbientRect
+      && nowAmbientRect.top <= ambientActivationLine
+      && nowAmbientRect.bottom > 0
+    );
+    let activeAmbientItem = isNowStage ? nowAmbientItem : experienceItems.find((item) => {
+      const rect = item.getBoundingClientRect();
+      return rect.top <= ambientActivationLine && rect.bottom > ambientActivationLine;
+    });
+    if (!activeAmbientItem) {
+      activeAmbientItem = [...experienceItems].reverse().find((item) => {
+        return item.getBoundingClientRect().top <= ambientActivationLine;
+      }) || experienceItems[0];
+    }
+    const ambientIndex = experienceItems.indexOf(activeAmbientItem);
+    if (
+      ambientIndex >= 0
+      && ambientIndex !== activeTimelineAmbientIndex
+      && timelineAmbient
+      && timelineAmbientYear
+    ) {
+      activeTimelineAmbientIndex = ambientIndex;
+      const isNowChapter = activeAmbientItem.classList.contains("experience-now");
+      timelineAmbient.classList.toggle("is-left", !isNowChapter && ambientIndex % 2 === 1);
+      timelineAmbient.classList.remove("is-center");
+      timelineAmbient.classList.toggle("is-now", isNowChapter);
+      if (!isNowChapter) setTimelineAmbientYear(activeAmbientItem.dataset.timelineYear || "", true);
+      timelineAmbient.classList.remove("is-intro");
+      timelineAmbient.classList.remove("is-changing");
+      void timelineAmbient.offsetWidth;
+      timelineAmbient.classList.add("is-changing");
+    }
   }
 
   const shellRect = timelineShell.getBoundingClientRect();
@@ -1240,6 +1353,56 @@ const updateNavSectionTitle = () => {
   previousNavScrollY = window.scrollY;
 };
 
+const updateSectionCaption = () => {
+  if (!sectionCaption || !sectionCaptionIndex || !sectionCaptionText || !sectionCaptionSections.length) return;
+
+  const activationLine = window.innerHeight * 0.62;
+  const firstSectionRect = sectionCaptionSections[0].getBoundingClientRect();
+  const lastSectionRect = sectionCaptionSections[sectionCaptionSections.length - 1].getBoundingClientRect();
+
+  if (firstSectionRect.top > activationLine || lastSectionRect.bottom <= activationLine) {
+    sectionCaption.classList.remove("is-visible", "is-on-dark");
+    sectionCaption.setAttribute("aria-hidden", "true");
+    activeCaptionSection = null;
+    return;
+  }
+
+  let activeSection = sectionCaptionSections.find((section) => {
+    const rect = section.getBoundingClientRect();
+    return rect.top <= activationLine && rect.bottom > activationLine;
+  });
+
+  if (!activeSection) {
+    activeSection = [...sectionCaptionSections].reverse().find((section) => {
+      return section.getBoundingClientRect().top <= activationLine;
+    });
+  }
+
+  if (!activeSection) return;
+
+  if (activeSection.hasAttribute("data-section-caption-hidden")) {
+    sectionCaption.classList.remove("is-visible", "is-on-dark", "is-stacked");
+    sectionCaption.setAttribute("aria-hidden", "true");
+    activeCaptionSection = activeSection;
+    return;
+  }
+
+  if (activeSection === activeCaptionSection) return;
+  activeCaptionSection = activeSection;
+  sectionCaptionIndex.textContent = activeSection.dataset.sectionIndex || "";
+  sectionCaptionText.textContent = activeSection.dataset.sectionCaption || "";
+  sectionCaption.classList.toggle(
+    "is-on-dark",
+    activeSection.matches(".dark-reveal, .experience-section")
+  );
+  sectionCaption.classList.toggle("is-hero", activeSection.matches(".hero"));
+  sectionCaption.classList.toggle("is-stacked", activeSection.matches(".spiral-section"));
+  sectionCaption.classList.remove("is-changing");
+  void sectionCaption.offsetWidth;
+  sectionCaption.classList.add("is-visible", "is-changing");
+  sectionCaption.setAttribute("aria-hidden", "false");
+};
+
 const initSpiralExperience = async () => {
   if (!spiralCanvas || !spiralStage || !spiralProjectData.length || spiralExperience || spiralInitializing) return;
   spiralInitializing = true;
@@ -1500,7 +1663,8 @@ const initSpiralExperience = async () => {
 
       window.setTimeout(() => {
         if (activeCaptionId !== projectId) return;
-        spiralCaptionIndex.textContent = project.number;
+        const projectPosition = spiralProjectData.findIndex((item) => item.id === projectId) + 1;
+        spiralCaptionIndex.textContent = `${String(projectPosition).padStart(2, "0")} / ${String(spiralProjectData.length).padStart(2, "0")}`;
         spiralCaptionTitle.textContent = project.title;
         spiralCaptionIndex.classList.add("is-visible");
         spiralCaptionTitle.classList.add("is-visible");
@@ -1668,6 +1832,7 @@ const requestHeroCardUpdate = () => {
     updateContactNavState();
     updateContactReveal();
     updateNavSectionTitle();
+    updateSectionCaption();
     updateExperienceTimeline();
     ticking = false;
   });
@@ -1756,6 +1921,7 @@ updateDarkRevealCurve();
 updateContactNavState();
 updateContactReveal();
 updateNavSectionTitle();
+updateSectionCaption();
 prepareTimelineWords();
 updateExperienceTimeline();
 if (isFigmaCaptureMode) {
@@ -1794,6 +1960,8 @@ revealTargets.forEach((target) => observer.observe(target));
 const playgroundProjects = [
   {
     variant: "aqua",
+    captionTitle: "AQUA PLANET",
+    captionText: "AN IMMERSIVE AQUARIUM EXPERIENCE, BUILT FOR THE WEB.",
     image: "assets/project1/figma/project-left.webp",
     title: "K브랜드 웹사이트 리뉴얼 팀프로젝트",
     brand: "aqua planet",
@@ -1807,6 +1975,8 @@ const playgroundProjects = [
   },
   {
     variant: "layer",
+    captionTitle: "LAYER",
+    captionText: "A SCENT COMMUNITY WHERE TASTE BECOMES CONVERSATION.",
     image: "assets/project1/figma/project-center.webp",
     title: "AI 챗봇 커뮤니티 프로젝트",
     brand: "Layer",
@@ -1820,6 +1990,8 @@ const playgroundProjects = [
   },
   {
     variant: "moa",
+    captionTitle: "MOA",
+    captionText: "A FRIENDLY GUIDE FOR BETTER EVERYDAY CHOICES.",
     image: "assets/project1/figma/project-right.webp",
     title: "선택을 돕는 질문형 결정 도우미 앱",
     brand: "모아",
@@ -1858,6 +2030,7 @@ const initPlaygroundScroll = () => {
     const card = document.createElement("article");
     card.className = "playground-card";
     card.dataset.detailCard = "true";
+    card.dataset.projectIndex = String(index % playgroundProjects.length);
     card.dataset.characterVariant = project.variant;
     card.setAttribute("role", "button");
     card.setAttribute("aria-label", `${project.title} 카드 앞면 보기`);
@@ -1976,8 +2149,27 @@ const initPlaygroundScroll = () => {
   let pendingCharacterVariant;
   let characterVariantTimer = null;
   let characterVariantFinishTimer = null;
+  let activePlaygroundCaptionIndex = -1;
   const getIntroDistance = () => Math.min(window.innerHeight * 0.78, 680);
   const getOutroDistance = () => Math.min(window.innerHeight * 0.72, 620);
+
+  const updatePlaygroundCaption = (card) => {
+    if (!card || activeCaptionSection !== projectShowcaseSection || !sectionCaptionIndex || !sectionCaptionText) return;
+    const projectIndex = Number(card.dataset.projectIndex);
+    const project = playgroundProjects[projectIndex];
+    if (!project) return;
+    if (
+      projectIndex === activePlaygroundCaptionIndex
+      && sectionCaptionIndex.textContent === project.captionTitle
+      && sectionCaptionText.textContent === project.captionText
+    ) return;
+    activePlaygroundCaptionIndex = projectIndex;
+    sectionCaptionIndex.textContent = project.captionTitle;
+    sectionCaptionText.textContent = project.captionText;
+    sectionCaption.classList.remove("is-changing", "is-stacked");
+    void sectionCaption.offsetWidth;
+    sectionCaption.classList.add("is-changing");
+  };
 
   const setCharacterVariant = (buddy, nextVariant) => {
     const currentVariant = buddy.dataset.characterVariant || null;
@@ -2091,16 +2283,18 @@ const initPlaygroundScroll = () => {
     });
     row.classList.toggle("has-focused-card", strongestFocus > 0.72);
 
+    const activeDetailCard = [...row.querySelectorAll('[data-detail-card="true"]')].reduce((nearest, card) => {
+      const rect = card.getBoundingClientRect();
+      const distance = Math.abs(rect.left + rect.width / 2 - cameraCenter);
+      return !nearest || distance < nearest.distance ? { card, distance } : nearest;
+    }, null)?.card;
+    updatePlaygroundCaption(activeDetailCard);
+
     const trackRect = track.getBoundingClientRect();
     const buddy = document.querySelector("#hero-buddy");
     if (buddy && trackRect.bottom > 0 && trackRect.top < window.innerHeight) {
-      const activeCard = [...row.children].reduce((nearest, card) => {
-        const rect = card.getBoundingClientRect();
-        const distance = Math.abs(rect.left + rect.width / 2 - cameraCenter);
-        return !nearest || distance < nearest.distance ? { card, distance } : nearest;
-      }, null)?.card;
-      if (activeCard?.dataset.characterVariant) {
-        setCharacterVariant(buddy, activeCard.dataset.characterVariant);
+      if (activeDetailCard?.dataset.characterVariant) {
+        setCharacterVariant(buddy, activeDetailCard.dataset.characterVariant);
       }
     } else if (buddy) {
       setCharacterVariant(buddy, null);

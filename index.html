@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
-    <link rel="stylesheet" href="styles.min.css?v=216" />
+    <link rel="stylesheet" href="styles.css?v=242" />
   </head>
   <body>
     <div class="cursor" aria-hidden="true"></div>
@@ -54,27 +54,26 @@
     </div>
 
     <main>
-      <section class="hero" id="home" aria-label="Landing" data-nav-title="Haesoo">
+      <section class="hero" id="home" aria-label="Landing" data-nav-title="Haesoo" data-section-index="2026" data-section-caption="PERSONAL PORTFOLIO">
         <div class="hero-pin">
           <div class="hero-title" aria-label="Designer Who Codes">
+            <span class="hero-title-accent hero-title-accent--left" aria-hidden="true"></span>
+            <span class="hero-title-accent hero-title-accent--right" aria-hidden="true"></span>
             <span class="hero-title-line"><span class="hero-word">DESIGNER</span></span>
             <span class="hero-title-line"><span class="hero-word">WHO</span> <span class="hero-word">CODES</span></span>
-          </div>
-
-          <div class="hero-meta">
-            <h2>2026</h2>
-            <p>Personal Portfolio</p>
           </div>
 
           <img class="hero-divider" src="assets/figma/hero-divider.svg" alt="" aria-hidden="true" />
         </div>
       </section>
 
-      <section class="intro" id="about" data-nav-title="About Me">
+      <section class="intro" id="about" data-nav-title="About Me" data-section-index="01 / ABOUT ME" data-section-caption="HELLO, WANNA KNOW MORE ABOUT ME?">
         <div class="section-heading code-section-heading" data-code-title="ABOUT ME">
           <h2>Hello!</h2>
         </div>
-        <div class="intro-portrait-slot" aria-hidden="true"></div>
+        <div class="intro-portrait-slot" aria-hidden="true">
+          <p class="about-side-note">I TRANSLATE USER EXPERIENCES<br />INTO DESIGN AND DECODE THEM<br />WITH CODE.</p>
+        </div>
         <div class="intro-copy" aria-label="Profile information">
           <div class="profile-summary">
             <h3>최해수</h3>
@@ -92,7 +91,7 @@
         </div>
       </section>
 
-      <section class="tools-marquee reveal-content-section" aria-label="Reveal statement" data-nav-title="About Me">
+      <section class="tools-marquee reveal-content-section" aria-label="Reveal statement" data-nav-title="About Me" data-section-index="02 / MY APPROACH" data-section-caption="THIS IS HOW MY BRAIN CONNECTS THE DOTS.">
         <div class="reveal-copy">
           <p class="about-text">
             <span class="reveal-line">
@@ -151,34 +150,8 @@
         </div>
       </section>
 
-      <section class="project-showcase project-section project1" id="project1" aria-label="Project 1 fullscreen showcase" data-nav-title="Works">
+      <section class="project-showcase project-section project1" id="project1" aria-label="Project 1 fullscreen showcase" data-nav-title="Works" data-section-index="SELECTED WORKS" data-section-caption="IDEAS ARE NICE. BUILT ONES ARE BETTER.">
         <header class="section-title project-section-title code-section-heading" data-code-title="MY WORKS">
-          <div class="code-title-row">
-            <svg class="section-buddy section-buddy--working" viewBox="0 0 260 200" aria-hidden="true">
-              <g class="section-buddy-leg">
-                <line x1="70" y1="140" x2="62" y2="172"></line>
-                <rect x="50" y="168" width="24" height="13" rx="6.5"></rect>
-              </g>
-              <g class="section-buddy-leg">
-                <line x1="112" y1="140" x2="120" y2="172"></line>
-                <rect x="112" y="168" width="24" height="13" rx="6.5"></rect>
-              </g>
-              <g transform="rotate(6 96 85)">
-                <rect class="section-buddy-body" x="30" y="26" width="132" height="118" rx="34"></rect>
-                <circle class="section-buddy-eye-white" cx="76" cy="80" r="19"></circle>
-                <circle class="section-buddy-eye-white" cx="120" cy="80" r="19"></circle>
-                <circle class="section-buddy-eye-pupil" cx="82" cy="88" r="8"></circle>
-                <circle class="section-buddy-eye-pupil" cx="126" cy="88" r="8"></circle>
-              </g>
-              <rect class="section-buddy-laptop-base" x="140" y="146" width="100" height="14" rx="7"></rect>
-              <rect class="section-buddy-laptop-screen" x="150" y="68" width="78" height="80" rx="10"></rect>
-              <rect class="section-buddy-laptop-display" x="158" y="76" width="66" height="66" rx="6"></rect>
-              <rect class="section-buddy-laptop-bar section-buddy-laptop-bar--accent" x="166" y="88" width="42" height="8" rx="4"></rect>
-              <rect class="section-buddy-laptop-bar" x="166" y="102" width="50" height="8" rx="4"></rect>
-              <rect class="section-buddy-laptop-bar" x="166" y="116" width="30" height="8" rx="4"></rect>
-              <circle class="section-buddy-laptop-blink" cx="208" cy="124" r="3"></circle>
-            </svg>
-          </div>
           <h2>기획부터 구현까지, 아이디어를 실제 경험으로 완성한 프로젝트입니다.</h2>
         </header>
         <div class="canvas__wr" id="playground-scroll">
@@ -188,7 +161,7 @@
         </div>
       </section>
 
-      <section class="spiral-section project-section project2" id="project2" aria-label="Project 2 spiral works" data-nav-title="Works">
+      <section class="spiral-section project-section project2" id="project2" aria-label="Project 2 spiral works" data-nav-title="Works" data-section-index="WEB STUDIES" data-section-caption="I TOOK IT APART,&#10;THEN BUILT IT BACK." data-section-caption-hidden>
         <span class="section-anchor" id="spiral" aria-hidden="true"></span>
         <header class="section-title project-section-title code-section-heading" data-code-title="CLONE CODING">
           <h2>실제 웹사이트의 구조와 인터랙션을 분석하고 직접 재현하며 <strong>퍼블리싱과 인터랙션 구현 역량</strong>을 키웠습니다.</h2>
@@ -197,6 +170,13 @@
           <div class="spiral-stage">
             <canvas class="spiral-webgl" role="button" tabindex="0" aria-label="Selected Works spiral"></canvas>
             <div class="spiral-webgl-fade" aria-hidden="true"></div>
+            <div class="spiral-focus-frame" aria-hidden="true">
+              <i class="spiral-focus-corner spiral-focus-corner--tl"></i>
+              <i class="spiral-focus-corner spiral-focus-corner--tr"></i>
+              <i class="spiral-focus-corner spiral-focus-corner--bl"></i>
+              <i class="spiral-focus-corner spiral-focus-corner--br"></i>
+            </div>
+            <span class="spiral-scroll-cue" aria-hidden="true">SCROLL TO EXPLORE</span>
             <span class="spiral-project-cta" aria-hidden="true">
               <span class="spiral-project-cta-arrow" aria-hidden="true">↗</span>
               <span>VIEW SITE</span>
@@ -205,13 +185,12 @@
               <span class="spiral-active-caption-index" data-spiral-caption-index></span>
               <span class="spiral-active-caption-title" data-spiral-caption-title></span>
             </div>
-
             <div class="spiral-scene" aria-hidden="true"></div>
           </div>
         </div>
       </section>
 
-      <section class="dark-reveal tools-content-section" id="tools" aria-label="Tools" data-nav-title="Tools">
+      <section class="dark-reveal tools-content-section" id="tools" aria-label="Tools" data-nav-title="Tools" data-section-index="05 / SKILLS" data-section-caption="YES, I KNOW MY WAY AROUND THESE TOOLS.">
         <div class="tools-pin-shell">
           <div class="tools-pin-stage">
             <div class="tools-card-rail" data-tool-col="left" aria-hidden="true"></div>
@@ -266,12 +245,16 @@
           <h3 id="experience-title"><span class="experience-intro-text">배우고, 만들며, 쌓아온 저의 타임라인을 소개합니다.</span></h3>
         </header>
 
+        <div class="timeline-ambient" aria-hidden="true">
+          <span class="timeline-ambient-year" data-timeline-ambient-year></span>
+        </div>
+
         <div class="timeline-shell">
           <div class="timeline-line" aria-hidden="true"></div>
           <div class="timeline-progress" aria-hidden="true"></div>
 
           <div class="experience-timeline-container">
-            <article class="experience-item">
+            <article class="experience-item" data-timeline-year="2007">
               <div class="experience-content">
                 <h4 class="timeline-company">In Canada</h4>
                 <p class="timeline-description">어린 시절 캐나다에서 다양한 국적의 친구들과 영어로 어울렸습니다.<br>낯선 환경에 자연스럽게 적응하고 소통하는 감각을 익혔습니다.</p>
@@ -284,7 +267,7 @@
               <span class="timeline-dot" aria-hidden="true"></span>
             </article>
 
-            <article class="experience-item">
+            <article class="experience-item" data-timeline-year="2021">
               <div class="experience-content">
                 <h4 class="timeline-company">Drawing</h4>
                 <p class="timeline-description">미대 입시를 준비하며 매일 대상을 관찰하고 손으로 표현했습니다.<br>형태와 비율을 읽는 훈련은 디자인을 바라보는 기초가 되었습니다.</p>
@@ -297,7 +280,7 @@
               <span class="timeline-dot" aria-hidden="true"></span>
             </article>
 
-            <article class="experience-item">
+            <article class="experience-item" data-timeline-year="2024">
               <div class="experience-content">
                 <h4 class="timeline-company">Latte Art</h4>
                 <p class="timeline-description">카페에서 1년 반 동안 일하며 커피 위에 다양한 그림을 그렸습니다.<br>작은 표현 하나로 손님의 하루에 즐거움을 더하는 순간을 좋아했습니다.</p>
@@ -310,11 +293,11 @@
               <span class="timeline-dot" aria-hidden="true"></span>
             </article>
 
-            <article class="experience-item">
+            <article class="experience-item" data-timeline-year="2024">
               <div class="experience-content">
                 <h4 class="timeline-company">Exhibitions</h4>
                 <p class="timeline-description">매달 전시를 찾아 작품을 보고, 작가의 시선과 표현 방식을 기록합니다.<br>다른 해석을 받아들이며 제 생각과 시각의 범위를 넓혀가고 있습니다.</p>
-                <p class="timeline-date">Ongoing</p>
+                <p class="timeline-date">2024</p>
                 <div class="timeline-photo" aria-hidden="true">
                   <img src="assets/timeline/exhibition-gallery.webp" alt="" loading="lazy">
                   <img class="timeline-photo-hover" src="assets/timeline/exhibition-graffiti.webp" alt="" loading="lazy">
@@ -323,7 +306,7 @@
               <span class="timeline-dot" aria-hidden="true"></span>
             </article>
 
-            <article class="experience-item">
+            <article class="experience-item" data-timeline-year="2026">
               <div class="experience-content">
                 <h4 class="timeline-company">UX / UI Begin</h4>
                 <p class="timeline-description">사람의 불편을 발견하고 즉시 해결하는 디자인에 매력을 느꼈습니다.<br>직접 디자인하고 구현하며 더 많은 사람에게 편리한 경험을 전하고 싶었습니다.</p>
@@ -336,7 +319,7 @@
               <span class="timeline-dot" aria-hidden="true"></span>
             </article>
 
-            <article class="experience-item experience-now" aria-label="현재와 앞으로의 이야기">
+            <article class="experience-item experience-now" data-timeline-year="NOW" aria-label="현재와 앞으로의 이야기">
               <div class="experience-content">
                 <svg class="now-progress-ring" viewBox="0 0 104 104" aria-hidden="true">
                   <circle class="now-progress-ring-track" cx="52" cy="52" r="46" pathLength="100"></circle>
@@ -389,6 +372,11 @@
         </div>
       </section>
     </main>
+
+    <aside class="section-caption" aria-live="polite" aria-hidden="true">
+      <span class="section-caption-index" data-section-caption-index></span>
+      <p class="section-caption-text" data-section-caption-text></p>
+    </aside>
 
     <button type="button" id="hero-buddy" class="hero-buddy" data-mode="hero-roam" data-reaction="" aria-label="포트폴리오 챗봇 열기">
       <svg viewBox="0 0 192 256" width="192" height="256" aria-hidden="true">
@@ -488,6 +476,6 @@
     <script src="assets/vendor/gsap.min.js" defer></script>
     <script src="tools.min.js?v=28" defer></script>
     <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
-    <script src="script.min.js?v=167" defer></script>
+    <script src="script.js?v=186" defer></script>
   </body>
 </html>

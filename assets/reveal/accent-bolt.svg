@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <g transform="scale(4.1667)">
-    <path d="M11.983 1.907a.75.75 0 00-1.292-.657L3.409 10.5a.75.75 0 00.658 1.257h5.965l-3.03 9.988a.75.75 0 001.292.657l7.282-9.25a.75.75 0 00-.658-1.257H9.953l3.03-9.988z"
-      fill="#6ee7ff" stroke="#111111" stroke-width="1.92" stroke-linejoin="round" stroke-linecap="round" />
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="accent-bolt">
+    <path id="Vector 2" d="M145.093 32.3711L58.0468 127.979C56.8774 129.263 57.7887 131.325 59.5257 131.325H89.6387C90.7433 131.325 91.6387 132.221 91.6387 133.325V205.013C91.6387 206.892 93.9957 207.734 95.1862 206.28L171.77 112.744C172.839 111.439 171.91 109.477 170.222 109.477H137.359C136.113 109.477 135.17 108.35 135.391 107.123L148.54 34.0718C148.896 32.0962 146.444 30.8867 145.093 32.3711Z" fill="#6EE7FF" stroke="black" stroke-width="14"/>
   </g>
 </svg>

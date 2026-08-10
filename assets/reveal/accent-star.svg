@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <path d="M50 10 C55 38 62 45 90 50 C62 55 55 62 50 90 C45 62 38 55 10 50 C38 45 45 38 50 10 Z"
-    fill="#6ee7ff" stroke="#111111" stroke-width="8" stroke-linejoin="round" />
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="accent-star">
+    <path id="Vector" d="M110 22C121 83.6 136.4 99 198 110C136.4 121 121 136.4 110 198C99 136.4 83.6 121 22 110C83.6 99 99 83.6 110 22Z" fill="#6EE7FF" stroke="#111111" stroke-width="14" stroke-linejoin="round"/>
+  </g>
 </svg>
