@@ -1881,10 +1881,12 @@ const requestHeroCardUpdate = () => {
 let cursorFrame = null;
 let cursorX = 0;
 let cursorY = 0;
+let hasPointerMoved = false;
 window.addEventListener("pointermove", (event) => {
   if (!cursor) return;
   cursorX = event.clientX;
   cursorY = event.clientY;
+  hasPointerMoved = true;
   if (cursorFrame !== null) return;
 
   cursorFrame = requestAnimationFrame(() => {
@@ -2058,14 +2060,15 @@ const initPlaygroundScroll = () => {
   const row = document.querySelector("#playground-row");
   if (!track || !camera || !row) return;
 
+  const setCameraHint = (visible) => {
+    if (!cursorHint) return;
+    if (visible) cursorHint.textContent = "Click!";
+    cursorHint.classList.toggle("is-visible", visible);
+  };
+
   if (cursorHint) {
-    camera.addEventListener("pointerenter", () => {
-      cursorHint.textContent = "Click!";
-      cursorHint.classList.add("is-visible");
-    });
-    camera.addEventListener("pointerleave", () => {
-      cursorHint.classList.remove("is-visible");
-    });
+    camera.addEventListener("pointerenter", () => setCameraHint(true));
+    camera.addEventListener("pointerleave", () => setCameraHint(false));
   }
 
   const cardCount = playgroundProjects.length;
@@ -2290,6 +2293,11 @@ const initPlaygroundScroll = () => {
     row.style.transform = `translate3d(${(-currentRowShift).toFixed(2)}px, 0, 0)`;
 
     const cameraRect = camera.getBoundingClientRect();
+    if (cursorHint && hasPointerMoved) {
+      const insideCamera = cursorX >= cameraRect.left && cursorX <= cameraRect.right
+        && cursorY >= cameraRect.top && cursorY <= cameraRect.bottom;
+      setCameraHint(insideCamera);
+    }
     const cameraCenter = cameraRect.left + cameraRect.width / 2;
     const focusRange = Math.min(cameraRect.width * 0.3, 430);
     let strongestFocus = 0;
