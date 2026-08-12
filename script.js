@@ -5,42 +5,42 @@ const spiralProjectData = [
   {
     id: "project-one",
     number: "001",
-    title: "한국소비자원",
-    thumbnail: "assets/clone-coding/clone-03.webp",
-    cta_url: "https://clonecoding1.vercel.app/",
+    title: "Y Studio",
+    thumbnail: "assets/clone-coding/clone-03.webp?v=2",
+    cta_url: "https://clonecode-virid.vercel.app/",
   },
   {
     id: "project-two",
     number: "002",
-    title: "한화케미컬",
+    title: "Crew A La mode",
     thumbnail: "assets/clone-coding/clone-04.webp",
     cta_url: "https://clonecoding2.vercel.app/",
   },
   {
     id: "project-three",
     number: "003",
-    title: "Y Studio",
+    title: "대방산업",
     thumbnail: "assets/clone-coding/clone-05.webp",
     cta_url: "https://clonecoding3.vercel.app/",
   },
   {
     id: "project-four",
     number: "004",
-    title: "Crew À La Mode",
+    title: "Musign",
     thumbnail: "assets/clone-coding/clone-06.webp",
     cta_url: "https://clonecoding4.vercel.app/",
   },
   {
     id: "project-five",
     number: "005",
-    title: "대방산업",
+    title: "Qude",
     thumbnail: "assets/clone-coding/clone-01.webp",
     cta_url: "https://clonecoding5.vercel.app/",
   },
   {
     id: "project-six",
     number: "006",
-    title: "Musign",
+    title: "한화케미컬",
     thumbnail: "assets/clone-coding/clone-02.webp",
     cta_url: "https://clonecodiing6.vercel.app/",
   },
@@ -1688,7 +1688,7 @@ const initSpiralExperience = async () => {
       window.setTimeout(() => {
         if (activeCaptionId !== projectId) return;
         const projectPosition = spiralProjectData.findIndex((item) => item.id === projectId) + 1;
-        spiralCaptionIndex.textContent = `${String(projectPosition).padStart(2, "0")} / ${String(spiralProjectData.length).padStart(2, "0")}`;
+        spiralCaptionIndex.textContent = String(projectPosition).padStart(2, "0");
         spiralCaptionTitle.textContent = project.title;
         spiralCaptionIndex.classList.add("is-visible");
         spiralCaptionTitle.classList.add("is-visible");
