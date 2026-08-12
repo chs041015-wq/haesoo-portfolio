@@ -82,15 +82,19 @@ if (spiralProjectCta && spiralProjectCta.parentElement !== document.body) {
 revealTranslationLines.forEach((line) => {
   const englishWords = [...line.querySelectorAll(".reveal-language-en .word")];
 
-  line.addEventListener("pointerenter", () => cursor?.classList.add("is-translating"));
+  line.addEventListener("pointerenter", () => {
+    if (!revealContentSection?.classList.contains("is-scroll-translating")) {
+      cursor?.classList.add("is-translating");
+    }
+  });
   line.addEventListener("pointerleave", () => cursor?.classList.remove("is-translating"));
 
   line.addEventListener("pointermove", (event) => {
+    if (revealContentSection?.classList.contains("is-scroll-translating")) return;
+
     const bounds = line.getBoundingClientRect();
     const x = event.clientX - bounds.left;
     const y = event.clientY - bounds.top;
-    line.style.setProperty("--lens-x", `${x.toFixed(1)}px`);
-    line.style.setProperty("--lens-y", `${y.toFixed(1)}px`);
     const translated = line.querySelector(".reveal-language-ko");
     translated?.style.setProperty("--lens-x", `${x.toFixed(1)}px`);
     translated?.style.setProperty("--lens-y", `${y.toFixed(1)}px`);
@@ -1181,10 +1185,30 @@ const updateAboutRevealText = () => {
 
   const scrollable = Math.max(rect.height - window.innerHeight, 1);
   const progress = clamp(-rect.top / scrollable, 0, 1);
+  const fillProgress = clamp(progress / 0.74, 0, 1);
+  const translationProgress = clamp((progress - 0.8) / 0.12, 0, 1);
+
+  revealContentSection.style.setProperty("--translation-progress", translationProgress.toFixed(3));
+  revealContentSection.classList.toggle("is-scroll-translating", translationProgress > 0);
+  if (translationProgress > 0) {
+    cursor?.classList.remove("is-translating");
+    cursorHint?.classList.remove("is-visible");
+    revealTranslationLines.forEach((line) => {
+      line.querySelectorAll(".reveal-language-en .word").forEach((word) => {
+        word.style.transform = "translate3d(0, 0, 0) rotate(0deg)";
+      });
+    });
+  }
+  revealTranslationLines.forEach((line) => {
+    const english = line.querySelector(".reveal-language-en");
+    const korean = line.querySelector(".reveal-language-ko");
+    english?.setAttribute("aria-hidden", String(translationProgress >= 0.5));
+    korean?.setAttribute("aria-hidden", String(translationProgress < 0.5));
+  });
 
   aboutRevealItems.forEach((item, index) => {
     const start = index / (aboutRevealItems.length * 1.28);
-    const itemProgress = clamp((progress - start) * aboutRevealItems.length * 1.08, 0, 1);
+    const itemProgress = clamp((fillProgress - start) * aboutRevealItems.length * 1.08, 0, 1);
 
     if (item.classList.contains("about-text-image")) {
       const scale = itemProgress * 1.5;
@@ -1861,7 +1885,9 @@ if (cursorHint && revealContentSection && revealTranslationLines.length) {
 
   revealContentSection.addEventListener("pointerenter", () => {
     cursorHint.textContent = "Hover to translate !";
-    if (!overRevealLine) cursorHint.classList.add("is-visible");
+    if (!overRevealLine && !revealContentSection.classList.contains("is-scroll-translating")) {
+      cursorHint.classList.add("is-visible");
+    }
   });
   revealContentSection.addEventListener("pointerleave", () => {
     cursorHint.classList.remove("is-visible");
@@ -1874,7 +1900,9 @@ if (cursorHint && revealContentSection && revealTranslationLines.length) {
     });
     line.addEventListener("pointerleave", () => {
       overRevealLine = false;
-      cursorHint.classList.add("is-visible");
+      if (!revealContentSection.classList.contains("is-scroll-translating")) {
+        cursorHint.classList.add("is-visible");
+      }
     });
   });
 }
@@ -2343,14 +2371,64 @@ initPlaygroundScroll();
 
 const initWireframeGenButton = () => {
   const button = document.querySelector("[data-wireframe-gen]");
-  const toast = document.querySelector("[data-wireframe-toast]");
-  if (!button || !toast) return;
+  const modal = document.querySelector("[data-sayout-case-modal]");
+  const panel = modal?.querySelector(".sayout-case-panel");
+  const closeTriggers = [...(modal?.querySelectorAll("[data-sayout-case-close]") ?? [])];
+  if (!button || !modal || !panel || !closeTriggers.length) return;
 
-  let hideTimer = 0;
-  button.addEventListener("click", () => {
-    window.clearTimeout(hideTimer);
-    toast.classList.add("is-visible");
-    hideTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 2200);
+  let isOpen = false;
+  let closeTimer = 0;
+
+  const openModal = () => {
+    if (isOpen) return;
+    isOpen = true;
+    window.clearTimeout(closeTimer);
+    modal.hidden = false;
+    modal.setAttribute("aria-hidden", "false");
+    document.documentElement.classList.add("is-sayout-case-open");
+    document.body.classList.add("is-sayout-case-open");
+    requestAnimationFrame(() => {
+      modal.classList.add("is-open");
+      panel.focus({ preventScroll: true });
+    });
+  };
+
+  const closeModal = () => {
+    if (!isOpen) return;
+    isOpen = false;
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.documentElement.classList.remove("is-sayout-case-open");
+    document.body.classList.remove("is-sayout-case-open");
+    closeTimer = window.setTimeout(() => {
+      if (!isOpen) modal.hidden = true;
+    }, 420);
+    button.focus({ preventScroll: true });
+  };
+
+  button.addEventListener("click", openModal);
+  closeTriggers.forEach((trigger) => trigger.addEventListener("click", closeModal));
+  document.addEventListener("keydown", (event) => {
+    if (!isOpen) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeModal();
+      return;
+    }
+    if (event.key !== "Tab") return;
+
+    const focusable = [...modal.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')]
+      .filter((element) => !element.hasAttribute("disabled"));
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
 };
 

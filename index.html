@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
-    <link rel="stylesheet" href="styles.css?v=248" />
+    <link rel="stylesheet" href="styles.css?v=261" />
   </head>
   <body>
     <div class="cursor" aria-hidden="true"></div>
@@ -18,7 +18,7 @@
 
     <header class="site-nav" aria-label="Primary navigation">
       <div class="wireframe-gen">
-        <button type="button" class="wireframe-gen-button" data-wireframe-gen aria-label="AI 와이어프레임 생성기 (준비 중)">
+        <button type="button" class="wireframe-gen-button" data-wireframe-gen aria-label="Sayout AI 와이어프레임 생성기를 새 창에서 열기">
           <span>Sayout</span>
         </button>
         <span class="wireframe-gen-toast" data-wireframe-toast role="status" aria-live="polite">곧 만나요! 준비 중이에요</span>
@@ -434,6 +434,71 @@
       <img class="buddy-moa-question buddy-moa-question-small" src="assets/figma/moa-question-small.svg" alt="" aria-hidden="true" />
     </button>
 
+    <div class="sayout-case-modal" data-sayout-case-modal hidden aria-hidden="true">
+      <div class="sayout-case-backdrop" data-sayout-case-close></div>
+      <section class="sayout-case-panel" role="dialog" aria-modal="true" aria-labelledby="sayout-case-title" tabindex="-1">
+        <header class="sayout-case-header">
+          <div>
+            <span class="sayout-case-kicker">AI WIREFRAME GENERATOR · CASE STUDY</span>
+            <h2 id="sayout-case-title">Sayout</h2>
+          </div>
+          <button type="button" class="sayout-case-close" data-sayout-case-close aria-label="Sayout 케이스 스터디 닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="5" y1="5" x2="19" y2="19"></line>
+              <line x1="19" y1="5" x2="5" y2="19"></line>
+            </svg>
+          </button>
+        </header>
+
+        <div class="sayout-case-body">
+          <div class="sayout-case-visual">
+            <img src="assets/sayout/sayout-case-study.png" alt="Sayout 텍스트 기반 와이어프레임 생성기 화면" loading="lazy" />
+          </div>
+
+          <div class="sayout-case-content">
+            <p class="sayout-case-summary">
+              <span class="sayout-case-summary-line">한국어로 원하는 화면을 설명하면 구조를 해석하고,</span>
+              <span class="sayout-case-summary-line">Figma에서 바로 편집할 수 있는 와이어프레임으로</span>
+              <span class="sayout-case-summary-line">변환하는 웹 도구입니다.</span>
+            </p>
+
+            <div class="sayout-case-background">
+              <span>WHY I MADE IT</span>
+              <p>프로젝트를 진행하며 반복적인 와이어프레임 작업을 더 빠르고 효율적으로 할 필요성을 느껴, AI를 활용한 텍스트 기반 와이어프레임 생성기 Sayout을 만들었습니다.</p>
+            </div>
+
+            <ol class="sayout-case-points">
+              <li>
+                <span class="sayout-case-number">01</span>
+                <div>
+                  <h3>자연어 구조화</h3>
+                  <p>한국어 명령에서 화면 유형과 요소, 문구, 순서, 위치 정보를 추출해 구조화된 데이터로 변환합니다.</p>
+                </div>
+              </li>
+              <li>
+                <span class="sayout-case-number">02</span>
+                <div>
+                  <h3>해석 결과 직접 수정</h3>
+                  <p>생성 전 요소의 종류와 문구, 순서, 위치를 확인하고 수정할 수 있어 사용자가 결과를 직접 통제할 수 있습니다.</p>
+                </div>
+              </li>
+              <li>
+                <span class="sayout-case-number">03</span>
+                <div>
+                  <h3>Figma 편집 레이어 변환</h3>
+                  <p>완성된 와이어프레임을 Figma로 복사해 Frame, Text, Auto Layout 구조를 유지한 채 바로 편집할 수 있습니다.</p>
+                </div>
+              </li>
+            </ol>
+
+            <a class="sayout-case-cta" href="https://sayout-inapp.vercel.app/" target="_blank" rel="noopener noreferrer">
+              <span>Sayout 체험하기</span><span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <div class="chatbot-modal" data-chatbot-modal hidden aria-hidden="true">
       <div class="chatbot-modal-panel" role="dialog" aria-labelledby="chatbot-modal-recipient">
         <div class="chat-frame">
@@ -476,6 +541,6 @@
     <script src="assets/vendor/gsap.min.js" defer></script>
     <script src="tools.min.js?v=28" defer></script>
     <script src="assets/vendor/ScrollTrigger.min.js" defer></script>
-    <script src="script.js?v=186" defer></script>
+    <script src="script.js?v=187" defer></script>
   </body>
 </html>
