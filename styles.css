@@ -195,6 +195,10 @@ body.is-contact-active .site-nav {
   overflow: visible;
 }
 
+.sayout-button-label {
+  transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease;
+}
+
 .sayout-eye-white {
   fill: var(--paper);
 }
@@ -216,12 +220,31 @@ body.is-contact-active .site-nav {
   transform: translateX(-8px);
 }
 
-body.is-spiral-active .sayout-eye-white {
-  fill: var(--night);
+body.is-spiral-active .nav-contact.wireframe-gen-button {
+  color: var(--paper);
 }
 
-body.is-spiral-active .sayout-eye-pupil {
-  fill: var(--paper);
+body.is-spiral-active .wireframe-gen-button .sayout-button-label {
+  background: transparent;
+  border: 1px solid var(--paper);
+}
+
+.wireframe-gen-button:hover .sayout-button-label,
+.wireframe-gen-button:focus-visible .sayout-button-label {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--night);
+}
+
+body.is-spiral-active .wireframe-gen-button:hover .sayout-button-label,
+body.is-spiral-active .wireframe-gen-button:focus-visible .sayout-button-label {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+body.is-spiral-active .nav-contact.wireframe-gen-button:hover,
+body.is-spiral-active .nav-contact.wireframe-gen-button:focus-visible {
+  color: var(--night);
 }
 
 .wireframe-gen-toast {

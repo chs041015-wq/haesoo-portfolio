@@ -857,6 +857,22 @@ const initContactLinkInteraction = () => {
 
     link.addEventListener("pointerleave", resetLetters);
     link.addEventListener("blur", resetLetters);
+
+    const isEmailLink = link.classList.contains("contact-email");
+    const isTelLink = link.getAttribute("href")?.startsWith("tel:");
+
+    if ((isEmailLink || isTelLink) && cursorHint) {
+      link.addEventListener("pointerenter", () => {
+        cursorHint.textContent = isEmailLink ? "Click to email" : "Click to call";
+        cursorHint.classList.add("is-visible");
+      });
+      link.addEventListener("pointerleave", () => {
+        cursorHint.classList.remove("is-visible");
+      });
+      link.addEventListener("blur", () => {
+        cursorHint.classList.remove("is-visible");
+      });
+    }
   });
 };
 
