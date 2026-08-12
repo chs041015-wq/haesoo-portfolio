@@ -918,6 +918,7 @@ const updateExperienceTimeline = () => {
     && sectionRect.bottom > viewportHeight * 0.28
   );
   timelineAmbient?.classList.toggle("is-visible", isTimelineVisible);
+  syncTimelineHoverHint?.();
   if (sectionRect && (sectionRect.bottom < -viewportHeight * 0.25 || sectionRect.top > viewportHeight * 1.25)) {
     return;
   }
@@ -1894,6 +1895,7 @@ window.addEventListener("pointermove", (event) => {
     if (cursorHint) {
       cursorHint.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(20px, 20px)`;
     }
+    syncTimelineHoverHint?.();
     cursorFrame = null;
   });
 });
@@ -1927,27 +1929,29 @@ if (cursorHint && revealContentSection && revealTranslationLines.length) {
 
 const timelineShellHoverArea = document.querySelector(".timeline-shell");
 const timelinePhotos = document.querySelectorAll(".timeline-photo");
-if (cursorHint && timelineShellHoverArea) {
-  timelineShellHoverArea.addEventListener("pointerenter", () => {
-    cursorHint.textContent = "Hover image !";
-    cursorHint.classList.add("is-visible");
-  });
-  timelineShellHoverArea.addEventListener("pointerleave", () => {
-    cursorHint.classList.remove("is-visible");
-  });
-}
-if (cursorHint && timelinePhotos.length) {
-  timelinePhotos.forEach((photo) => {
-    photo.addEventListener("pointerenter", () => {
-      cursorHint.classList.remove("is-visible");
-    });
-    photo.addEventListener("pointerleave", () => {
-      if (timelineShellHoverArea?.matches(":hover")) {
-        cursorHint.classList.add("is-visible");
-      }
-    });
-  });
-}
+
+const setTimelineHint = (visible) => {
+  if (!cursorHint) return;
+  if (visible) cursorHint.textContent = "Hover image !";
+  cursorHint.classList.toggle("is-visible", visible);
+};
+
+const isPointOverAnyTimelinePhoto = () => {
+  for (const photo of timelinePhotos) {
+    const rect = photo.getBoundingClientRect();
+    if (cursorX >= rect.left && cursorX <= rect.right && cursorY >= rect.top && cursorY <= rect.bottom) return true;
+  }
+  return false;
+};
+
+const syncTimelineHoverHint = () => {
+  if (!cursorHint || !hasPointerMoved || !timelineShellHoverArea) return;
+  const shellRect = timelineShellHoverArea.getBoundingClientRect();
+  if (shellRect.bottom <= 0 || shellRect.top >= window.innerHeight) return;
+  const insideShell = cursorX >= shellRect.left && cursorX <= shellRect.right
+    && cursorY >= shellRect.top && cursorY <= shellRect.bottom;
+  setTimelineHint(insideShell && !isPointOverAnyTimelinePhoto());
+};
 
 window.addEventListener("scroll", requestHeroCardUpdate, { passive: true });
 window.addEventListener("resize", () => {
@@ -2293,7 +2297,7 @@ const initPlaygroundScroll = () => {
     row.style.transform = `translate3d(${(-currentRowShift).toFixed(2)}px, 0, 0)`;
 
     const cameraRect = camera.getBoundingClientRect();
-    if (cursorHint && hasPointerMoved) {
+    if (cursorHint && hasPointerMoved && cameraRect.bottom > 0 && cameraRect.top < window.innerHeight) {
       const insideCamera = cursorX >= cameraRect.left && cursorX <= cameraRect.right
         && cursorY >= cameraRect.top && cursorY <= cameraRect.bottom;
       setCameraHint(insideCamera);
