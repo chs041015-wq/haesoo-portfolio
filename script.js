@@ -65,7 +65,8 @@
       if (id.length < 2) return;
       const target = $(id);
       if (!target) return;
-      if (lenis) lenis.scrollTo(target, { duration: 2, easing: easeInOutQuart });
+      const offset = Number(a.dataset.offset || 0);
+      if (lenis) lenis.scrollTo(target, { duration: 2, easing: easeInOutQuart, offset });
       else target.scrollIntoView({ behavior: "smooth" });
     })
   );
@@ -85,8 +86,10 @@
     // Hero·About(별 배경) 따뜻한 검정 → Works·Studies 미색 → Skills부터 끝까지 다시 따뜻한 검정(#1A1714)
     bgKeys = [
       [0, COLOR.warm],
-      [worksTop - vh * 0.5, COLOR.warm],
-      [worksTop - vh * 0.1, COLOR.paper],
+      // Works는 자기 미색 배경 + 원형 마스크로 열림 → 페이지 배경(메뉴 글자색 기준)은 구멍이 열리는 동안 미색으로
+      // (메뉴가 있는 위쪽 모서리는 구멍이 거의 다 열려야 드러나므로 0.9 ~ 1.0 구간에서 전환)
+      [worksTop + vh * 0.9, COLOR.warm],
+      [worksTop + vh * 1.0, COLOR.paper],
       [skTop - vh * 0.75, COLOR.paper],
       [skTop - vh * 0.3, COLOR.night],
     ];
@@ -721,159 +724,190 @@
     });
   }
 
-  /* ---------- 6. works : 3D concave ring gallery ---------- */
-  const projects = [
-    {
-      tag: "AQUA PLANET", img: "assets/project1/figma/project-left.webp",
-      caption: "AN IMMERSIVE AQUARIUM EXPERIENCE, BUILT FOR THE WEB.",
-      title: "K브랜드 웹사이트 리뉴얼 팀프로젝트",
-      built: "랜딩·마린랩·티켓 페이지 개발을 맡고, 전 페이지가 공유하는 인터랙션 시스템을 설계했습니다.",
-      duration: "2026.06.04 — 2026.07.03",
-      bars: [["기획", 60], ["디자인", 70], ["개발", 90]],
-      links: [["Website", "https://ezen-aquaplanet-project.vercel.app/"], ["Figma", "https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A398&node-id=237-1640&viewport=612%2C783%2C0.08&t=Y3y3Dgch0k1oZkVg-1&scaling=min-zoom&content-scaling=fixed"]],
-    },
-    {
-      tag: "LAYER", img: "assets/project1/figma/project-center.webp",
-      caption: "A SCENT COMMUNITY WHERE TASTE BECOMES CONVERSATION.",
-      title: "AI 챗봇 커뮤니티 프로젝트",
-      built: "온보딩과 홈을 메인으로 개발하고, 앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다.",
-      duration: "2026.07.04 — 2026.07.29",
-      bars: [["기획", 70], ["디자인", 70], ["개발", 90]],
-      links: [["Website", "https://ezen-layerproject.vercel.app/"], ["Figma", "https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A5040&node-id=237-5053&viewport=690%2C571%2C0.03&t=DIbfmwmD9cwUu7El-1&scaling=min-zoom&content-scaling=fixed"]],
-    },
-    {
-      tag: "MOA", img: "assets/project1/figma/project-right.webp",
-      caption: "A FRIENDLY GUIDE FOR BETTER EVERYDAY CHOICES.",
-      title: "선택을 돕는 질문형 결정 도우미 앱",
-      built: "사용자가 스스로 기준을 찾도록, UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다.",
-      duration: "2026.03.26 — 2026.05.29",
-      bars: [["기획", 100], ["디자인", 100], ["개발", 100]],
-      links: [["Website", "https://moa-app-indol.vercel.app/"], ["Figma", "https://www.figma.com/proto/IYUwIKFuLk3G0BmvlsoH9h/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%AA%A8%EC%95%84?page-id=1159%3A1255&node-id=1159-2682&viewport=1063%2C1162%2C0.03&t=5qcWExPYTwMcfkE4-1&scaling=contain&content-scaling=fixed&starting-point-node-id=1159%3A2682"]],
-    },
-    {
-      tag: "3D OBJECT", img: null,
-      ph: ["3D OBJECT", "Blender × Codex — 자료 준비 중"],
-      caption: "A 3D STRUCTURE BUILT WITH BLENDER AND CODEX.",
-      title: "Blender · Codex로 만든 3D 구조물",
-      built: "Blender로 3D 구조물을 모델링하고, Codex(AI 코딩)를 활용해 제작 과정을 자동화했습니다. (자료 받으면 교체)",
-      duration: "준비 중",
-      bars: null,
-      links: [],
-    },
-    {
-      tag: "DETAIL PAGE", img: null,
-      ph: ["DETAIL PAGE", "상세페이지 · AEO — 자료 준비 중"],
-      caption: "PRODUCT DETAIL PAGE · HTML · AEO",
-      title: "상세페이지 HTML 작업 · AEO 최적화",
-      built: "상세페이지를 HTML로 직접 구현하고, AI 검색 답변(AEO)에 인용되도록 구조를 최적화했습니다. (자료 받으면 교체)",
-      duration: "준비 중",
-      bars: null,
-      links: [],
-    },
-  ];
-  // 볼록 링 3D 갤러리 (원통 바깥에 카드가 붙은 구조 + 바닥 반사 + PREV/NEXT)
-  //  - 프로젝트 5개 × 2 = 10칸, 36° 간격 (레퍼런스와 같은 칸 수) → 정면 1장 + 좌우로 뒤로 물러나며 꺾인 카드
-  //  - 카드: rotateY(각도) translateZ(R)  /  링: translateZ(-R) rotateY(-회전)  → 정면 카드가 z=0
-  const SLOTS = projects.length * 2;
-  const STEP_DEG = 360 / SLOTS;
-  const ring = $(".ring");
-  const cards = Array.from({ length: SLOTS }, (_, slot) => {
-    const p = projects[slot % projects.length];
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "ring-card" + (p.img ? "" : " is-placeholder");
-    card.setAttribute("aria-label", `${p.tag} 보기`);
-    card.innerHTML = p.img
-      ? `<img src="${p.img}" alt="" draggable="false" /><span class="rc-tag">${p.tag}</span>`
-      : `<div class="ph"><b>${p.ph[0]}</b><span>${p.ph[1]}</span></div><span class="rc-tag">${p.tag}</span>`;
-    card.addEventListener("click", () => { if (!dragMoved) goTo(slot + Math.round((rot.deg - slot * STEP_DEG) / 360) * SLOTS); });
-    ring.appendChild(card);
-    return card;
-  });
-  const rot = { deg: 0 };
-  let ringR = 0, target = 0, activeIndex = -1, dragMoved = false;
-  const norm = (a) => ((((a + 180) % 360) + 360) % 360) - 180; // -180~180
-
-  function layoutRing() {
-    const w = ring.offsetWidth;
-    ringR = Math.round((w / 2 / Math.tan(Math.PI / SLOTS)) * 1.1); // 카드 사이 살짝 틈
-    cards.forEach((c, i) => (c.style.transform = `rotateY(${i * STEP_DEG}deg) translateZ(${ringR}px)`));
-    renderRing();
+  /* ---------- 6. works : bauer-lab Featured Projects (creation) 그대로 ----------
+     - 원형 마스크: bauer U8.draw(ratio.y - 1) → 섹션 윗변이 화면 맨 위에 닿은 뒤 100vh 동안 구멍 반지름 0 → 대각선/2
+     - 설명 줄: bauer WT — 화면에 들어오면 .in-view-from-bottom, 화면 절반 아래로 빠질 때만 리셋
+     - 커서: bauer ple/PM — 이미지에 올리면 알약 커서 안에서 이름이 흐름 */
+  const worksEl = $(".works");
+  const worksMask = $(".works-mask");
+  function updateWorks() {
+    if (!worksEl) return;
+    const vh = innerHeight;
+    const r = worksEl.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > vh) return;
+    worksMask?.style.setProperty("--hole", `${((Math.hypot(innerWidth, vh) / 2) * clamp(-r.top / vh)).toFixed(1)}px`);
   }
-  function renderRing() {
-    ring.style.transform = `translateZ(${-ringR}px) rotateY(${-rot.deg}deg)`;
-    cards.forEach((c, i) => {
-      const rel = Math.abs(norm(i * STEP_DEG - rot.deg));
-      c.style.visibility = rel > 80 ? "hidden" : "visible"; // 원통 뒤쪽으로 돌아간 카드는 숨김
-      c.style.opacity = `${clamp(1 - (rel / STEP_DEG) * 0.3, 0, 1)}`;
-      c.classList.toggle("is-front", rel < STEP_DEG / 2);
+  (function initWorksFade() {
+    const items = $$(".works [data-fade]");
+    const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+      if (en.isIntersecting) en.target.classList.add("in-view-from-bottom");
+      else if (en.boundingClientRect.top > innerHeight * 0.5) en.target.classList.remove("in-view-from-bottom");
+    }), { threshold: 0 });
+    items.forEach((el) => io.observe(el));
+  })();
+  (function initWorkCursor() {
+    const cur = $(".cursor-dot");
+    if (!cur) return;
+    const item = (t) => `<div class="item"><span>${t}</span><i>↗</i></div>`;
+    $$(".work-item").forEach((fig) => {
+      const name = $(".work-media", fig)?.dataset.cursorTitle || "";
+      fig.addEventListener("mouseenter", () => {
+        cur.innerHTML = `<div class="rolling1">${item(name)}${item(name)}</div><div class="rolling2">${item(name)}${item(name)}</div>`;
+        cur.classList.add("is-work");
+      });
+      fig.addEventListener("mouseleave", () => { cur.classList.remove("is-work"); cur.innerHTML = ""; });
     });
-    const slot = Math.round(rot.deg / STEP_DEG);
-    setActive(((slot % projects.length) + projects.length) % projects.length);
-  }
-  function goTo(slot) {
-    target = slot;
-    gsap.to(rot, { deg: slot * STEP_DEG, duration: reduced ? 0 : 0.9, ease: "power3.inOut", overwrite: true, onUpdate: renderRing });
-  }
-  $(".ring-prev").addEventListener("click", () => goTo(target - 1));
-  $(".ring-next").addEventListener("click", () => goTo(target + 1));
-  addEventListener("keydown", (e) => {
-    const r = $(".works").getBoundingClientRect();
-    if (r.top > innerHeight * 0.5 || r.bottom < innerHeight * 0.5) return; // Works가 화면 중앙에 있을 때만
-    if (e.key === "ArrowLeft") goTo(target - 1);
-    if (e.key === "ArrowRight") goTo(target + 1);
-  });
+  })();
 
-  // 드래그·스와이프로 돌리기 (놓으면 가까운 칸으로 스냅)
-  const ringViewport = $(".ring-viewport");
-  let dragX = 0, dragDeg = 0, dragging = false;
-  ringViewport.addEventListener("pointerdown", (e) => {
-    dragging = true; dragMoved = false; dragX = e.clientX; dragDeg = rot.deg;
-    gsap.killTweensOf(rot);
-  });
-  addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    const dx = e.clientX - dragX;
-    if (Math.abs(dx) > 4) dragMoved = true;
-    rot.deg = dragDeg - (dx / ring.offsetWidth) * STEP_DEG * 1.2;
-    renderRing();
-  });
-  addEventListener("pointerup", () => {
-    if (!dragging) return;
-    dragging = false;
-    goTo(Math.round(rot.deg / STEP_DEG));
-    setTimeout(() => (dragMoved = false), 0);
-  });
+  /* works WebGL : bauer Ace(sync image mesh) 셰이더 그대로 (three.js 없이 WebGL 직접)
+     - 카메라: fov 45°, 화면에 딱 맞는 거리 → z=0 평면에서 1단위 = 1px (DOM 이미지와 같은 자리·크기)
+     - 정점 셰이더: ry = 화면 중심 기준 y / 화면 높이 → smoothstep(-0.2, -2.0, ry) → z = sin(-ry·π·uCurveY·10)·uCurve
+       = 화면 아래쪽(중심에서 20%보다 아래)으로 갈수록 이미지가 보는 사람 쪽으로 휘어짐
+     - 데스크톱(1024px 이상, 마우스)에서만. 모바일·동작 줄이기·WebGL 미지원은 DOM 이미지 그대로 */
+  (function initWorksGL() {
+    const canvas = $(".works-gl");
+    if (!canvas || !worksEl || reduced) return;
+    const desktop = matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)");
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: true, premultipliedAlpha: false });
+    if (!gl) return;
+    const VS = `
+      attribute vec2 aPos;
+      uniform vec2 uCenter;
+      uniform vec2 uSize;
+      uniform vec2 uScreen;
+      uniform float uDist;
+      uniform mat4 uProj;
+      uniform float uCurve;
+      uniform float uCurveY;
+      varying vec2 vUv;
+      const float PI = 3.141592653589793;
+      void main() {
+        vUv = aPos + 0.5;
+        vec2 p = uCenter + aPos * uSize;
+        float ry = p.y / uScreen.y;
+        float t = clamp((ry + 0.2) / (-2.0 + 0.2), 0.0, 1.0);
+        ry = t * t * (3.0 - 2.0 * t);
+        float z = sin(-ry * PI * uCurveY * 10.0) * uCurve;
+        gl_Position = uProj * vec4(p.x, p.y, z - uDist, 1.0);
+      }`;
+    const FS = `
+      precision mediump float;
+      uniform sampler2D tDiffuse;
+      uniform vec2 uUvScale;
+      varying vec2 vUv;
+      void main() {
+        gl_FragColor = texture2D(tDiffuse, (vUv - 0.5) * uUvScale + 0.5);
+      }`;
+    const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+    gl.useProgram(prog);
+    const U = {};
+    ["uCenter", "uSize", "uScreen", "uDist", "uProj", "uCurve", "uCurveY", "tDiffuse", "uUvScale"].forEach((n) => (U[n] = gl.getUniformLocation(prog, n)));
+    gl.uniform1f(U.uCurve, 500);
+    gl.uniform1f(U.uCurveY, -0.08);
+    gl.uniform1i(U.tDiffuse, 0);
 
-  const wd = {
-    box: $(".works-detail"), idx: $(".wd-index b"), caption: $(".wd-caption"), title: $(".wd-title"),
-    built: $(".wd-built"), duration: $(".wd-duration"), bars: $(".wd-bars"), links: $(".wd-links"),
-  };
-  let swapTimer = 0;
-  function setActive(i) {
-    if (i === activeIndex) return;
-    const first = activeIndex === -1;
-    activeIndex = i;
-    const p = projects[i];
-    const fill = () => {
-      wd.idx.textContent = String(i + 1).padStart(2, "0");
-      wd.caption.textContent = p.caption;
-      wd.title.textContent = p.title;
-      wd.built.textContent = p.built;
-      wd.duration.textContent = p.duration;
-      wd.bars.innerHTML = p.bars
-        ? p.bars.map(([k, v]) => `<li><span>${k}</span><span class="bar"><i style="width:${v}%"></i></span><span>${v}%</span></li>`).join("")
-        : "";
-      wd.links.innerHTML = p.links.length
-        ? p.links.map(([k, u]) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${k} ↗</a>`).join("")
-        : `<span>자료 준비 중</span>`;
-      wd.box.classList.remove("is-swapping");
+    // 세로로 잘게 나눈 평면 (bauer PlaneGeometry(1, 1, 10, 200) — 휘어짐이 세로 방향뿐이라 세로 200칸)
+    const SEG = 200, verts = [];
+    for (let i = 0; i <= SEG; i++) { const y = 0.5 - i / SEG; verts.push(-0.5, y, 0.5, y); }
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, "aPos");
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+    const meshes = $$(".work-media").map((el) => ({ el, tex: null, w: 1, h: 1 }));
+    const upload = (m, source, w, h) => {
+      const tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source); }
+      catch { gl.deleteTexture(tex); return; } // file:// 로 열면 이미지가 막힘 → 그 항목은 DOM 이미지 그대로
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      Object.assign(m, { tex, w, h });
+      m.el.classList.add("is-gl-ready");
     };
-    clearTimeout(swapTimer);
-    if (first) return fill();
-    wd.box.classList.add("is-swapping");
-    swapTimer = setTimeout(fill, 220);
-  }
+    meshes.forEach((m) => {
+      const img = $("img[data-gl-img]", m.el);
+      if (img) {
+        const im = new Image();
+        im.onload = () => upload(m, im, im.naturalWidth, im.naturalHeight);
+        im.src = img.currentSrc || img.src;
+        return;
+      }
+      const ph = m.el.dataset.glPh;
+      if (!ph) return;
+      // 준비 중 카드: DOM 줄무늬 카드를 같은 모양으로 그려서 텍스처로
+      (document.fonts?.ready || Promise.resolve()).then(() => {
+        const [title, sub] = ph.split("|");
+        const c = document.createElement("canvas");
+        c.width = 1600; c.height = 900;
+        const x = c.getContext("2d");
+        x.fillStyle = "#2c2926"; x.fillRect(0, 0, 1600, 900);
+        x.save(); x.strokeStyle = "#33302c"; x.lineWidth = 36;
+        for (let k = -900; k < 2600; k += 72) { x.beginPath(); x.moveTo(k, 0); x.lineTo(k - 900, 900); x.stroke(); }
+        x.restore();
+        x.fillStyle = "#faf7f3"; x.textAlign = "center"; x.textBaseline = "middle";
+        x.font = "700 92px 'SUIT Variable', SUIT, sans-serif"; x.fillText(title, 800, 420);
+        x.globalAlpha = 0.7; x.font = "500 30px 'SUIT Variable', SUIT, sans-serif"; x.fillText(sub, 800, 510);
+        upload(m, c, 1600, 900);
+      });
+    });
+
+    let W = 0, Hh = 0, dpr = 1, dist = 1;
+    const resize = () => {
+      W = innerWidth; Hh = innerHeight; dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      const fov = (45 * Math.PI) / 180, f = 1 / Math.tan(fov / 2), near = 1, far = 10000, aspect = W / Hh;
+      dist = (Hh / 2) * f; // 화면에 딱 맞는 카메라 거리 (bauer screenFitZ)
+      gl.uniformMatrix4fv(U.uProj, false, new Float32Array([
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (far + near) / (near - far), -1,
+        0, 0, (2 * far * near) / (near - far), 0,
+      ]));
+      gl.uniform1f(U.uDist, dist);
+      gl.uniform2f(U.uScreen, W, Hh);
+    };
+    resize();
+    addEventListener("resize", resize);
+
+    let on = false;
+    gsap.ticker.add(() => {
+      const r = worksEl.getBoundingClientRect();
+      const active = desktop.matches && r.bottom > 0 && r.top < innerHeight;
+      if (active !== on) {
+        on = active;
+        worksEl.classList.toggle("is-gl", on);
+        if (!on) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+      }
+      if (!on) return;
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      meshes.forEach((m) => {
+        if (!m.tex) return;
+        const b = m.el.getBoundingClientRect();
+        if (b.bottom < 0 || b.top > Hh || !b.width) return;
+        gl.uniform2f(U.uCenter, b.left + b.width / 2 - W / 2, Hh / 2 - (b.top + b.height / 2));
+        gl.uniform2f(U.uSize, b.width, b.height);
+        // object-fit: cover
+        const ea = b.width / b.height, ia = m.w / m.h;
+        gl.uniform2f(U.uUvScale, ia > ea ? ea / ia : 1, ia > ea ? 1 : ia / ea);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, m.tex);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, (SEG + 1) * 2);
+      });
+    });
+  })();
 
   /* ---------- 7. studies strip ---------- */
   const studies = [
@@ -981,7 +1015,6 @@
      SKILLS(고정 무대 안 목록과 한 덩어리)·Let's talk(제목이 곧 콘텐츠)은 제외 */
   (function initHeadFade() {
     const pairs = [
-      [".works .v1-head", ".ring-viewport"],
       [".studies .v1-head", ".studies-row"],
       [".timeline .v1-head", ".timeline-shell"],
     ].map(([h, c]) => ({ head: $(h), content: $(c) })).filter((p) => p.head && p.content);
@@ -1169,6 +1202,9 @@
     const yearEl = $("[data-timeline-ambient-year]");
     const nowItem = $(".experience-now");
     const nowStage = $(".now-stage"), nowRing = $(".now-ring"), nowContent = $(".now-content"), nowTitle = $(".now-title");
+    const figmaSec = $(".figma-sec"), figmaPin = $(".figma-pin");
+    let figmaShown = false;
+    if (figmaPin) figmaPin.inert = true;
     if (!section || !shell || !progress || !items.length || !ambient || !yearEl) return;
 
     // 연도 교체: 이전 연도는 복제본으로 원래 자리에 남겨 위로 빠져나가게 하고(0.4s),
@@ -1280,6 +1316,21 @@
             nowTitle.style.transform = `perspective(1000px) rotateY(${360 * yc}deg)`;
             nowContent.style.transform = `scale(${clamp(0.4 + yc * 0.6)})`;
           }
+          // 회전이 끝나고 잠시 머문 뒤(1.3 ~ 1.8) 같은 자리에서 GROWING 페이드아웃 → 피그마 페이드인
+          // (피그마 고정 화면은 CSS margin-top -160vh 로 1.2부터 같은 자리에 겹쳐 있음)
+          const f = clamp((ry - 1.3) / 0.5);
+          const fOut = clamp(f / 0.6), fIn = clamp((f - 0.4) / 0.6);
+          if (nowContent) nowContent.style.opacity = `${1 - fOut}`;
+          if (figmaPin) {
+            figmaPin.style.opacity = `${fIn}`;
+            figmaPin.style.transform = `translate3d(0,${((1 - fIn) * 24).toFixed(2)}px,0)`;
+            const shown = fIn > 0.5;
+            if (shown !== figmaShown) {
+              figmaShown = shown;
+              figmaSec.classList.toggle("is-shown", shown);
+              figmaPin.inert = !shown; // 안 보이는 동안 링크에 탭 포커스가 가지 않게
+            }
+          }
         }
       });
     };
@@ -1306,10 +1357,7 @@
       e.preventDefault();
       botSay("피그마 링크를 받으면 연결할게요!");
     });
-    gsap.from(win, {
-      y: 70, opacity: 0, duration: 1, ease: "power3.out", clearProps: "transform,opacity", // 끝나면 호버 transform 이 먹도록 정리
-      scrollTrigger: { trigger: win, start: "top 85%" },
-    });
+    // 등장은 GROWING 자리에서 페이드인 (initTimeline 에서 스크롤로 제어)
 
     const canvas = $(".fg-canvas", win), sel = $(".fg-select", win), label = $("em", sel), cursor = $(".fg-cursor", win);
     const shots = $$(".fg-shot", win);
@@ -1350,6 +1398,62 @@
     addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(build, 200); });
   })();
 
+  /* ---------- 9-2. contact : v1 푸터 모션 그대로 ----------
+     - 등장: [연락처] / [서명 + GNB] / [구분선 + 하단] 묶음이 제자리 기준 화면 98% 선에 닿으면 떠오름 (한 번 켜지면 유지)
+     - 연락처 알약: 마우스 근처 글자가 탄성 있게 밀려남 (반경 58px, elastic.out) */
+  (function initContact() {
+    const section = $(".contact");
+    if (!section) return;
+    const groups = [
+      [$(".contact-links")],
+      [$(".contact-signature"), $(".contact-gnb")],
+      [$(".contact-divider"), $(".contact-footer-meta")],
+    ].map((g) => g.filter(Boolean)).filter((g) => g.length);
+    const reveal = () => {
+      if (section.getBoundingClientRect().top > innerHeight * 1.25) return;
+      const line = innerHeight * 0.98;
+      groups.forEach((g) => {
+        const ok = g.every((el) => el.getBoundingClientRect().top - (el.classList.contains("is-revealed") ? 0 : 56) < line);
+        if (ok) g.forEach((el) => el.classList.add("is-revealed"));
+      });
+    };
+    addEventListener("scroll", reveal, { passive: true });
+    addEventListener("resize", reveal);
+    reveal();
+
+    if (reduced || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    $$(".contact-links a").forEach((link) => {
+      const label = link.textContent.trim();
+      if (!link.getAttribute("aria-label")) link.setAttribute("aria-label", label);
+      link.textContent = "";
+      const motions = [...label].map((ch) => {
+        const letter = document.createElement("span");
+        letter.className = "contact-link-letter";
+        letter.setAttribute("aria-hidden", "true");
+        letter.textContent = ch === " " ? "\u00a0" : ch;
+        link.append(letter);
+        const q = (prop) => gsap.quickTo(letter, prop, { duration: 0.65, ease: "elastic.out(1, 0.45)" });
+        return { letter, x: q("x"), y: q("y"), rotation: q("rotation") };
+      });
+      const resetLetters = () => motions.forEach((m) => { m.x(0); m.y(0); m.rotation(0); });
+      link.addEventListener("pointermove", (e) => {
+        const radius = 58;
+        motions.forEach((m) => {
+          const r = m.letter.getBoundingClientRect();
+          const dx = r.left + r.width / 2 - e.clientX;
+          const dy = r.top + r.height / 2 - e.clientY;
+          const dist = Math.max(Math.hypot(dx, dy), 0.001);
+          const k = Math.pow(Math.max(0, 1 - dist / radius), 1.6);
+          m.x((dx / dist) * k * 15);
+          m.y((dy / dist) * k * 15);
+          m.rotation((dx / radius) * k * 7);
+        });
+      }, { passive: true });
+      link.addEventListener("pointerleave", resetLetters);
+      link.addEventListener("blur", resetLetters);
+    });
+  })();
+
   /* ---------- 10. cursor + bot ---------- */
   const dot = $(".cursor-dot");
   const dx = gsap.quickTo(dot, "x", { duration: 0.18, ease: "power3.out" });
@@ -1357,36 +1461,459 @@
   const pupils = $$(".bot-pupil");
   const hls = $$(".bot-hl");
   const bot = $(".bot");
+  let mouseX = innerWidth / 2, mouseY = innerHeight / 2;
   addEventListener("mousemove", (e) => {
     if (!dot.classList.contains("is-on")) { gsap.set(dot, { x: e.clientX, y: e.clientY }); dot.classList.add("is-on"); } // 첫 움직임 전엔 (0,0)에 숨김
     dx(e.clientX);
     dy(e.clientY);
-    const r = bot.getBoundingClientRect();
-    const ang = Math.atan2(e.clientY - (r.top + r.height * 0.42), e.clientX - (r.left + r.width / 2));
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  // 눈동자: 평소엔 마우스를, 날아가는 중엔 가는 방향을 봄 (해수봇 프레임 루프에서 호출)
+  function setGaze(ang) {
     pupils.forEach((p, i) => {
-      const bx = i ? 132 : 66;
-      p.setAttribute("cx", `${bx + Math.cos(ang) * 6}`);
+      p.setAttribute("cx", `${(i ? 132 : 66) + Math.cos(ang) * 6}`);
       p.setAttribute("cy", `${108 + Math.sin(ang) * 6}`);
     });
     hls.forEach((p, i) => {
       p.setAttribute("cx", `${(i ? 136.5 : 70.5) + Math.cos(ang) * 6}`);
       p.setAttribute("cy", `${103 + Math.sin(ang) * 6}`);
     });
-  });
+  }
   document.documentElement.addEventListener("mouseleave", () => dot.classList.remove("is-on"));
   document.addEventListener("mouseover", (e) => dot.classList.toggle("is-link", !!e.target.closest("a, button, .lead-rotator")));
   const botLabel = $(".bot-label");
   let sayTimer = 0;
-  function botSay(text) { // 말풍선을 잠깐 펼쳐 메시지 표시
+  function botSay(text, ms = 2200) { // 말풍선을 잠깐 펼쳐 메시지 표시
     botLabel.textContent = text;
     bot.classList.add("is-saying");
     clearTimeout(sayTimer);
     sayTimer = setTimeout(() => {
       bot.classList.remove("is-saying");
       setTimeout(() => (botLabel.textContent = "I'm Haesoo Bot!"), 360);
-    }, 2200);
+    }, ms);
   }
-  bot.addEventListener("click", () => botSay("챗봇은 본 작업에서 연결할게요"));
+
+  /* ---------- 10-1. chatbot : v1 initChatbotModal 그대로 (키워드 답변, 외부 API 없음) ----------
+     답변 내용은 v1 기준 + 지금 사이트에 맞게 손봄 (Works 목록, 인턴 경험 추가, Sayout 체험 버튼 문구 삭제) */
+  const chat = (function initChatbot() {
+    const modal = $("[data-chatbot-modal]");
+    const closeButton = $("[data-chatbot-close]", modal || document);
+    const conversation = $("[data-chat-log]", modal || document);
+    const form = $("[data-chat-form]", modal || document);
+    const input = $("[data-chat-input]", modal || document);
+    const sendButton = $("[data-chat-send]", modal || document);
+    const topicsWrapper = $("[data-chat-topics]", modal || document);
+    const topicButtons = topicsWrapper ? $$("button", topicsWrapper) : [];
+    if (!modal || !closeButton || !conversation || !form || !input || !sendButton) return null;
+
+    const config = {
+      greeting: "안녕하세요 ! 저는 최해수입니다. 포트폴리오나 작업 방식 또는 저에 대해 궁금한 점을 물어보세요.",
+      suggestions: ["어떤 프로젝트를 했나요?", "가장 자신 있는 기술은?", "함께 일하려면 어떻게 하나요?"],
+      qna: [
+        { keywords: ["MOA결과", "4.12", "사용자평가", "25명", "984개", "MOA 성과"], answer: "MOA는 25명한테 40문항으로 사용자 평가를 받았어요. 미입력 16개 빼고 984개 응답 기준으로 평균 4.12점(5점 만점) 나왔고, 거기서 발견한 문제들(클릭 표현, 질문 흐름, 홈 화면 구조, 튜토리얼)은 다 개선했어요." },
+        { keywords: ["MOA", "모아", "의사결정", "후보추천"], answer: "MOA는 선택지가 너무 많아서 결정이 어렵거나 남 의견에 자꾸 기대게 되는 문제를 풀려고 만든 서비스예요. 답변 맥락에 따라 질문을 이어가면서 선택 기준을 정리해주고, 마지막엔 후보 세 개랑 추천 이유를 보여줘요." },
+        { keywords: ["아쿠아플라넷", "AQUA", "Aqua Planet", "글래스모피즘"], answer: "아쿠아플라넷의 지점, 해양생물, 프로그램을 깊어지는 바다 느낌으로 소개하는 인터랙티브 웹이에요. 긴 스크롤 배경, 영상, 기포·물결 효과, 3D 생물 모델, 글래스모피즘 UI를 섞어서 수중 공간을 탐색하는 감각을 표현했고, 대용량 영상·3D 자산 때문에 생기는 성능 문제도 같이 줄여봤어요." },
+        { keywords: ["LAYER", "레이어", "향수"], answer: "LAYER는 어렵고 방대한 향수 정보를 취향이랑 상황에 맞게 탐색하게 도와주는 향수 앱이에요. 향수 성향 진단, 매거진, 후기랑 자유롭게 대화하는 커뮤니티, 사진 보고 어울리는 향 추천해주는 콘텐츠랑 챗봇까지 설계했어요." },
+        { keywords: ["Sayout", "세이아웃", "명령형", "와이어프레임"], answer: "Sayout은 원하는 화면을 문장으로 입력하면 Figma 와이어프레임을 만들어주는 도구예요. 반복되는 초기 레이아웃 작업 시간을 줄이고, 구조를 빠르게 비교하고 고칠 수 있게 하는 게 목표예요." },
+        { keywords: ["인턴", "Pyro", "파이로", "실무", "경력"], answer: "2026년 9월부터 11월까지 Pyro Creations에서 인턴으로 일했어요. 웹페이지·상세페이지 디자인이랑 SNS 콘텐츠 제작, AEO 최적화를 경험했고, 보기 좋은 화면을 넘어 사람과 AI 모두에게 잘 읽히는 디자인을 배웠어요." },
+        { keywords: ["대표 프로젝트", "프로젝트 순서", "무엇부터", "추천 프로젝트"], answer: "UX 문제 정의랑 사용자 검증 과정 보고 싶으면 MOA 먼저 추천해요. 인터랙티브 웹 구현은 아쿠아플라넷, 콘텐츠 구조랑 감각적인 모바일 UI는 LAYER에서 볼 수 있어요." },
+        { keywords: ["클론", "clone"], answer: "실제 웹사이트의 구조랑 인터랙션을 분석해서 직접 재현해보는 클론코딩도 여러 개 했어요. Works 아래 CLONE CODING에서 카드 누르면 결과물을 바로 볼 수 있어요!" },
+        { keywords: ["프로젝트", "작업물", "포트폴리오", "만든", "work"], answer: "선택을 돕는 질문형 결정 도우미 앱 MOA, 아쿠아플라넷 웹사이트 리뉴얼, 향수 AI 챗봇 커뮤니티 LAYER를 진행했고, Blender·Codex로 만든 3D 구조물이랑 상세페이지·AEO 작업도 정리하고 있어요. Works 섹션에서 더 자세히 볼 수 있어요!" },
+        { keywords: ["코딩", "개발", "HTML", "CSS", "React", "GitHub", "기술", "스킬", "skill", "잘하", "자신"], answer: "네, HTML·CSS 기반으로 화면 만들고 React랑 Vite로 프로젝트도 여러 개 진행했어요. Git·GitHub로 협업하고 Vercel로 배포까지 직접 해봤고, 인터랙션이 많이 필요한 프로젝트에선 GSAP·ScrollTrigger·Three.js도 써봤어요." },
+        { keywords: ["디자인 도구", "디자인툴", "Figma", "피그마", "프로토타입", "컴포넌트"], answer: "주로 Figma로 와이어프레임, UI, 컴포넌트, 프로토타입까지 다 만들어요. 필요한 이미지나 시각 자산도 다듬고, 인터랙티브 웹으로 옮길 땐 구조를 개발 환경에 맞게 정리해서 써요." },
+        { keywords: ["앞으로", "커리어 목표", "미래", "프로덕트 디자이너", "되고 싶", "되고싶"], answer: "사용자 행동이랑 감정을 세밀하게 이해하면서도, 아이디어를 실제 제품·서비스로 구현할 수 있는 디자이너가 되고 싶어요. 디자인이랑 개발 사이의 언어를 같이 이해하면서 팀이랑 잘 협업하고, 사용자가 직접 만지고 반응할 수 있는 경험을 만드는 게 목표예요." },
+        { keywords: ["어떤 디자이너", "디자인 철학", "정체성", "지향점", "한 문장"], answer: "저는 사용자를 감각으로 읽고, 그 감각을 논리로 구현하는 디자이너를 지향해요. 보기 좋은 화면 만드는 데서 끝내지 않고, 사용자가 뭘 이해하고 어떤 행동을 하게 될지까지 설계한 다음 인터랙션이랑 코드로 연결하려고 해요." },
+        { keywords: ["자기소개", "소개", "지원자", "본인", "누구", "해수", "최해수"], answer: "저는 사용자의 감각이랑 행동을 관찰해서 문제를 찾고, 그걸 논리적인 화면 구조랑 실제 작동하는 인터랙션으로 만드는 디자이너예요. Figma로 기획하고 시각화하는 것부터 HTML·CSS·React로 직접 구현하는 것까지 다 해요." },
+        { keywords: ["강점", "장점", "차별점", "실행력"], answer: "제 강점은 아이디어를 제안하는 데서 멈추지 않고, 사용자 흐름이랑 인터랙션을 구체화해서 실제 화면으로 구현하는 실행력이에요. 디자인 의도를 코드랑 직접 연결해볼 수 있어서, 구현하다 생기는 제약도 이해하고 더 현실적인 방법을 찾을 수 있어요." },
+        { keywords: ["성격", "성향", "꾸준함", "끈기"], answer: "목표를 정하면 쉽게 안 놓고 될 때까지 방법을 찾는 편이에요. 미대 입시 준비하면서 학업이랑 알바를 같이 했던 경험 덕분에, 시간이 빠듯해도 계획을 조정해가면서 끝까지 해내는 습관이 생겼어요." },
+        { keywords: ["디자인 기준", "좋은 디자인", "정보 구조", "인터랙션 목적"], answer: "화면을 보면서 사용자가 뭘 이해하고 다음에 뭘 해야 할지 자연스럽게 드러나는지를 제일 중요하게 봐요. 비주얼이나 인터랙션도 그냥 예뻐 보이려고 넣기보다, 문제랑 브랜드 경험을 더 명확하게 전달하는 방향으로 쓰려고 해요." },
+        { keywords: ["프로세스", "작업 과정", "문제 해결", "사용자 흐름"], answer: "먼저 사용자가 겪는 문제랑 목표를 정리하고, 핵심 흐름이랑 정보 구조를 설계해요. 그다음 와이어프레임이랑 비주얼 콘셉트를 구체화해서 실제 화면으로 만들어보고, 테스트나 피드백에서 나온 문제는 우선순위 정해서 다시 고쳐요." },
+        { keywords: ["디자인과 개발", "현실성"], answer: "인터랙션이 중요한 프로젝트는 디자인 파일만으로는 경험을 다 설명하기 어렵더라고요. 직접 구현해보면 속도나 반응, 전환 같은 걸 더 구체적으로 볼 수 있고, 개발 제약을 알고 나서 더 현실적인 디자인 결정을 내릴 수 있어요." },
+        { keywords: ["인터랙션", "모션", "애니메이션", "스크롤", "스토리텔링"], answer: "인터랙션을 그냥 장식으로 먼저 정하기보다, 콘텐츠 흐름이랑 사용자 시선을 어떻게 연결할지부터 생각해요. 아쿠아플라넷에서는 바다 속으로 들어가는 느낌을 롱스크롤이랑 영상·3D로 표현했고, 이 포트폴리오에서는 달 위를 걷는 저(해수봇)를 방향키로 직접 움직여볼 수 있게 했어요. 위 방향키를 길게 누르면 날 수도 있어요!" },
+        { keywords: ["사용자테스트", "사용자 테스트", "피드백", "검증"], answer: "MOA 프로젝트에서 사용자 평가를 해봤는데, 클릭 가능한 요소가 잘 안 보이는 문제, 질문이 반복되는 문제, 홈 화면 정보 우선순위 문제가 나왔어요. 그래서 클릭 가능성을 더 뚜렷하게 표현하고, 질문 흐름이랑 히어로 영역 정리하고, 튜토리얼도 보완했어요." },
+        { keywords: ["팀 프로젝트", "Git", "브랜치", "커뮤니케이션"], answer: "팀 프로젝트에서 역할 나누고 Git·GitHub로 브랜치 관리하면서 작업했어요. 아쿠아플라넷 할 때는 페이지랑 자산을 브랜치로 나눠서 작업했고, 충돌이나 배포 문제 생기면 원인 찾아서 정리하면서 해결했어요." },
+        { keywords: ["생성형", "AI 활용", "업무활용", "AI"], answer: "AI로 결과물을 대신 결정하게 하기보다, 아이디어 탐색하고 이미지 시안 만들고 문구 정리하는 걸 빠르게 반복하는 용도로 써요. GPT·Codex, Gemini, Claude, Meshy AI 같은 도구를 작업에 맞게 골라 쓰고 있어요." },
+        { keywords: ["디자인 계기", "산업디자인", "미대입시", "미대 입시", "진로"], answer: "원래 그림 그리는 걸 좋아했고, 아이디어를 실제 형태로 만들 수 있다는 점에 끌려서 산업디자인 진학을 준비했어요. 그러다 화면 안에서 사용자 경험이랑 인터랙션을 설계하고 실제로 작동하게 만들 수 있는 UX/UI, 웹 디자인으로 관심이 넓어졌어요." },
+        { keywords: ["재수", "삼수", "힘들었던", "극복"], answer: "원하는 대학에 못 붙어서 재수, 삼수하면서 공부랑 알바를 같이 했던 시기가 제일 힘들었어요. 입시 비용이랑 생활비를 직접 마련해야 해서 시간도 돈도 빠듯했는데, 상황에 맞춰서 일이랑 공부 시간을 계속 조정하면서 준비했어요." },
+        { keywords: ["텍사스로드하우스", "오술차", "알바", "아르바이트", "시간관리", "시간 관리"], answer: "텍사스로드하우스에서 일할 땐 오전 10시부터 오후 4시까지 일하고 나서 공부하고, 주말엔 그림 수업도 들었어요. 오술차에서 일할 땐 낮에 공부하고 저녁부터 새벽까지 일했고요. 환경 탓하기보다 쓸 수 있는 시간을 나누고 우선순위 조정하면서 목표를 계속 이어갔어요." },
+        { keywords: ["배운 점", "배운점", "그 경험", "영향을"], answer: "처음 세운 방법이 안 통할 때 목표 자체를 포기하기보다, 원인을 찾고 계획을 다시 조정하는 습관이 생겼어요. 디자인할 때도 처음 만든 시안을 정답으로 안 두고, 사용자 피드백이나 구현 제약, 팀 의견 확인하면서 더 나은 방향으로 계속 고쳐요." },
+        { keywords: ["UX/UI 공부", "교육", "UX/UI 과정", "학습"], answer: "UX/UI 웹디자인 과정에서 Figma로 화면 설계하고 HTML·CSS로 웹 구현하는 걸 배웠고, 그다음 React로 확장했어요. 팀 프로젝트랑 개인 프로젝트 하면서 기획부터 UI 디자인, 프로토타이핑, 구현, 배포까지 한 흐름으로 경험해봤어요." },
+        { keywords: ["히스토리", "타임라인", "여정", "살아왔", "background", "어떻게 시작", "커리어"], answer: "캐나다에서 어릴 때를 보내서 그런지 그때 감각이 아직도 남아있어요. 미대 입시하면서 관찰하고 그리는 법을 배웠고, 카페에서 라떼아트도 하면서 사람 기쁘게 하는 걸 좋아하게 됐어요. 그러다 보니 자연스럽게 UX/UI로 왔네요." },
+        { keywords: ["어디 살", "사는 곳", "거주", "지역", "location"], answer: "용인 살아요!" },
+        { keywords: ["취미", "여가", "hobby", "쉴 때", "관심사", "그림", "드로잉"], answer: "그림 그리는 걸 제일 좋아해요. 라떼아트로 커피 위에 그리기도 하고, 시간 날 때 전시 보러 다니거나 여행 다니는 것도 즐겨요." },
+        { keywords: ["그림과 디자인", "시각화"], answer: "그림 그리면서 머릿속 아이디어를 눈에 보이는 형태로 옮기는 게 익숙해졌어요. 지금은 그 경험을 가만히 있는 이미지에만 안 쓰고, 사용자가 움직이고 선택하고 반응할 수 있는 화면이랑 인터랙션으로 넓혀서 쓰고 있어요." },
+        { keywords: ["함께", "협업", "연락", "컨택", "채용", "일하", "인터뷰", "이메일", "전화"], answer: "010-4212-4970 또는 chs041015@gmail.com으로 편하게 연락 주세요. 프로젝트별 자세한 과정은 Works 섹션에서 더 볼 수 있어요!" },
+      ],
+      fallback: "그건 제가 아직 답을 못 드리는 질문이에요. 프로젝트나 기술, 제 얘기, 협업 방법 같은 거 물어봐 주세요!",
+    };
+    const getAnswer = (message) => {
+      const m = message.toLowerCase();
+      const hit = config.qna.find(({ keywords }) => keywords.some((w) => m.includes(w.toLowerCase())));
+      return hit?.answer ?? config.fallback;
+    };
+
+    let isOpen = false, isResponding = false, suggestionsEl = null, lastFocused = null, closeTimer = 0;
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const scrollToBottom = () => { conversation.scrollTop = conversation.scrollHeight; };
+    const appendBubble = (sender, message) => {
+      const b = document.createElement("div");
+      b.className = `chat-bubble is-${sender}`;
+      b.textContent = message;
+      conversation.append(b);
+      scrollToBottom();
+      return b;
+    };
+    const appendLoading = () => {
+      const b = document.createElement("div");
+      const dots = document.createElement("span");
+      b.className = "chat-bubble is-bot is-loading";
+      dots.className = "chat-loading-dots";
+      dots.setAttribute("aria-label", "입력 중");
+      for (let i = 0; i < 3; i++) dots.append(document.createElement("i"));
+      b.append(dots);
+      conversation.append(b);
+      scrollToBottom();
+      return b;
+    };
+    const removeSuggestions = () => {
+      suggestionsEl?.remove();
+      suggestionsEl = null;
+      topicsWrapper?.classList.add("is-visible");
+    };
+    const setDisabled = (v) => {
+      input.disabled = v;
+      sendButton.disabled = v;
+      conversation.setAttribute("aria-busy", String(v));
+      suggestionsEl?.querySelectorAll("button").forEach((b) => { b.disabled = v; });
+      topicButtons.forEach((b) => { b.disabled = v; });
+    };
+    const appendSuggestions = () => {
+      suggestionsEl = document.createElement("div");
+      suggestionsEl.className = "chat-suggestions";
+      suggestionsEl.setAttribute("aria-label", "추천 질문");
+      config.suggestions.forEach((label) => {
+        const b = document.createElement("button");
+        b.className = "chat-suggestion";
+        b.type = "button";
+        b.textContent = label;
+        b.addEventListener("click", () => void sendMessage(label));
+        suggestionsEl.append(b);
+      });
+      conversation.append(suggestionsEl);
+      scrollToBottom();
+    };
+    const typeText = (bubble, text) => new Promise((resolve) => {
+      if (reduced) { bubble.textContent = text; scrollToBottom(); resolve(); return; }
+      let i = 0;
+      const step = () => {
+        i += 1;
+        bubble.textContent = text.slice(0, i);
+        scrollToBottom();
+        i < text.length ? setTimeout(step, 20) : resolve();
+      };
+      step();
+    });
+    async function sendMessage(raw) {
+      const message = raw.trim();
+      if (!message || isResponding) return;
+      isResponding = true;
+      setDisabled(true);
+      removeSuggestions();
+      appendBubble("user", message);
+      input.value = "";
+      const loading = appendLoading();
+      await wait(700);
+      loading.remove();
+      await typeText(appendBubble("bot", ""), getAnswer(message));
+      isResponding = false;
+      setDisabled(false);
+      if (isOpen) input.focus({ preventScroll: true });
+    }
+    const resetConversation = () => {
+      conversation.replaceChildren();
+      suggestionsEl = null;
+      topicsWrapper?.classList.remove("is-visible");
+      appendBubble("bot", config.greeting);
+      appendSuggestions();
+    };
+    const open = () => {
+      if (isOpen) return;
+      clearTimeout(closeTimer);
+      isOpen = true;
+      lastFocused = document.activeElement;
+      if (!conversation.children.length) resetConversation();
+      modal.hidden = false;
+      modal.setAttribute("aria-hidden", "false");
+      bot.classList.add("is-chat-open");
+      bot.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(() => modal.classList.add("is-open"));
+    };
+    const close = () => {
+      if (!isOpen) return;
+      isOpen = false;
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      bot.classList.remove("is-chat-open");
+      bot.setAttribute("aria-expanded", "false");
+      closeTimer = setTimeout(() => { if (!isOpen) modal.hidden = true; }, 260);
+      if (lastFocused instanceof HTMLElement) lastFocused.focus({ preventScroll: true });
+    };
+    closeButton.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => { if (isOpen && e.key === "Escape") close(); });
+    document.addEventListener("pointerdown", (e) => {
+      if (!isOpen || modal.contains(e.target) || bot.contains(e.target)) return;
+      close();
+    });
+    form.addEventListener("submit", (e) => { e.preventDefault(); void sendMessage(input.value); });
+    topicButtons.forEach((b) => b.addEventListener("click", () => void sendMessage(b.dataset.topic)));
+    // 대화창 안에서 휠을 굴리면 페이지(Lenis)가 아니라 대화만 스크롤
+    conversation.setAttribute("data-lenis-prevent", "");
+    return { open, close, toggle: () => (isOpen ? close() : open()), isOpen: () => isOpen };
+  })();
+  bot.setAttribute("aria-expanded", "false");
+  bot.addEventListener("click", () => (chat ? chat.toggle() : botSay("챗봇을 불러오지 못했어요")));
+
+  /* ---------- 10-2. 우주인 해수봇 : Hero·Footer에서 달 위를 걷기 ----------
+     - Hero(첫 화면)·Footer(Let's talk 이후)에 들어오면 정박 자리에서 폴짝 뛰어나와 바닥에 내려섬, 벗어나면 정박 자리로 복귀
+     - ← → : 걷기 (v1 걷기 그대로 + 달 중력) → 걸음마다 낮게 통통 뜨고, 천천히 출발·미끄러지듯 멈춤
+     - ↑ : 짧게 = 둥실 점프 / 길게 누르면 그동안 제트팩 분사(민트 입자)로 계속 떠오름 → 떼면 천천히 내려옴
+     - ↓ : 공중에선 빨리 내려오기, 바닥에선 웅크리기 (v1)
+     - 착지하면 몸이 찌그러지고(v1 landingImpact) 발밑에서 먼지가 튐
+     - 모바일·태블릿: 터치한 곳으로 걸어가고, 위쪽을 터치하면 그 높이까지 날아감
+     - Footer: 바닥 = 구분선 위 (v1과 같음), "It's Haesoo ." 근처를 지나가면 글자가 밀려났다 돌아옴
+     - 챗봇이 열려 있거나 동작 줄이기 설정이면 정박 */
+  (function initSpaceBot() {
+    const trail = $(".bot-trail");
+    const heroZone = $(".top");
+    const footZone = $(".contact");
+    const footDivider = $(".contact-divider");
+    const BW = 66, BH = 88;
+    const FOOT = 228 / 256;                 // SVG에서 발바닥 위치 (v1 footY)
+    const G = 900;                          // 달 중력 (v1 지구 중력 3000)
+    const WALK = 230, HOP = 210, JUMP = 430, JET = 1500, JET_MAX_UP = 360, FALL_MAX = 620;
+    const ARROWS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]);
+    const touchQuery = matchMedia("(hover: none), (pointer: coarse)");
+    const legL = $(".bot-leg-g.is-left", bot), legR = $(".bot-leg-g.is-right", bot);
+    const st = {
+      x: 0, y: 0, vx: 0, vy: 0, mode: "dock", zone: null, onGround: false, t: 0,
+      walkPhase: 0, lean: 0, wob: 0, land: 0, crouch: 0, jetting: false, lastPuff: 0, target: null,
+    };
+    const keys = new Set();
+    const hinted = { hero: false, foot: false };
+
+    // 서명 글자 쪼개기 (글자마다 탄성 있게 밀려남)
+    const sigLetters = $$(".contact-signature p").flatMap((line) => {
+      const text = line.textContent;
+      line.textContent = "";
+      return [...text].map((ch) => {
+        const el = document.createElement("span");
+        el.className = "contact-signature-letter";
+        el.textContent = ch === " " ? " " : ch;
+        line.append(el);
+        const q = (prop) => gsap.quickTo(el, prop, { duration: 0.9, ease: "elastic.out(1, 0.4)" });
+        return { el, x: q("x"), y: q("y"), r: q("rotation"), pushed: false };
+      });
+    });
+
+    const scaleNow = () => (innerWidth < 1024 ? 0.8 : 1);
+    const dockPos = () => {
+      const s = scaleNow(), mobile = innerWidth < 1024;
+      return { x: innerWidth - (mobile ? 30 : 56) - (BW * s) / 2, y: innerHeight - (mobile ? 18 : 22) - (BH * s) / 2 };
+    };
+    const zoneNow = () => {
+      if (reduced || chat?.isOpen()) return null;
+      if (introDone && scrollY < innerHeight * 0.35) return "hero";
+      if (footZone && footZone.getBoundingClientRect().top < innerHeight * 0.3) return "foot";
+      return null;
+    };
+    // 바닥·천장·좌우 벽 (y는 몸 중심 기준)
+    const bounds = () => {
+      const s = scaleNow(), hw = (BW * s) / 2, hh = (BH * s) / 2, m = 16;
+      let ground = innerHeight - 24; // Hero: 화면 아래
+      let ceil = 84;                 // 메뉴 아래
+      if (st.zone === "foot" && footZone) {
+        const r = footZone.getBoundingClientRect();
+        const line = footDivider ? footDivider.getBoundingClientRect().top : r.bottom;
+        ground = Math.min(line, innerHeight - m);
+        ceil = Math.max(ceil, r.top + m);
+      }
+      const footOff = (FOOT - 0.5) * BH * s; // 몸 중심 → 발바닥
+      return { minX: m + hw, maxX: innerWidth - m - hw, floor: ground - footOff, top: Math.min(ceil + hh, ground - footOff) };
+    };
+
+    // 입자: 제트팩 분사(아래로, 민트) / 착지 먼지(옆으로, 미색)
+    const particle = (x, y, vx, vy, star, life = 0.6) => {
+      if (!trail) return;
+      const dot = document.createElement("i");
+      if (star) dot.className = "is-star";
+      trail.append(dot);
+      gsap.fromTo(dot, { x, y, scale: 1, opacity: 0.95 }, {
+        x: x + vx, y: y + vy, scale: 0, opacity: 0, duration: life + Math.random() * 0.3, ease: "power2.out", onComplete: () => dot.remove(),
+      });
+    };
+    const jetPuff = () => {
+      const s = scaleNow();
+      particle(st.x + (Math.random() - 0.5) * 22 * s, st.y + BH * s * 0.36, (Math.random() - 0.5) * 30, 50 + Math.random() * 45, Math.random() < 0.3);
+    };
+    const dust = (power) => {
+      const s = scaleNow(), fy = st.y + (FOOT - 0.5) * BH * s;
+      const n = Math.round(4 + power * 6);
+      for (let i = 0; i < n; i++) {
+        const dir = i % 2 ? 1 : -1;
+        particle(st.x + dir * 14 * s, fy - 2, dir * (30 + Math.random() * 50 * (0.5 + power)), -(6 + Math.random() * 22), true, 0.5);
+      }
+    };
+
+    const hint = (zone) => {
+      if (hinted[zone]) return;
+      hinted[zone] = true;
+      botSay(touchQuery.matches ? "터치한 곳으로 걸어가요! 위쪽을 누르면 날아가요" : "← → 걷기 · ↑ 길게 누르면 날아요!", 3600);
+    };
+
+    addEventListener("keydown", (e) => {
+      if (!ARROWS.has(e.key) || st.mode !== "walk" || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]")) return;
+      e.preventDefault(); // 걷는 동안엔 방향키로 페이지가 스크롤되지 않게
+      if (e.key === "ArrowUp" && !e.repeat && st.onGround) { st.vy = -JUMP; st.onGround = false; } // 둥실 점프
+      keys.add(e.key);
+      st.target = null;
+    });
+    addEventListener("keyup", (e) => keys.delete(e.key));
+    addEventListener("blur", () => keys.clear());
+    document.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" || st.mode !== "walk") return;
+      if (e.target instanceof Element && e.target.closest("a, button, input, .chatbot-modal")) return;
+      st.target = { x: e.clientX, y: e.clientY };
+    });
+
+    const d0 = dockPos();
+    st.x = d0.x; st.y = d0.y;
+
+    gsap.ticker.add((time, deltaMs) => {
+      const dt = Math.min(deltaMs / 1000, 0.05);
+      st.t += dt;
+      const s = scaleNow();
+
+      // 구역 판정 → 걷기 / 복귀 / 정박
+      const z = zoneNow();
+      if (z) {
+        if (st.mode !== "walk") { st.mode = "walk"; st.onGround = false; st.vx = -140; st.vy = -380; } // 정박 자리에서 폴짝
+        if (st.zone !== z) { st.zone = z; st.onGround = false; hint(z); }
+      } else if (st.mode === "walk") {
+        st.mode = "return"; st.zone = null; st.target = null; keys.clear();
+      }
+      bot.classList.toggle("is-floating", st.mode === "walk");
+
+      let dir = 0, jet = false;
+      if (st.mode === "walk") {
+        const b = bounds();
+        dir = (keys.has("ArrowRight") ? 1 : 0) - (keys.has("ArrowLeft") ? 1 : 0);
+        jet = keys.has("ArrowUp");
+        if (st.target) { // 터치: 그 x로 걸어가고, 충분히 위쪽이면 그 높이까지 제트팩
+          const tx = st.target.x - st.x;
+          dir = Math.abs(tx) > 10 ? Math.sign(tx) : 0;
+          jet = st.target.y < st.y - 50;
+          if (!dir && !jet) st.target = null;
+        }
+
+        // 좌우: 달이라 천천히 붙고 미끄러지듯 멈춤 (공중에선 조금만 조종)
+        st.vx += (dir * WALK - st.vx) * Math.min(1, dt * (st.onGround ? 4.5 : 1.6));
+
+        // 위아래: 달 중력 + 제트팩
+        if (jet) {
+          if (st.onGround) { st.onGround = false; st.vy = Math.min(st.vy, -JUMP * 0.6); }
+          st.vy += (G - JET) * dt;
+          st.vy = Math.max(st.vy, -JET_MAX_UP);
+          if (time - st.lastPuff > 0.03) { st.lastPuff = time; jetPuff(); }
+        } else if (!st.onGround) {
+          st.vy += (G + (keys.has("ArrowDown") ? G * 2.2 : 0)) * dt;
+        }
+        st.vy = Math.min(st.vy, FALL_MAX);
+        st.jetting = jet;
+
+        // 바닥에서 걸을 땐 걸음마다 낮게 통통 (달 걸음)
+        if (st.onGround && dir && Math.abs(st.vx) > 60) { st.vy = -HOP; st.onGround = false; }
+
+        st.x += st.vx * dt;
+        st.y += st.vy * dt;
+
+        if (st.x < b.minX) { st.x = b.minX; st.vx = Math.abs(st.vx) * 0.3; }
+        if (st.x > b.maxX) { st.x = b.maxX; st.vx = -Math.abs(st.vx) * 0.3; }
+        if (st.y < b.top) { st.y = b.top; st.vy = Math.max(st.vy, 0); }
+        if (st.y >= b.floor) {
+          if (!st.onGround) {
+            const impact = clamp(st.vy / FALL_MAX);
+            if (st.vy > HOP * 1.3) { st.land = Math.min(1, impact * 1.2); dust(impact); } // 점프·비행 후 착지: 크게 찌그러지고 먼지
+            else if (st.vy > 60) { st.land = 0.18; if (Math.random() < 0.5) dust(0); }  // 걸음 착지: 살짝 + 가끔 먼지
+          }
+          st.y = b.floor; st.vy = 0; st.onGround = true;
+        }
+      } else {
+        // 정박 자리로 스프링 복귀 (임계 감쇠)
+        const d = dockPos();
+        if (st.mode === "return") {
+          const k = 38, c = 2 * Math.sqrt(k);
+          st.vx += ((d.x - st.x) * k - st.vx * c) * dt;
+          st.vy += ((d.y - st.y) * k - st.vy * c) * dt;
+          st.x += st.vx * dt;
+          st.y += st.vy * dt;
+          if (Math.hypot(d.x - st.x, d.y - st.y) < 0.6 && Math.hypot(st.vx, st.vy) < 8) st.mode = "dock";
+        }
+        if (st.mode === "dock") { st.x = d.x; st.y = d.y; st.vx = 0; st.vy = 0; }
+      }
+
+      // 자세: 진행 방향으로 기울기(v1 lean 6° → 공중에선 조금 더), 공중에서 살짝 흔들, 착지·웅크리기 찌그러짐(v1)
+      const walking = st.mode === "walk";
+      const leanTarget = walking ? clamp(st.vx / WALK, -1, 1) * (st.onGround ? 6 : 10) : 0;
+      st.lean += (leanTarget - st.lean) * Math.min(1, dt * 8);
+      st.wob += ((walking && !st.onGround ? 1 : 0) - st.wob) * Math.min(1, dt * 4);
+      const wobble = Math.sin(st.t * 3.1) * 3 * st.wob;
+      st.crouch += ((walking && st.onGround && keys.has("ArrowDown") ? 1 : 0) - st.crouch) * Math.min(1, dt * 14);
+      st.land += (0 - st.land) * Math.min(1, dt * 7);
+      const sx = 1 + st.crouch * 0.12 + st.land * 0.16;
+      const sy = 1 - st.crouch * 0.18 - st.land * 0.22;
+      // 찌그러질 때 발바닥이 바닥에 붙어 있도록 아래로 보정
+      const squashDrop = (1 - sy) * BH * s * (FOOT - 0.5);
+      bot.style.transform = `translate3d(${(st.x - BW / 2).toFixed(2)}px,${(st.y - BH / 2 + squashDrop).toFixed(2)}px,0) rotate(${(st.lean + wobble).toFixed(2)}deg) scale(${(s * sx).toFixed(3)},${(s * sy).toFixed(3)})`;
+
+      // 다리: 바닥에선 v1 걷기 흔들기(달이라 느리게), 공중에선 벌린 채 둥둥, 제트팩 땐 모음
+      if (walking && st.onGround === false && Math.abs(st.vx) > 30) st.walkPhase += Math.abs(st.vx) * dt * 0.03;
+      else if (walking && st.onGround && Math.abs(st.vx) > 20) st.walkPhase += Math.abs(st.vx) * dt * 0.045;
+      let swing;
+      if (!walking) swing = 0;
+      else if (st.jetting) swing = 8 + Math.sin(st.t * 14) * 3;
+      else if (!st.onGround) swing = Math.abs(st.vx) > 30 ? Math.sin(st.walkPhase) * 24 : 14 + Math.sin(st.t * 2.4) * 6;
+      else if (st.crouch > 0.05) swing = 42 * st.crouch;
+      else swing = Math.abs(st.vx) > 20 ? Math.sin(st.walkPhase) * 20 : 0;
+      if (legL) legL.style.transform = `rotate(${swing.toFixed(2)}deg)`;
+      if (legR) legR.style.transform = `rotate(${(-swing).toFixed(2)}deg)`;
+
+      // 눈: 움직일 땐 가는 방향, 아니면 마우스
+      const speed = Math.hypot(st.vx, st.vy);
+      setGaze(walking && speed > 70 ? Math.atan2(st.vy * 0.6, st.vx) : Math.atan2(mouseY - (st.y - BH * s * 0.08), mouseX - st.x));
+
+      // Footer 서명 글자 밀어내기
+      if (sigLetters.length) {
+        const active = walking && st.zone === "foot";
+        const R = 170;
+        sigLetters.forEach((L) => {
+          if (!active) { if (L.pushed) { L.pushed = false; L.x(0); L.y(0); L.r(0); } return; }
+          const r = L.el.getBoundingClientRect();
+          const cx = r.left + r.width / 2 - (gsap.getProperty(L.el, "x") || 0);
+          const cy = r.top + r.height / 2 - (gsap.getProperty(L.el, "y") || 0);
+          const ddx = cx - st.x, ddy = cy - st.y, dist = Math.max(Math.hypot(ddx, ddy), 0.001);
+          const k = Math.pow(Math.max(0, 1 - dist / R), 1.5);
+          if (k > 0) {
+            L.pushed = true;
+            L.x((ddx / dist) * k * 46);
+            L.y((ddy / dist) * k * 46 - k * 10);
+            L.r((ddx / R) * k * 24);
+          } else if (L.pushed) { L.pushed = false; L.x(0); L.y(0); L.r(0); }
+        });
+      }
+    });
+  })();
 
   /* ---------- frame loop + refresh ---------- */
   function onRefresh() {
@@ -1396,7 +1923,6 @@
     measureAbout();
     computeBgKeys();
     computeGroups();
-    layoutRing();
     frame();
   }
   function frame() {
@@ -1406,6 +1932,7 @@
     updateNav(s);
     updateTop(s);
     updateAbout(s);
+    updateWorks();
   }
   ScrollTrigger.addEventListener("refresh", onRefresh);
   gsap.ticker.add(() => {

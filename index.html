@@ -84,32 +84,84 @@
       </section>
       </div><!-- /.top-wrap -->
 
-      <!-- 4. WORKS : 오목 링 3D 갤러리 (바닥 반사 + PREV/NEXT) -->
+      <!-- 4. WORKS : bauer-lab Featured Projects (creation) 그대로
+           .works-mask  : 섹션 맨 위 100vh 고정 막(About과 같은 어두운 색), 원형 구멍이 커지며 열림 (bauer circleMaskContainer)
+           .works-gl    : 이미지를 WebGL 평면으로 다시 그림. 화면 아래쪽에 있는 부분이 보는 사람 쪽으로 휘어짐 (bauer uCurve 500 / uCurveY -0.08)
+           .works-navi  : bauer #creation__navi 자리(왼쪽 23%) — 목록이 없어서 숨기고, 77% 내용 칸을 가운데 정렬: 고정 제목 + 설명 3줄 + 16:9 이미지 + 가운데 캡션 -->
       <section class="works" id="works">
-        <div class="works-stage">
-          <!-- v1 섹션 제목: 큰 영문 + 설명 (글자별 올라오는 등장) -->
-          <header class="v1-head">
-            <h2 class="v1-head-title" data-rise>MY WORKS</h2>
-            <p class="v1-head-sub">기획부터 구현까지, 아이디어를 실제 경험으로 완성한 프로젝트입니다.</p>
-          </header>
-          <div class="ring-viewport">
-            <div class="ring"></div>
-          </div>
-          <div class="ring-controls">
-            <button type="button" class="ring-prev">Prev</button>
-            <button type="button" class="ring-next">Next</button>
-          </div>
-          <div class="works-detail" aria-live="polite">
-            <div class="wd-index"><b>01</b> / 05</div>
-            <div class="wd-main">
-              <p class="wd-caption"></p>
-              <h3 class="wd-title"></h3>
-              <p class="wd-built"></p>
+        <div class="works-mask" aria-hidden="true"></div>
+        <canvas class="works-gl" aria-hidden="true"></canvas>
+        <div class="works-inner">
+          <div class="works-navi" aria-hidden="true"></div>
+          <div class="works-contents">
+            <h2 class="works-title"><span>FEATURED PROJECTS</span></h2>
+            <div class="works-section" id="work-aqua">
+              <div class="content-desc">
+                <div>
+                  <p data-fade>K브랜드 웹사이트 리뉴얼 팀프로젝트 · 2026.06 — 07</p>
+                  <p data-fade>랜딩·마린랩·티켓 페이지 개발을 맡고,</p>
+                  <p data-fade>전 페이지가 공유하는 인터랙션 시스템을 설계했습니다.</p>
+                  <p class="content-links" data-fade><a href="https://ezen-aquaplanet-project.vercel.app/" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A398&amp;node-id=237-1640&amp;viewport=612%2C783%2C0.08&amp;t=Y3y3Dgch0k1oZkVg-1&amp;scaling=min-zoom&amp;content-scaling=fixed" target="_blank" rel="noopener noreferrer">Figma ↗</a></p>
+                </div>
+              </div>
+              <figure class="work-item">
+                <a class="work-media" href="https://ezen-aquaplanet-project.vercel.app/" target="_blank" rel="noopener noreferrer" data-cursor-title="AQUA PLANET" aria-label="AQUA PLANET 사이트 열기 (새 탭)"><img src="assets/project1/figma/project-left.webp" alt="AQUA PLANET 작업 화면" data-gl-img /></a>
+                <figcaption>AQUA PLANET</figcaption>
+              </figure>
             </div>
-            <div class="wd-meta">
-              <p class="wd-duration"></p>
-              <ul class="wd-bars"></ul>
-              <div class="wd-links"></div>
+            <div class="works-section" id="work-layer">
+              <div class="content-desc">
+                <div>
+                  <p data-fade>AI 챗봇 커뮤니티 프로젝트 · 2026.07</p>
+                  <p data-fade>온보딩과 홈을 메인으로 개발하고,</p>
+                  <p data-fade>앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다.</p>
+                  <p class="content-links" data-fade><a href="https://ezen-layerproject.vercel.app/" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A5040&amp;node-id=237-5053&amp;viewport=690%2C571%2C0.03&amp;t=DIbfmwmD9cwUu7El-1&amp;scaling=min-zoom&amp;content-scaling=fixed" target="_blank" rel="noopener noreferrer">Figma ↗</a></p>
+                </div>
+              </div>
+              <figure class="work-item">
+                <a class="work-media" href="https://ezen-layerproject.vercel.app/" target="_blank" rel="noopener noreferrer" data-cursor-title="LAYER" aria-label="LAYER 사이트 열기 (새 탭)"><img src="assets/project1/figma/project-center.webp" alt="LAYER 작업 화면" data-gl-img /></a>
+                <figcaption>LAYER</figcaption>
+              </figure>
+            </div>
+            <div class="works-section" id="work-moa">
+              <div class="content-desc">
+                <div>
+                  <p data-fade>선택을 돕는 질문형 결정 도우미 앱 · 2026.03 — 05</p>
+                  <p data-fade>사용자가 스스로 기준을 찾도록,</p>
+                  <p data-fade>UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다.</p>
+                  <p class="content-links" data-fade><a href="https://moa-app-indol.vercel.app/" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="https://www.figma.com/proto/IYUwIKFuLk3G0BmvlsoH9h/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%AA%A8%EC%95%84?page-id=1159%3A1255&amp;node-id=1159-2682&amp;viewport=1063%2C1162%2C0.03&amp;t=5qcWExPYTwMcfkE4-1&amp;scaling=contain&amp;content-scaling=fixed&amp;starting-point-node-id=1159%3A2682" target="_blank" rel="noopener noreferrer">Figma ↗</a></p>
+                </div>
+              </div>
+              <figure class="work-item">
+                <a class="work-media" href="https://moa-app-indol.vercel.app/" target="_blank" rel="noopener noreferrer" data-cursor-title="MOA" aria-label="MOA 사이트 열기 (새 탭)"><img src="assets/project1/figma/project-right.webp" alt="MOA 작업 화면" data-gl-img /></a>
+                <figcaption>MOA</figcaption>
+              </figure>
+            </div>
+            <div class="works-section" id="work-3d">
+              <div class="content-desc">
+                <div>
+                  <p data-fade>Blender · Codex로 만든 3D 구조물</p>
+                  <p data-fade>Blender로 3D 구조물을 모델링하고,</p>
+                  <p data-fade>Codex(AI 코딩)로 제작 과정을 자동화했습니다.</p>
+                </div>
+              </div>
+              <figure class="work-item">
+                <div class="work-media is-placeholder" data-cursor-title="3D OBJECT" data-gl-ph="3D OBJECT|Blender × Codex — 자료 준비 중"><b>3D OBJECT</b><span>Blender × Codex — 자료 준비 중</span></div>
+                <figcaption>3D OBJECT</figcaption>
+              </figure>
+            </div>
+            <div class="works-section" id="work-detail">
+              <div class="content-desc">
+                <div>
+                  <p data-fade>상세페이지 HTML 작업 · AEO 최적화</p>
+                  <p data-fade>상세페이지를 HTML로 직접 구현하고,</p>
+                  <p data-fade>AI 검색 답변(AEO)에 인용되도록 구조를 최적화했습니다.</p>
+                </div>
+              </div>
+              <figure class="work-item">
+                <div class="work-media is-placeholder" data-cursor-title="DETAIL PAGE" data-gl-ph="DETAIL PAGE|상세페이지 · AEO — 자료 준비 중"><b>DETAIL PAGE</b><span>상세페이지 · AEO — 자료 준비 중</span></div>
+                <figcaption>DETAIL PAGE</figcaption>
+              </figure>
             </div>
           </div>
         </div>
@@ -258,65 +310,77 @@
       </section>
 
       <!-- 8-1. FIGMA : 예전 HOW I WORK 창 목업(피그마 창) 되살림. 실제 작업 화면은 블러 처리 -->
-      <section class="figma-sec" id="figma">
-        <header class="figma-head">
-          <h2 class="figma-title" data-rise>Wanna see my workflow?</h2>
-          <p class="figma-sub">기획안부터 디자인 시스템, 프로토타입까지 실제 작업 파일을 그대로 열어 두었습니다.</p>
-        </header>
-        <a class="figma-window" href="#" target="_blank" rel="noopener noreferrer" data-todo="피그마 링크 필요" aria-label="피그마 작업 파일 열기 (새 탭)">
-          <div class="window is-dark">
-            <div class="window-bar"><i></i><i></i><i></i><span>Figma — haesoo / workflow</span></div>
-            <div class="window-body win-figma">
-              <aside class="fg-layers" aria-hidden="true">
-                <b>Layers</b>
-                <span>▢ Workflow</span><span class="in">▭ Planning</span><span class="in">▭ Wireframe</span><span class="in">▭ UI Design</span><span class="in">▭ Design System</span><span class="in">▭ Components</span><span class="in">▭ Prototype</span>
-              </aside>
-              <div class="fg-canvas" aria-hidden="true">
-                <!-- data-todo: 실제 피그마 작업 화면 캡처로 교체 (지금은 프로젝트·클론 썸네일 임시) -->
-                <figure class="fg-shot s1" data-name="Planning"><img src="assets/clone-coding/clone-01.webp" alt="" loading="lazy" /></figure>
-                <figure class="fg-shot s2" data-name="Wireframe"><img src="assets/project1/figma/project-left.webp" alt="" loading="lazy" /></figure>
-                <figure class="fg-shot s3" data-name="UI Design"><img src="assets/project1/figma/project-right.webp" alt="" loading="lazy" /></figure>
-                <figure class="fg-shot s4" data-name="Design System"><img src="assets/clone-coding/clone-04.webp" alt="" loading="lazy" /></figure>
-                <figure class="fg-shot s5" data-name="Components"><img src="assets/clone-coding/clone-05.webp" alt="" loading="lazy" /></figure>
-                <figure class="fg-shot s6" data-name="Prototype"><img src="assets/project1/figma/project-center.webp" alt="" loading="lazy" /></figure>
-                <span class="fg-select"><em>Planning</em></span>
-                <span class="fg-cursor"><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M1 1 L1 16 L5 12 L8 19 L11 18 L8 11 L14 11 Z" /></svg><b>Haesoo</b></span>
+      <!-- GROWING 고정 화면 끝부분과 겹쳐 놓고(margin-top 음수), 같은 자리에서 GROWING 페이드아웃 → 피그마 페이드인 -->
+      <section class="figma-sec" id="figma" aria-label="피그마 작업 파일">
+        <div class="figma-pin">
+          <a class="figma-window" href="#" target="_blank" rel="noopener noreferrer" data-todo="피그마 링크 필요" aria-label="피그마 작업 파일 열기 (새 탭)">
+            <div class="window is-dark">
+              <div class="window-bar"><i></i><i></i><i></i><span>Figma — haesoo / workflow</span></div>
+              <div class="window-body win-figma">
+                <aside class="fg-layers" aria-hidden="true">
+                  <b>Layers</b>
+                  <span>▢ Workflow</span><span class="in">▭ Planning</span><span class="in">▭ Wireframe</span><span class="in">▭ UI Design</span><span class="in">▭ Design System</span><span class="in">▭ Components</span><span class="in">▭ Prototype</span>
+                </aside>
+                <div class="fg-canvas" aria-hidden="true">
+                  <!-- data-todo: 실제 피그마 작업 화면 캡처로 교체 (지금은 프로젝트·클론 썸네일 임시) -->
+                  <figure class="fg-shot s1" data-name="Planning"><img src="assets/clone-coding/clone-01.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s2" data-name="Wireframe"><img src="assets/project1/figma/project-left.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s3" data-name="UI Design"><img src="assets/project1/figma/project-right.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s4" data-name="Design System"><img src="assets/clone-coding/clone-04.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s5" data-name="Components"><img src="assets/clone-coding/clone-05.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s6" data-name="Prototype"><img src="assets/project1/figma/project-center.webp" alt="" loading="lazy" /></figure>
+                  <span class="fg-select"><em>Planning</em></span>
+                  <span class="fg-cursor"><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M1 1 L1 16 L5 12 L8 19 L11 18 L8 11 L14 11 Z" /></svg><b>Haesoo</b></span>
+                </div>
               </div>
             </div>
-          </div>
-          <span class="figma-open">OPEN MY FIGMA <span aria-hidden="true">↗</span></span>
-        </a>
+            <span class="figma-open">OPEN MY FIGMA <span aria-hidden="true">↗</span></span>
+          </a>
+        </div>
       </section>
 
-      <!-- 9. CONTACT / FOOTER : bauer 푸터 구성 -->
+      <!-- 9. CONTACT / FOOTER : v1 푸터 그대로 (Let's talk ! + 알약 연락처 + GNB / It's Haesoo. 서명 / 구분선 + Back to top·저작권) -->
       <section class="contact" id="contact">
-        <div class="contact-top">
+        <div class="contact-topline">
           <h2 class="contact-title" data-rise>Let’s talk !</h2>
-          <div class="contact-cols">
-            <div>
-              <h5>CONTACT</h5>
+          <div class="contact-topright">
+            <div class="contact-links" aria-label="Contact information">
               <a href="tel:+821042124970">010 4212 4970</a>
-              <a href="mailto:chs041015@gmail.com">chs041015@gmail.com</a>
+              <a class="contact-email" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=chs041015@gmail.com&amp;su=Haesoo%20Portfolio%20Inquiry&amp;body=Hello%20Haesoo%2C%0A%0AI%20would%20like%20to%20talk%20about%20a%20project.%0A%0A" target="_blank" rel="noopener noreferrer" aria-label="Gmail에서 최해수에게 메일 보내기">chs041015@gmail.com</a>
             </div>
-            <div>
-              <h5>MENU</h5>
-              <nav class="contact-menu"><a href="#home">Home</a><a href="#about">About</a><a href="#works">Works</a><a href="#timeline">Timeline</a></nav>
-            </div>
+            <nav class="contact-gnb" aria-label="Section navigation">
+              <a class="rolling-link" href="#home"><span>HOME</span><span aria-hidden="true">HOME</span></a>
+              <a class="rolling-link" href="#about"><span>ABOUT</span><span aria-hidden="true">ABOUT</span></a>
+              <a class="rolling-link" href="#works"><span>WORK</span><span aria-hidden="true">WORK</span></a>
+              <a class="rolling-link" href="#timeline"><span>TIMELINE</span><span aria-hidden="true">TIMELINE</span></a>
+            </nav>
           </div>
-          <a class="top-badge" href="#home" aria-label="Back to top">↑<small>TOP</small></a>
         </div>
-        <div class="contact-bottom">
-          <p class="wordmark" aria-hidden="true">haesoo</p>
-          <p class="copyright">© 2026 Haesoo All rights reserved</p>
+
+        <div class="contact-signature" aria-label="It’s Haesoo.">
+          <p>It’s</p>
+          <p>Haesoo .</p>
+        </div>
+
+        <span class="contact-divider" aria-hidden="true"></span>
+
+        <div class="contact-footer-meta">
+          <a class="back-to-top" href="#home">
+            <span class="rolling-link"><span>Back to top</span><span aria-hidden="true">Back to top</span></span>
+            <span class="back-to-top-arrow" aria-hidden="true">&#8593;</span>
+          </a>
+          <p class="contact-copyright">&copy; 2026 Haesoo All rights reserved</p>
         </div>
       </section>
     </main>
 
     <!-- Haesoo Bot : 형태 유지, 배경 반대색으로 재채색 -->
-    <button type="button" class="bot" aria-label="해수봇">
+    <!-- 우주인 해수봇 : Hero·Footer에선 방향키(모바일은 터치)로 무중력 비행, 그 밖에선 오른쪽 아래에 정박. 누르면 챗봇 -->
+    <div class="bot-trail" aria-hidden="true"></div>
+    <button type="button" class="bot" aria-label="해수봇 챗봇 열기" aria-haspopup="dialog">
       <svg viewBox="0 0 192 256" aria-hidden="true">
-        <line class="bot-leg" x1="68" y1="167" x2="68" y2="222" /><rect class="bot-foot" x="64" y="216" width="16" height="12" rx="6" />
-        <line class="bot-leg" x1="124" y1="167" x2="124" y2="222" /><rect class="bot-foot" x="120" y="216" width="16" height="12" rx="6" />
+        <g class="bot-leg-g is-left"><line class="bot-leg" x1="68" y1="167" x2="68" y2="222" /><rect class="bot-foot" x="64" y="216" width="16" height="12" rx="6" /></g>
+        <g class="bot-leg-g is-right"><line class="bot-leg" x1="124" y1="167" x2="124" y2="222" /><rect class="bot-foot" x="120" y="216" width="16" height="12" rx="6" /></g>
         <rect class="bot-body" x="8" y="38" width="176" height="134" rx="36" />
         <circle class="bot-eye" cx="62" cy="108" r="26" /><circle class="bot-eye" cx="128" cy="108" r="26" />
         <circle class="bot-pupil" cx="66" cy="108" r="11.2" /><circle class="bot-pupil" cx="132" cy="108" r="11.2" />
@@ -327,6 +391,43 @@
         <span class="bot-dots"><i></i><i></i><i></i></span>
       </span>
     </button>
+
+    <!-- 해수봇 챗봇 : v1 그대로 (키워드 답변, 외부 API 없음) -->
+    <div class="chatbot-modal" data-chatbot-modal hidden aria-hidden="true">
+      <div class="chatbot-modal-panel" role="dialog" aria-labelledby="chatbot-modal-recipient">
+        <div class="chat-frame">
+          <div class="chat-header-frame">
+            <span class="chat-header-meta">
+              <svg class="chat-header-avatar" viewBox="0 0 176 134" aria-hidden="true">
+                <rect x="0" y="0" width="176" height="134" rx="36"></rect>
+                <circle class="chat-header-avatar-eye" cx="54" cy="70" r="26"></circle>
+                <circle class="chat-header-avatar-eye" cx="120" cy="70" r="26"></circle>
+                <circle class="chat-header-avatar-pupil" cx="58" cy="70" r="11.2"></circle>
+                <circle class="chat-header-avatar-pupil" cx="124" cy="70" r="11.2"></circle>
+                <circle class="chat-header-avatar-highlight" cx="62.5" cy="65" r="2"></circle>
+                <circle class="chat-header-avatar-highlight" cx="128.5" cy="65" r="2"></circle>
+              </svg>
+              <span id="chatbot-modal-recipient">I'm Haesoo Bot!</span>
+            </span>
+            <button type="button" class="chatbot-modal-close" data-chatbot-close aria-label="챗봇 닫기">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>
+            </button>
+          </div>
+          <div class="chat-conversation-frame" data-chat-log aria-live="polite" aria-busy="false"></div>
+          <div class="chat-quick-topics" data-chat-topics role="group" aria-label="빠른 질문">
+            <button type="button" data-topic="프로젝트">프로젝트</button>
+            <button type="button" data-topic="기술">기술</button>
+            <button type="button" data-topic="소개">소개</button>
+            <button type="button" data-topic="취미">취미</button>
+            <button type="button" data-topic="연락">연락</button>
+          </div>
+          <form class="chat-input-frame" data-chat-form>
+            <input type="text" data-chat-input placeholder="메시지를 입력하세요" autocomplete="off" aria-label="메시지 입력" />
+            <button type="submit" data-chat-send>SEND</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <script src="assets/vendor/gsap.min.js"></script>
     <script src="assets/vendor/ScrollTrigger.min.js"></script>
