@@ -542,6 +542,8 @@
       if (built !== tokens || !caret || !textEl.contains(caret)) build(tokens);
       chars.forEach((el, i) => el.classList.toggle("on", i < count));
       caret.classList.toggle("is-typing", typing);
+      // 빈 줄일 땐 캐럿 숨김: 다 지운 뒤 / 새 문장 치기 전 캐럿이 문장 시작점으로 툭 점프하는 게 안 보이게
+      caret.classList.toggle("is-empty", count === 0);
       const ref = chars[Math.max(0, count - 1)];
       if (!ref) return;
       const x = count > 0 ? ref.offsetLeft + ref.offsetWidth : ref.offsetLeft;
@@ -764,7 +766,7 @@
       meta: "선택을 돕는 질문형 결정 도우미 앱 · 2026.03 — 05", desc: ["사용자가 스스로 기준을 찾도록,", "UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다."], contribution: { 기획: 100, 디자인: 100, 개발: 100 } },
     { id: "3d-object", number: "004", title: "3D OBJECT", thumbnail: "assets/project1/figma/project-3d.webp", cta_url: "projects/archery-hero-3d/",
       meta: "개인 외주 3D 인트로 작업 · 2026.09", desc: ["컨셉에 맞는 3D 구조물을 제작해,", "스크롤로 움직이는 홈페이지 도입부를 맡았습니다."] },
-    { id: "detail-page", number: "005", title: "DETAIL PAGE", thumbnail: "assets/project1/figma/project-detail.webp", cta_url: "#",
+    { id: "detail-page", number: "005", title: "DETAIL PAGE", thumbnail: "assets/project1/figma/project-detail.webp", cta_url: "https://www.figma.com/design/oo4VfoqKSHEvSa7WHH1yQL/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%94%94%EC%9E%90%EC%9D%B8%EC%9E%90%EB%A3%8C?node-id=256-2&t=NhzBIBgTsLsU2SLI-1",
       meta: "상세페이지 디자인 · 2026.10 — 현재", desc: ["인턴 때 담당했던 상세페이지 작업을", "지금도 외주로 이어가고 있습니다."] },
     { id: "riman-hub", number: "006", title: "RIMAN KOREA", thumbnail: "assets/project1/figma/project-riman.webp", cta_url: "https://about.riman.com/ko",
       meta: "리만코리아 AEO 허브 사이트 · 2026.09 — 11", desc: ["AEO를 위한 허브 홈페이지를 만들고,", "사이트 안의 콘텐츠도 AEO에 맞게 최적화했습니다."] },
@@ -1220,7 +1222,42 @@
       spiralInitializing = false;
     }
   };
-  initSpiralExperience();
+  // 모바일(840px 이하)은 3D 나선 대신 카드 목록 → 3D는 아예 안 띄움 (화면이 넓어지면 그때 띄움)
+  const worksListQuery = matchMedia("(max-width: 840px)");
+  if (worksListQuery.matches) worksListQuery.addEventListener("change", (e) => { if (!e.matches) initSpiralExperience(); });
+  else initSpiralExperience();
+
+  /* 모바일 MY WORKS 카드 목록: spiralProjectData 그대로 (이미지 → 번호·이름 → 굵은 줄(내용·기간) → 설명 → 기여도) */
+  (function initWorksList() {
+    const list = $("[data-works-list]");
+    if (!list) return;
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+    list.innerHTML = spiralProjectData.map((p) => {
+      const meta = p.meta || "";
+      const cut = meta.lastIndexOf(" · ");
+      const [lead, period] = cut > 0 && /^\d/.test(meta.slice(cut + 3)) ? [meta.slice(0, cut), meta.slice(cut + 3)] : [meta, ""];
+      const linked = p.cta_url && p.cta_url !== "#";
+      const tag = linked ? `a href="${esc(p.cta_url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p.title)} 사이트 보기 (새 창)"` : "div";
+      const contrib = p.contribution
+        ? `<div class="works-card-contrib">${Object.entries(p.contribution).map(([k, v]) => `<span class="works-card-contrib-row"><span>${esc(k)}</span><i style="--v:${v / 100}"></i><b>${v}%</b></span>`).join("")}</div>`
+        : "";
+      return `<li class="works-card">`
+        + `<${tag} class="works-card-link"><span class="works-card-media"><img src="${esc(p.thumbnail)}" alt="" loading="lazy" /></span>`
+        + `<span class="works-card-head"><span class="works-card-num">${esc(p.number)}</span><span class="works-card-title">${esc(p.title)}</span>${linked ? `<span class="works-card-go" aria-hidden="true">VIEW SITE ↗</span>` : ""}</span>`
+        + `</${linked ? "a" : "div"}>`
+        + `<p class="works-card-meta">${esc(lead)}${period ? `<span>${esc(period)}</span>` : ""}</p>`
+        + `<p class="works-card-desc">${(p.desc || []).map(esc).join(" ")}</p>`
+        + contrib
+        + `</li>`;
+    }).join("");
+    // 화면에 들어오면 아래에서 살짝 올라오며 나타남 (한 번만)
+    const cards = $$(".works-card", list);
+    if (reduced || !("IntersectionObserver" in window)) { cards.forEach((c) => c.classList.add("is-in")); return; }
+    const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("is-in"); io.unobserve(en.target); }
+    }), { threshold: 0.15 });
+    cards.forEach((c) => io.observe(c));
+  })();
 
   /* ---------- 7. studies strip ---------- */
   const studies = [

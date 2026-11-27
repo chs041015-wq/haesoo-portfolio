@@ -199,6 +199,7 @@ html.is-revealing .nav, html.is-revealing .bot, html.is-revealing .cursor-dot { 
 .lead-text.is-ko { font-family: var(--ko); letter-spacing: -0.02em; }
 .lead-caret { position: absolute; left: 0; top: 0; width: 2px; height: 1em; background: var(--point); pointer-events: none; animation: leadCaret 1s steps(1) infinite; }
 .lead-caret.is-typing { animation: none; }
+.lead-caret.is-empty { visibility: hidden; }
 @keyframes leadCaret { 50% { opacity: 0; } }
 
 .btn-scroll-box {
@@ -386,6 +387,34 @@ html.is-revealing .nav, html.is-revealing .bot, html.is-revealing .cursor-dot { 
   .spiral-active-caption { display: none; }
 }
 
+/* 모바일 MY WORKS: 3D 나선 대신 카드 목록 (이미지 → 번호·이름 → 굵은 줄 → 설명 → 기여도) */
+.works-list { display: none; }
+@media (max-width: 840px) {
+  .works-head + .spiral-scroll-shell { display: none; }
+  .works-list { display: grid; grid-template-columns: 1fr; gap: 56px; margin: 0; padding: 0 var(--gutter) 120px; list-style: none; }
+}
+@media (min-width: 600px) and (max-width: 840px) { .works-list { grid-template-columns: 1fr 1fr; gap: 56px 24px; } }
+.works-card { color: var(--ink); opacity: 0; transform: translateY(28px); transition: opacity .7s var(--inout1), transform .8s var(--inout3); }
+.works-card.is-in { opacity: 1; transform: none; }
+.works-card-link { display: block; color: inherit; text-decoration: none; }
+.works-card-media { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 14px; background: #e9e4dd; }
+.works-card-media img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--inout3); }
+.works-card-link:active .works-card-media img { transform: scale(1.03); }
+.works-card-head { display: flex; align-items: baseline; gap: 10px; margin-top: 16px; font-family: "Poppins", "Pretendard", sans-serif; }
+.works-card-num { font-size: 13px; font-weight: 500; color: rgba(17, 17, 17, .5); }
+.works-card-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.works-card-go { margin-left: auto; padding: 5px 11px; border-radius: 999px; background: var(--point); color: #111; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.works-card-meta { margin: 10px 0 0; font-family: "Pretendard", sans-serif; font-size: 14px; font-weight: 600; line-height: 1.5; color: rgba(17, 17, 17, .78); word-break: keep-all; }
+.works-card-meta span { display: block; font-weight: 500; color: rgba(17, 17, 17, .55); }
+.works-card-desc { margin: 8px 0 0; font-family: "Pretendard", sans-serif; font-size: 14px; line-height: 1.65; color: rgba(17, 17, 17, .62); word-break: keep-all; }
+.works-card-contrib { display: grid; gap: 7px; margin-top: 16px; font-family: "Pretendard", sans-serif; font-size: 12px; color: rgba(17, 17, 17, .6); }
+.works-card-contrib-row { display: grid; grid-template-columns: 3.2em 1fr 3em; align-items: center; gap: 10px; }
+.works-card-contrib-row i { position: relative; height: 2px; background: rgba(17, 17, 17, .12); }
+.works-card-contrib-row i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(var(--v) * 100%); background: rgba(17, 17, 17, .85); transform: scaleX(0); transform-origin: left; transition: transform 1.1s cubic-bezier(.22, 1, .36, 1) .3s; }
+.works-card.is-in .works-card-contrib-row i::after { transform: scaleX(1); }
+.works-card-contrib-row b { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .works-card, .works-card-contrib-row i::after { opacity: 1; transform: none; transition: none; } }
+
 /* ---------- STUDIES strip ---------- */
 .studies { padding: var(--section-y) 0; color: var(--fg); }
 .studies .v1-head { margin-bottom: 28px; padding: 0 var(--gutter); }
@@ -461,7 +490,7 @@ html.is-revealing .nav, html.is-revealing .bot, html.is-revealing .cursor-dot { 
 .tools-category li.is-active-tool { color: #fff; -webkit-text-stroke: 0.3px currentColor; }
 
 /* ---------- TIMELINE : v1 그대로 이식 (#6ee7ff → --point 민트, Poppins → SUIT) ---------- */
-.timeline { position: relative; padding: calc(var(--section-y) + 30vh) 32px 0; color: #fff; } /* 위 여백 +30vh: Skills와 간격 넓힘 / 아래 여백 0: GROWING 다음 바로 피그마 */
+.timeline { position: relative; padding: calc(var(--section-y) + 30vh) 32px 0; color: #fff; overflow-x: clip; } /* NOW 원이 커지며 화면 폭을 넘어 모바일 가로 스크롤 생기던 것 차단 (clip은 sticky 안 깨짐) */ /* 위 여백 +30vh: Skills와 간격 넓힘 / 아래 여백 0: GROWING 다음 바로 피그마 */
 .timeline .v1-head { padding: 0 var(--gutter); margin-bottom: clamp(56px, 7vw, 110px); }
 
 .timeline-ambient { position: fixed; z-index: 2; inset: 0; color: #fafafa; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
@@ -560,10 +589,16 @@ html.is-revealing .nav, html.is-revealing .bot, html.is-revealing .cursor-dot { 
   .timeline-company { margin-bottom: 8px; font-size: 36px; line-height: 45px; }
   .timeline-description { max-width: none; margin-bottom: 8px; font-size: 13px; line-height: 1.55; letter-spacing: -0.4px; }
   .timeline-date { font-size: 14px; line-height: 20px; }
-  .timeline-photo { width: min(260px, 100%); margin-top: 14px; }
+  .timeline-photo { width: min(320px, 100%); margin-top: 14px; }
+  /* 모바일: 가운데 세로선이 글·사진을 가로지르지 않게, 선을 왼쪽(20px)으로 옮기고 내용은 모두 그 오른쪽에 왼쪽 정렬 */
+  .timeline-line, .timeline-progress { left: 20px; }
+  .experience-item:not(.experience-now) .experience-content { padding-left: 36px; text-align: left; }
+  .experience-item:not(.experience-now) .timeline-description { margin-left: 0; }
+  .experience-item:not(.experience-now) .timeline-photo { margin-left: 0; margin-right: auto; }
+  .experience-item:not(.experience-now) .timeline-dot { top: 22px; left: 4px; } /* 제목 첫 줄 높이에 점. 선은 shell 기준 20px, 점은 shell 안쪽 여백(16px) 기준이라 4px */
   .experience-now { min-height: 280vh; margin-top: 6vh; }
   .experience-now .experience-content { padding: 0 4px; }
-  .experience-now .timeline-dot { top: max(76px, calc(50vh - 250px)); width: 16px; height: 16px; }
+  .experience-now .timeline-dot { top: max(76px, calc(50vh - 250px)); left: 4px; width: 16px; height: 16px; }
   /* About 모바일 값 그대로 */
   .now-title { font-size: calc(48 / 375 * 100vw); }
   .now-desc { margin-top: 24px; font-size: calc(19 / 375 * 100vw); line-height: 1.35; }
