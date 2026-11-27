@@ -1,0 +1,8 @@
+Herakles Archer — 3D scan by CrlNvl
+Sculpture by Antoine Bourdelle. Scan of the sculpture at Musee Bourdelle, Paris.
+Source: https://commons.wikimedia.org/wiki/File:Herakles_Archer_-_3D_Model.stl
+License: Creative Commons Attribution-ShareAlike 4.0 International — https://creativecommons.org/licenses/by-sa/4.0/
+Changes: STL converted to self-contained GLB; vertices welded and mesh reduced
+from 626,566 to 80,000 triangles with quadric decimation. Original coordinates retained.
+This modified 3D model is distributed under the same CC BY-SA 4.0 license.
+No endorsement by the original creator is implied.

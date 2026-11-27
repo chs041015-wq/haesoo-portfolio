@@ -58,6 +58,13 @@
     gsap.ticker.add((t) => lenis.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
   }
+  // 클릭 시점에 계산 (ab·worksEl·top 은 아래에서 선언되지만 클릭은 스크립트가 다 실행된 뒤라 문제없음)
+  const NAV_STOPS = {
+    // About: 원 안에 HELLO·영어 설명이 막 자리 잡은 지점, 회전 시작 직전 (updateAbout 의 ry = 0)
+    about: () => top(ab.spacer) - innerHeight,
+    // Works: 원형 막이 다 열려 미색 위에 MY WORKS 제목이 보이는 지점 (updateWorks 의 hole 100%)
+    works: () => top(worksEl) + innerHeight,
+  };
   $$('a[href^="#"]').forEach((a) =>
     a.addEventListener("click", (e) => {
       const id = a.getAttribute("href");
@@ -65,9 +72,11 @@
       if (id.length < 2) return;
       const target = $(id);
       if (!target) return;
-      const offset = Number(a.dataset.offset || 0);
-      if (lenis) lenis.scrollTo(target, { duration: 2, easing: easeInOutQuart, offset });
-      else target.scrollIntoView({ behavior: "smooth" });
+      // data-stop: 섹션 맨 위가 아니라 콘텐츠가 다 올라온 지점에 멈춤 (GNB·View Project·푸터 링크)
+      const stopFn = NAV_STOPS[a.dataset.stop];
+      const dest = stopFn ? stopFn() : target.getBoundingClientRect().top + scrollY + Number(a.dataset.offset || 0);
+      if (lenis) lenis.scrollTo(dest, { duration: 2, easing: easeInOutQuart });
+      else scrollTo({ top: dest, behavior: "smooth" });
     })
   );
 
@@ -488,6 +497,10 @@
   const btnScroll = $(".scroll-cue");
   const revealPaper = $(".reveal-paper");
   let introDone = false;
+  // v1 heroBuddyIntroSignal: 해수봇이 먼저 떨어져 착지(+방향키 풍선)한 뒤 제목이 올라옴. 봇이 안 뜨는 경우 대비 1.5초 뒤엔 무조건 진행
+  let botIntroDone;
+  const botIntro = new Promise((resolve) => (botIntroDone = resolve));
+  setTimeout(() => botIntroDone(), 1500);
   let aboutTopY = 0;
   let topWrapBottom = Infinity;
   let lastScroll = 0;
@@ -506,12 +519,9 @@
   const leadRotator = (() => {
     const box = $(".lead-rotator");
     const textEl = $(".lead-text", box);
-    const icon = $(".lead-icon", box);
-    // v1 3D 아이콘 (원래 쓰던 이미지)
-    const ICONS = Object.fromEntries(["accent-loop", "accent-star", "accent-bolt", "accent-equals"].map((n) => [n, `<img src="assets/reveal/${n}.webp" alt="" draggable="false" />`]));
     const LINES = [
-      { icon: "accent-loop", en: [["I understand what users feel and turn it into "], ["clear ideas.", 1]], ko: "저는 사용자를 감각으로 읽어내고, 그 감각을 논리로 구현합니다." },
-      { icon: "accent-star", en: [["I shape ideas through "], ["design", 1], [" and bring them to life with "], ["code.", 1]], ko: "디자인으로 해석하고, 코드로 해독하는 디자이너." },
+      { en: [["I understand what users feel and turn it into "], ["clear ideas.", 1]], ko: "저는 사용자를 감각으로 읽어내고, 그 감각을 논리로 구현합니다." },
+      { en: [["I shape ideas through "], ["design", 1], [" and bring them to life with "], ["code.", 1]], ko: "디자인으로 해석하고, 코드로 해독하는 디자이너." },
     ];
     const TYPE_MS = 34, ERASE_MS = 14, HOLD_MS = 2800;
     let idx = 0, token = 0, hovering = false;
@@ -540,14 +550,10 @@
       caret.style.transform = `translate(${x}px, ${ref.offsetTop + h * 0.14}px)`;
     };
     const total = (tokens) => tokens.reduce((n, [t]) => n + t.length, 0);
-    // 아이콘이 사라진 사이에 다음 문장 자리를 잡음 → 문장 길이가 바뀌며 생기는 위치 이동이 안 보임
+    // 다음 문장으로 교체 (문장 옆 아이콘은 삭제함)
     const swapTo = async (line) => {
-      icon.classList.add("is-swap");
-      await wait(220);
-      icon.innerHTML = ICONS[line.icon];
       textEl.classList.remove("is-ko");
       render(line.en, 0);
-      icon.classList.remove("is-swap");
     };
     // 언어 전환은 흐림 교차(0.14s 아웃 → 바로 인)로 빠르고 부드럽게. 연속 호버 시 마지막 요청만 반영
     let langSeq = 0;
@@ -587,7 +593,7 @@
     return {
       start() {
         if (reduced) { // 모션 줄이기: 타이핑 없이 4초마다 교체
-          const show = () => { icon.innerHTML = ICONS[LINES[idx].icon]; setEn(); };
+          const show = () => setEn();
           show();
           setInterval(() => { if (!hovering) { idx = (idx + 1) % LINES.length; show(); } }, 4000);
           return;
@@ -626,8 +632,11 @@
     // 마지막 글자가 눈으로 보기에 자리 잡는 시점(expo.out 약 60%)에 원칙 문장 타이핑 시작
     const LOGO_DUR = 1.1, LOGO_STAGGER = 0.035;
     const chars = gsap.utils.toArray(".top-logo .ch");
-    gsap.from(chars, { yPercent: 110, duration: LOGO_DUR, ease: "expo.out", stagger: LOGO_STAGGER, onComplete: startLead });
-    gsap.delayedCall((chars.length - 1) * LOGO_STAGGER + LOGO_DUR * 0.6, startLead);
+    gsap.set(chars, { yPercent: 110 }); // 봇 등장이 끝날 때까지 글자는 아래에 숨겨 둠
+    botIntro.then(() => {
+      gsap.to(chars, { yPercent: 0, duration: LOGO_DUR, ease: "expo.out", stagger: LOGO_STAGGER, onComplete: startLead });
+      gsap.delayedCall((chars.length - 1) * LOGO_STAGGER + LOGO_DUR * 0.6, startLead);
+    });
     requestAnimationFrame(() => requestAnimationFrame(finishIntro));
   }
 
@@ -724,10 +733,9 @@
     });
   }
 
-  /* ---------- 6. works : bauer-lab Featured Projects (creation) 그대로 ----------
-     - 원형 마스크: bauer U8.draw(ratio.y - 1) → 섹션 윗변이 화면 맨 위에 닿은 뒤 100vh 동안 구멍 반지름 0 → 대각선/2
-     - 설명 줄: bauer WT — 화면에 들어오면 .in-view-from-bottom, 화면 절반 아래로 빠질 때만 리셋
-     - 커서: bauer ple/PM — 이미지에 올리면 알약 커서 안에서 이름이 흐름 */
+  /* ---------- 6. works : Featured Projects ----------
+     - 원형 막: bauer U8.draw(ratio.y - 1) → 섹션 윗변이 화면 맨 위에 닿은 뒤 100vh 동안 구멍 반지름 0 → 대각선/2
+     - 3D 나선: 예전 클론코딩 섹션 initSpiralExperience 그대로 (three.js). 이미지·이름·링크만 Featured 프로젝트로 바꿈 */
   const worksEl = $(".works");
   const worksMask = $(".works-mask");
   function updateWorks() {
@@ -736,195 +744,501 @@
     const r = worksEl.getBoundingClientRect();
     if (r.bottom < 0 || r.top > vh) return;
     worksMask?.style.setProperty("--hole", `${((Math.hypot(innerWidth, vh) / 2) * clamp(-r.top / vh)).toFixed(1)}px`);
+    // 예전 chapter-content-progress 그대로: 나선 영역 윗변이 화면 96% → 62% 지점으로 오는 동안 0 → 1
+    const content = $(".works-head + .spiral-scroll-shell");
+    if (content) {
+      const progress = reduced ? 1 : clamp((vh * 0.96 - content.getBoundingClientRect().top) / Math.max(vh * 0.34, 1));
+      const value = progress.toFixed(4);
+      if (content.style.getPropertyValue("--chapter-content-progress") !== value) content.style.setProperty("--chapter-content-progress", value);
+    }
   }
-  (function initWorksFade() {
-    const items = $$(".works [data-fade]");
-    const io = new IntersectionObserver((entries) => entries.forEach((en) => {
-      if (en.isIntersecting) en.target.classList.add("in-view-from-bottom");
-      else if (en.boundingClientRect.top > innerHeight * 0.5) en.target.classList.remove("in-view-from-bottom");
-    }), { threshold: 0 });
-    items.forEach((el) => io.observe(el));
-  })();
-  (function initWorkCursor() {
-    const cur = $(".cursor-dot");
-    if (!cur) return;
-    const item = (t) => `<div class="item"><span>${t}</span><i>↗</i></div>`;
-    $$(".work-item").forEach((fig) => {
-      const name = $(".work-media", fig)?.dataset.cursorTitle || "";
-      fig.addEventListener("mouseenter", () => {
-        cur.innerHTML = `<div class="rolling1">${item(name)}${item(name)}</div><div class="rolling2">${item(name)}${item(name)}</div>`;
-        cur.classList.add("is-work");
+
+  // 이미지가 아직 없는 프로젝트는 thumbnail 대신 placeholder(제목|부제)로 줄무늬 카드를 그려서 씀
+  // meta/desc: 기존 WORKS 섹션 설명 문구 그대로, contribution: 예전 기여도(학원 프로젝트 3개만) — 나선 오른쪽 캡션에 표시
+  const spiralProjectData = [
+    { id: "aqua-planet", number: "001", title: "AQUA PLANET", thumbnail: "assets/project1/figma/project-left.webp", cta_url: "https://ezen-aquaplanet-project.vercel.app/",
+      meta: "K브랜드 웹사이트 리뉴얼 팀프로젝트 · 2026.06 — 07", desc: ["랜딩·마린랩·티켓 페이지 개발과 생물·로고 3D 작업을 맡고,", "전 페이지가 공유하는 인터랙션 시스템을 설계했습니다."], contribution: { 기획: 60, 디자인: 70, 개발: 90 } },
+    { id: "layer", number: "002", title: "LAYER", thumbnail: "assets/project1/figma/project-center.webp", cta_url: "https://ezen-layerproject.vercel.app/",
+      meta: "AI 챗봇 커뮤니티 프로젝트 · 2026.07", desc: ["온보딩과 홈을 메인으로 개발하고,", "앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다."], contribution: { 기획: 70, 디자인: 70, 개발: 90 } },
+    { id: "moa", number: "003", title: "MOA", thumbnail: "assets/project1/figma/project-right.webp", cta_url: "https://moa-app-indol.vercel.app/",
+      meta: "선택을 돕는 질문형 결정 도우미 앱 · 2026.03 — 05", desc: ["사용자가 스스로 기준을 찾도록,", "UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다."], contribution: { 기획: 100, 디자인: 100, 개발: 100 } },
+    { id: "3d-object", number: "004", title: "3D OBJECT", thumbnail: "assets/project1/figma/project-3d.webp", cta_url: "projects/archery-hero-3d/",
+      meta: "개인 외주 3D 인트로 작업 · 2026.09", desc: ["컨셉에 맞는 3D 구조물을 제작해,", "스크롤로 움직이는 홈페이지 도입부를 맡았습니다."] },
+    { id: "detail-page", number: "005", title: "DETAIL PAGE", thumbnail: "assets/project1/figma/project-detail.webp", cta_url: "#",
+      meta: "상세페이지 디자인 · 2026.10 — 현재", desc: ["인턴 때 담당했던 상세페이지 작업을", "지금도 외주로 이어가고 있습니다."] },
+    { id: "riman-hub", number: "006", title: "RIMAN KOREA", thumbnail: "assets/project1/figma/project-riman.webp", cta_url: "https://about.riman.com/ko",
+      meta: "리만코리아 AEO 허브 사이트 · 2026.09 — 11", desc: ["AEO를 위한 허브 홈페이지를 만들고,", "사이트 안의 콘텐츠도 AEO에 맞게 최적화했습니다."] },
+  ];
+  const drawSpiralPlaceholder = (text) => {
+    const [title, sub = ""] = text.split("|");
+    const c = document.createElement("canvas");
+    c.width = 1600; c.height = 900;
+    const x = c.getContext("2d");
+    x.fillStyle = "#2c2926"; x.fillRect(0, 0, 1600, 900);
+    x.save(); x.strokeStyle = "#33302c"; x.lineWidth = 36;
+    for (let k = -900; k < 2600; k += 72) { x.beginPath(); x.moveTo(k, 0); x.lineTo(k - 900, 900); x.stroke(); }
+    x.restore();
+    x.fillStyle = "#faf7f3"; x.textAlign = "center"; x.textBaseline = "middle";
+    x.font = "700 92px 'SUIT Variable', SUIT, sans-serif"; x.fillText(title, 800, 420);
+    x.globalAlpha = 0.7; x.font = "500 30px 'SUIT Variable', SUIT, sans-serif"; x.fillText(sub, 800, 510);
+    return c;
+  };
+
+  const spiralSection = $(".spiral-section");
+  const spiralStage = $(".spiral-stage");
+  const spiralScrollShell = $(".spiral-scroll-shell");
+  const spiralCanvas = $(".spiral-webgl");
+  const spiralProjectCta = $(".spiral-project-cta");
+  const spiralCaptionIndex = $("[data-spiral-caption-index]");
+  const spiralCaptionTitle = $("[data-spiral-caption-title]");
+  const spiralCaptionDesc = $("[data-spiral-caption-desc]");
+  if (spiralProjectCta && spiralProjectCta.parentElement !== document.body) {
+    document.body.appendChild(spiralProjectCta);
+  }
+  let spiralExperience = null;
+  let spiralInitializing = false;
+
+  const initSpiralExperience = async () => {
+    if (!spiralCanvas || !spiralStage || !spiralProjectData.length || spiralExperience || spiralInitializing) return;
+    spiralInitializing = true;
+
+    try {
+      const THREE = await import("./assets/vendor/three.module.min.js");
+      await (document.fonts?.ready || Promise.resolve());
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(window.innerWidth < 900 ? 45 : 35, 1, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ canvas: spiralCanvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+      const textureLoader = new THREE.TextureLoader();
+      const textures = await Promise.all(spiralProjectData.map((project) => (project.thumbnail
+        ? textureLoader.loadAsync(project.thumbnail)
+        : Promise.resolve(new THREE.CanvasTexture(drawSpiralPlaceholder(project.placeholder || project.title))))));
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      const geometry = new THREE.PlaneGeometry(1, 1, 8, 8);
+      const vertexShader = `
+        varying vec2 vUv;
+        #define PI 3.14159265359
+        uniform float uScrollSpeed;
+        uniform float uFocusProgress;
+
+        void main() {
+          vec3 worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+          vec3 newPosition = position;
+          float distortion = 1.0 - uFocusProgress;
+          newPosition.z = sin(uv.x * PI) * 0.2 * distortion;
+          vec4 modelPosition = modelMatrix * vec4(newPosition, 1.0);
+          vec4 viewPosition = viewMatrix * modelPosition;
+          viewPosition.x += pow(worldPosition.y, 2.0) * 0.1 * distortion;
+          viewPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0 * distortion;
+          gl_Position = projectionMatrix * viewPosition;
+          vUv = uv;
+        }
+      `;
+      const fragmentShader = `
+        uniform sampler2D uTexture;
+        uniform vec2 uPlaneSizes;
+        uniform vec2 uImageSizes;
+        uniform float uFocusProgress;
+        uniform float uOpacity;
+        uniform float uHoverDim;
+        varying vec2 vUv;
+
+        float roundedRectSDF(vec2 uv, vec2 size, float radius) {
+          vec2 d = abs(uv - 0.5) - size * 0.5 + radius;
+          return length(max(d, 0.0)) - radius;
+        }
+
+        void main() {
+          vec2 ratio = vec2(
+            min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
+            min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
+          );
+          vec2 uv = vec2(
+            vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
+            vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
+          );
+          uv.y *= 0.91;
+          float hoverZoom = mix(1.0, 1.09, uHoverDim);
+          uv = (uv - 0.5) / hoverZoom + 0.5;
+          vec4 color = texture2D(uTexture, uv);
+          float cornerRadius = mix(0.05, 0.025, uFocusProgress);
+          float sdf = roundedRectSDF(vUv, vec2(1.0), cornerRadius);
+          float alpha = 1.0 - smoothstep(0.0, 0.002, sdf);
+          // 예전 0.42 어둡기는 보정 전(화면 값) 기준 → 선형 값에선 0.42^2.2 ≈ 0.15 를 곱해야 같은 어둡기
+          vec3 overlayColor = mix(color.rgb, color.rgb * 0.15, uHoverDim);
+          gl_FragColor = vec4(overlayColor, alpha * uOpacity);
+          // 텍스처를 sRGB→선형으로 풀어 샘플링하므로, 출력 직전에 다시 sRGB로 감아 원본 색을 유지
+          #include <colorspace_fragment>
+        }
+      `;
+
+      // Keep the complete spiral inside the stage, including its lowest cards.
+      camera.position.set(0, 0, 8.75);
+      renderer.setClearColor(0xfaf7f3, 1);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      textures.forEach((texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.needsUpdate = true;
       });
-      fig.addEventListener("mouseleave", () => { cur.classList.remove("is-work"); cur.innerHTML = ""; });
-    });
-  })();
 
-  /* works WebGL : bauer Ace(sync image mesh) 셰이더 그대로 (three.js 없이 WebGL 직접)
-     - 카메라: fov 45°, 화면에 딱 맞는 거리 → z=0 평면에서 1단위 = 1px (DOM 이미지와 같은 자리·크기)
-     - 정점 셰이더: ry = 화면 중심 기준 y / 화면 높이 → smoothstep(-0.2, -2.0, ry) → z = sin(-ry·π·uCurveY·10)·uCurve
-       = 화면 아래쪽(중심에서 20%보다 아래)으로 갈수록 이미지가 보는 사람 쪽으로 휘어짐
-     - 데스크톱(1024px 이상, 마우스)에서만. 모바일·동작 줄이기·WebGL 미지원은 DOM 이미지 그대로 */
-  (function initWorksGL() {
-    const canvas = $(".works-gl");
-    if (!canvas || !worksEl || reduced) return;
-    const desktop = matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)");
-    const gl = canvas.getContext("webgl", { alpha: true, antialias: true, premultipliedAlpha: false });
-    if (!gl) return;
-    const VS = `
-      attribute vec2 aPos;
-      uniform vec2 uCenter;
-      uniform vec2 uSize;
-      uniform vec2 uScreen;
-      uniform float uDist;
-      uniform mat4 uProj;
-      uniform float uCurve;
-      uniform float uCurveY;
-      varying vec2 vUv;
-      const float PI = 3.141592653589793;
-      void main() {
-        vUv = aPos + 0.5;
-        vec2 p = uCenter + aPos * uSize;
-        float ry = p.y / uScreen.y;
-        float t = clamp((ry + 0.2) / (-2.0 + 0.2), 0.0, 1.0);
-        ry = t * t * (3.0 - 2.0 * t);
-        float z = sin(-ry * PI * uCurveY * 10.0) * uCurve;
-        gl_Position = uProj * vec4(p.x, p.y, z - uDist, 1.0);
-      }`;
-    const FS = `
-      precision mediump float;
-      uniform sampler2D tDiffuse;
-      uniform vec2 uUvScale;
-      varying vec2 vUv;
-      void main() {
-        gl_FragColor = texture2D(tDiffuse, (vUv - 0.5) * uUvScale + 0.5);
-      }`;
-    const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
-    const prog = gl.createProgram();
-    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
-    gl.useProgram(prog);
-    const U = {};
-    ["uCenter", "uSize", "uScreen", "uDist", "uProj", "uCurve", "uCurveY", "tDiffuse", "uUvScale"].forEach((n) => (U[n] = gl.getUniformLocation(prog, n)));
-    gl.uniform1f(U.uCurve, 500);
-    gl.uniform1f(U.uCurveY, -0.08);
-    gl.uniform1i(U.tDiffuse, 0);
-
-    // 세로로 잘게 나눈 평면 (bauer PlaneGeometry(1, 1, 10, 200) — 휘어짐이 세로 방향뿐이라 세로 200칸)
-    const SEG = 200, verts = [];
-    for (let i = 0; i <= SEG; i++) { const y = 0.5 - i / SEG; verts.push(-0.5, y, 0.5, y); }
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(prog, "aPos");
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
-    const meshes = $$(".work-media").map((el) => ({ el, tex: null, w: 1, h: 1 }));
-    const upload = (m, source, w, h) => {
-      const tex = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, tex);
-      try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source); }
-      catch { gl.deleteTexture(tex); return; } // file:// 로 열면 이미지가 막힘 → 그 항목은 DOM 이미지 그대로
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      Object.assign(m, { tex, w, h });
-      m.el.classList.add("is-gl-ready");
-    };
-    meshes.forEach((m) => {
-      const img = $("img[data-gl-img]", m.el);
-      if (img) {
-        const im = new Image();
-        im.onload = () => upload(m, im, im.naturalWidth, im.naturalHeight);
-        im.src = img.currentSrc || img.src;
-        return;
-      }
-      const ph = m.el.dataset.glPh;
-      if (!ph) return;
-      // 준비 중 카드: DOM 줄무늬 카드를 같은 모양으로 그려서 텍스처로
-      (document.fonts?.ready || Promise.resolve()).then(() => {
-        const [title, sub] = ph.split("|");
-        const c = document.createElement("canvas");
-        c.width = 1600; c.height = 900;
-        const x = c.getContext("2d");
-        x.fillStyle = "#2c2926"; x.fillRect(0, 0, 1600, 900);
-        x.save(); x.strokeStyle = "#33302c"; x.lineWidth = 36;
-        for (let k = -900; k < 2600; k += 72) { x.beginPath(); x.moveTo(k, 0); x.lineTo(k - 900, 900); x.stroke(); }
-        x.restore();
-        x.fillStyle = "#faf7f3"; x.textAlign = "center"; x.textBaseline = "middle";
-        x.font = "700 92px 'SUIT Variable', SUIT, sans-serif"; x.fillText(title, 800, 420);
-        x.globalAlpha = 0.7; x.font = "500 30px 'SUIT Variable', SUIT, sans-serif"; x.fillText(sub, 800, 510);
-        upload(m, c, 1600, 900);
+      const repeatedTextures = [...textures, ...textures];
+      const planes = repeatedTextures.map((texture, index) => {
+        const image = texture.image;
+        const material = new THREE.ShaderMaterial({
+          uniforms: {
+            uTexture: { value: texture },
+            uPlaneSizes: { value: new THREE.Vector2(1.7, 1) },
+            uImageSizes: { value: new THREE.Vector2(image.width, image.height) },
+            uScrollSpeed: { value: 0 },
+            uFocusProgress: { value: 0 },
+            uOpacity: { value: 1 },
+            uHoverDim: { value: 0 },
+          },
+          vertexShader,
+          fragmentShader,
+          transparent: true,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        });
+        const plane = new THREE.Mesh(geometry, material);
+        plane.scale.set(1.7, 1, 1);
+        plane.userData.projectId = spiralProjectData[index % spiralProjectData.length].id;
+        plane.renderOrder = index;
+        scene.add(plane);
+        return plane;
       });
-    });
 
-    let W = 0, Hh = 0, dpr = 1, dist = 1;
-    const resize = () => {
-      W = innerWidth; Hh = innerHeight; dpr = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr);
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      const fov = (45 * Math.PI) / 180, f = 1 / Math.tan(fov / 2), near = 1, far = 10000, aspect = W / Hh;
-      dist = (Hh / 2) * f; // 화면에 딱 맞는 카메라 거리 (bauer screenFitZ)
-      gl.uniformMatrix4fv(U.uProj, false, new Float32Array([
-        f / aspect, 0, 0, 0,
-        0, f, 0, 0,
-        0, 0, (far + near) / (near - far), -1,
-        0, 0, (2 * far * near) / (near - far), 0,
-      ]));
-      gl.uniform1f(U.uDist, dist);
-      gl.uniform2f(U.uScreen, W, Hh);
-    };
-    resize();
-    addEventListener("resize", resize);
+      let currentOffset = 0;
+      let previousOffset = 0;
+      let hoveredPlane = null;
+      let pointerDown = null;
+      let suppressNextClick = false;
+      let renderFrameId = null;
+      let renderLoopRunning = false;
+      let spiralInView = false;
+      let spiralScrollStart = 0;
+      let spiralScrollDistance = 1;
+      const mobileQuery = window.matchMedia("(max-width: 768px)");
 
-    let on = false;
-    gsap.ticker.add(() => {
-      const r = worksEl.getBoundingClientRect();
-      const active = desktop.matches && r.bottom > 0 && r.top < innerHeight;
-      if (active !== on) {
-        on = active;
-        worksEl.classList.toggle("is-gl", on);
-        if (!on) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
-      }
-      if (!on) return;
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      meshes.forEach((m) => {
-        if (!m.tex) return;
-        const b = m.el.getBoundingClientRect();
-        if (b.bottom < 0 || b.top > Hh || !b.width) return;
-        gl.uniform2f(U.uCenter, b.left + b.width / 2 - W / 2, Hh / 2 - (b.top + b.height / 2));
-        gl.uniform2f(U.uSize, b.width, b.height);
-        // object-fit: cover
-        const ea = b.width / b.height, ia = m.w / m.h;
-        gl.uniform2f(U.uUvScale, ia > ea ? ea / ia : 1, ia > ea ? 1 : ia / ea);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, m.tex);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, (SEG + 1) * 2);
+      const getProjectedPlaneRect = (plane) => {
+        const canvasRect = spiralCanvas.getBoundingClientRect();
+        plane.updateMatrixWorld(true);
+        const corners = [
+          new THREE.Vector3(-0.5, -0.5, 0),
+          new THREE.Vector3(0.5, -0.5, 0),
+          new THREE.Vector3(0.5, 0.5, 0),
+          new THREE.Vector3(-0.5, 0.5, 0),
+        ].map((corner) => {
+          const projected = corner.applyMatrix4(plane.matrixWorld).project(camera);
+          return {
+            x: canvasRect.left + (projected.x + 1) * 0.5 * canvasRect.width,
+            y: canvasRect.top + (1 - projected.y) * 0.5 * canvasRect.height,
+          };
+        });
+        const width = Math.max(Math.hypot(corners[1].x - corners[0].x, corners[1].y - corners[0].y), 1);
+        const height = Math.max(Math.hypot(corners[3].x - corners[0].x, corners[3].y - corners[0].y), 1);
+        return { width, height };
+      };
+
+      const getCenterPlane = () => {
+        return planes.reduce((largest, plane) => {
+          const rect = getProjectedPlaneRect(plane);
+          const visibleOpacity = plane.material.uniforms.uOpacity.value;
+          const area = rect.width * rect.height * visibleOpacity;
+          return !largest || area > largest.area ? { plane, area } : largest;
+        }, null)?.plane || null;
+      };
+
+      const getInteractivePlane = (event) => {
+        const centerPlane = getCenterPlane();
+        if (!centerPlane) return null;
+        const rect = spiralCanvas.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / Math.max(rect.width, 1)) * 2 - 1;
+        pointer.y = -((event.clientY - rect.top) / Math.max(rect.height, 1)) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+        return raycaster.intersectObject(centerPlane, false).length ? centerPlane : null;
+      };
+
+      const setHoveredPlane = (nextPlane) => {
+        if (hoveredPlane === nextPlane) return;
+        const previousPlane = hoveredPlane;
+        hoveredPlane = nextPlane;
+        [
+          { plane: previousPlane, value: 0 },
+          { plane: hoveredPlane, value: 1 },
+        ].forEach(({ plane, value }) => {
+          const hoverUniform = plane?.material.uniforms.uHoverDim;
+          if (!hoverUniform) return;
+          gsap.killTweensOf(hoverUniform);
+          gsap.to(hoverUniform, {
+            value,
+            duration: 0.28,
+            ease: "power2.out",
+            onUpdate: () => renderer.render(scene, camera),
+          });
+        });
+      };
+
+      const updateProjectCta = (plane, event) => {
+        if (!spiralProjectCta || !plane) {
+          spiralProjectCta?.classList.remove("is-visible");
+          return;
+        }
+        spiralProjectCta.style.left = `${event.clientX}px`;
+        spiralProjectCta.style.top = `${event.clientY}px`;
+        spiralProjectCta.classList.add("is-visible");
+      };
+      const visitProject = (plane) => {
+        if (!plane) return;
+        const project = spiralProjectData.find((item) => item.id === plane.userData.projectId);
+        if (!project?.cta_url || project.cta_url === "#") return;
+        window.open(project.cta_url, "_blank", "noopener,noreferrer");
+      };
+
+      const resize = () => {
+        const width = spiralStage.clientWidth;
+        const height = spiralStage.clientHeight;
+        const scrollShell = spiralScrollShell || spiralSection;
+        const shellRect = scrollShell.getBoundingClientRect();
+        camera.aspect = width / Math.max(height, 1);
+        camera.fov = width < 900 ? 45 : 35;
+        camera.updateProjectionMatrix();
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        renderer.setSize(width, height, false);
+        spiralScrollStart = window.scrollY + shellRect.top;
+        spiralScrollDistance = Math.max(scrollShell.offsetHeight - window.innerHeight, 1);
+      };
+
+      let closestPlane = null;
+      let activeCaptionId = null;
+
+      // Fills the otherwise-empty flanks of the spiral with the number/title
+      // of whichever card is currently front-and-center, crossfading between
+      // projects instead of scrolling continuously alongside the spiral.
+      const updateActiveCaption = (plane) => {
+        const projectId = plane?.userData.projectId ?? null;
+        if (projectId === activeCaptionId) return;
+        activeCaptionId = projectId;
+        if (!spiralCaptionIndex || !spiralCaptionTitle) return;
+
+        const project = spiralProjectData.find((item) => item.id === projectId);
+        const captionParts = [spiralCaptionIndex, spiralCaptionTitle, spiralCaptionDesc].filter(Boolean);
+        captionParts.forEach((el) => el.classList.remove("is-visible"));
+        if (!project) return;
+
+        window.setTimeout(() => {
+          if (activeCaptionId !== projectId) return;
+          spiralCaptionIndex.textContent = project.number;
+          spiralCaptionTitle.textContent = project.title;
+          // 오른쪽 설명: meta는 " · " 기준으로 나눠 굵게(프로젝트 설명 / 기간), 나머지는 한 줄씩
+          if (spiralCaptionDesc) {
+            const line = (text, className) => {
+              const p = document.createElement("p");
+              if (className) p.className = className;
+              p.textContent = text;
+              return p;
+            };
+            // 마지막 " · " 뒤가 기간(숫자로 시작)일 때만 두 줄로 나눔 — "Blender · Codex…" 같은 건 한 줄 유지
+            const metaText = project.meta || "";
+            const cut = metaText.lastIndexOf(" · ");
+            const metaLines = cut > 0 && /^\d/.test(metaText.slice(cut + 3)) ? [metaText.slice(0, cut), metaText.slice(cut + 3)] : [metaText].filter(Boolean);
+            const parts = [
+              ...metaLines.map((text, i) => line(text, i === metaLines.length - 1 ? "spiral-active-caption-meta" : "spiral-active-caption-meta is-lead")),
+              ...(project.desc || []).map((text) => line(text)),
+            ];
+            // 기여도: 항목별 가로 선그래프 (라벨 · 선 · 퍼센트)
+            if (project.contribution) {
+              const graph = document.createElement("div");
+              graph.className = "spiral-contrib";
+              Object.entries(project.contribution).forEach(([name, value], rowIndex) => {
+                const row = document.createElement("div");
+                row.className = "spiral-contrib-row";
+                row.innerHTML = `<span class="spiral-contrib-name"></span><span class="spiral-contrib-track"><i></i></span><span class="spiral-contrib-value">${value}%</span>`;
+                row.querySelector(".spiral-contrib-name").textContent = name;
+                row.style.setProperty("--value", value / 100);
+                row.style.setProperty("--row", rowIndex);
+                graph.append(row);
+                // 숫자도 선과 같은 타이밍으로 0% → 값까지 카운트업 (CSS 지연 260ms + 줄당 120ms, 1100ms)
+                if (!reduced) {
+                  const valueEl = row.querySelector(".spiral-contrib-value");
+                  const start = performance.now() + 260 + rowIndex * 120;
+                  valueEl.textContent = "0%";
+                  const tick = (now) => {
+                    if (!valueEl.isConnected) return;
+                    const t = clamp((now - start) / 1100);
+                    const eased = 1 - Math.pow(1 - t, 4);
+                    valueEl.textContent = `${Math.round(value * eased)}%`;
+                    if (t < 1) requestAnimationFrame(tick);
+                  };
+                  requestAnimationFrame(tick);
+                }
+              });
+              parts.push(graph);
+            }
+            spiralCaptionDesc.replaceChildren(...parts);
+          }
+          captionParts.forEach((el) => el.classList.add("is-visible"));
+        }, 220);
+      };
+
+      const render = () => {
+        if (!renderLoopRunning) return;
+        const progress = clamp((window.scrollY - spiralScrollStart) / spiralScrollDistance, 0, 1);
+        // The ring uses repeated textures to look like a complete loop, but one scroll
+        // travels only one lap of the unique projects.
+        const targetOffset = progress * spiralProjectData.length;
+        currentOffset = lerp(currentOffset, targetOffset, 0.1);
+        if (Math.abs(targetOffset - currentOffset) < 0.0005) currentOffset = targetOffset;
+        const scrollSpeed = currentOffset - previousOffset;
+        previousOffset = currentOffset;
+        const centerIndex = Math.floor(planes.length / 2);
+        const fadeRange = 1.65;
+        let frontZ = -Infinity;
+
+        planes.forEach((plane, index) => {
+          // +2: 맨 앞(z 최대) 자리는 relativeIndex 2 — 오프셋 0일 때 001이 그 자리에 오도록 두 칸 밀어줌 (안 밀면 003부터 보임)
+          let normalizedIndex = index - currentOffset + 2;
+          normalizedIndex = ((normalizedIndex % planes.length) + planes.length) % planes.length;
+          const relativeIndex = normalizedIndex - centerIndex;
+          const edgeDistance = centerIndex - Math.abs(relativeIndex);
+          const fadeProgress = clamp(edgeDistance / fadeRange, 0, 1);
+          const edgeOpacity = fadeProgress * fadeProgress * (3 - 2 * fadeProgress);
+          const angle = relativeIndex * 0.85;
+          plane.position.set(Math.cos(angle) * 2, relativeIndex * 0.5 - 0.8, Math.sin(angle) * 2);
+          plane.rotation.y = -angle + Math.PI / 2;
+          plane.renderOrder = Math.round((plane.position.z + 3) * 1000) + index;
+          plane.material.uniforms.uScrollSpeed.value = scrollSpeed;
+          plane.material.uniforms.uOpacity.value = edgeOpacity;
+          // 캡션은 화면 가운데 가장 앞(카메라에 가장 가까운) 카드 기준 — 예전엔 relativeIndex 0(오른쪽 옆면 카드)이라 어긋났음
+          // 고리 반대편 끝(|relativeIndex|≈6)에서 사라지는 카드도 z가 커지므로 보이는 범위 안에서만 고름 — 안 그러면 번호가 앞뒤로 튐
+          if (Math.abs(relativeIndex) < 4 && plane.position.z > frontZ) {
+            frontZ = plane.position.z;
+            closestPlane = plane;
+          }
+        });
+
+        updateActiveCaption(closestPlane);
+        renderer.render(scene, camera);
+        if (Math.abs(targetOffset - currentOffset) > 0.0005 || Math.abs(scrollSpeed) > 0.0001) {
+          renderFrameId = requestAnimationFrame(render);
+        } else {
+          renderLoopRunning = false;
+          renderFrameId = null;
+        }
+      };
+
+      const startSpiralLoop = () => {
+        if (renderLoopRunning) return;
+        renderLoopRunning = true;
+        render();
+      };
+
+      const stopSpiralLoop = () => {
+        if (!renderLoopRunning) return;
+        renderLoopRunning = false;
+        if (renderFrameId !== null) cancelAnimationFrame(renderFrameId);
+        renderFrameId = null;
+      };
+
+      const syncSpiralLoop = () => {
+        if (spiralInView) startSpiralLoop();
+        else stopSpiralLoop();
+      };
+
+      spiralCanvas.addEventListener("pointerdown", (event) => {
+        if (mobileQuery.matches) return;
+        pointerDown = { x: event.clientX, y: event.clientY };
+        suppressNextClick = false;
+        spiralCanvas.setPointerCapture?.(event.pointerId);
       });
-    });
-  })();
+
+      spiralCanvas.addEventListener("pointerup", (event) => {
+        if (!pointerDown || mobileQuery.matches) return;
+        const distance = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+        pointerDown = null;
+        if (spiralCanvas.hasPointerCapture?.(event.pointerId)) spiralCanvas.releasePointerCapture(event.pointerId);
+        suppressNextClick = distance >= 5;
+        if (suppressNextClick) return;
+        visitProject(getInteractivePlane(event));
+      });
+
+      spiralCanvas.addEventListener("pointercancel", (event) => {
+        pointerDown = null;
+        suppressNextClick = true;
+        if (spiralCanvas.hasPointerCapture?.(event.pointerId)) spiralCanvas.releasePointerCapture(event.pointerId);
+      });
+
+      spiralCanvas.addEventListener("click", (event) => {
+        if (suppressNextClick) {
+          suppressNextClick = false;
+          return;
+        }
+        if (event.detail === 0 || mobileQuery.matches) return;
+        visitProject(getInteractivePlane(event));
+      });
+
+      spiralCanvas.addEventListener("pointermove", (event) => {
+        if (mobileQuery.matches) return;
+        setHoveredPlane(getInteractivePlane(event));
+        spiralCanvas.classList.toggle("is-project-hover", Boolean(hoveredPlane));
+        updateProjectCta(hoveredPlane, event);
+      });
+
+      spiralCanvas.addEventListener("pointerleave", () => {
+        pointerDown = null;
+        setHoveredPlane(null);
+        spiralCanvas.classList.remove("is-project-hover");
+        updateProjectCta(null);
+      });
+
+      spiralCanvas.addEventListener("keydown", (event) => {
+        if (mobileQuery.matches || !["Enter", " "].includes(event.key)) return;
+        event.preventDefault();
+        visitProject(hoveredPlane || getCenterPlane());
+      });
+
+      resize();
+      window.addEventListener("resize", resize);
+      ScrollTrigger.addEventListener("refresh", resize); // 위쪽 섹션 높이가 바뀌면 시작 위치 다시 계산
+      const spiralVisibilityTarget = spiralScrollShell || spiralSection || spiralStage;
+      const spiralVisibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          spiralInView = entry.isIntersecting;
+          spiralScrollShell?.classList.toggle("is-scroll-animating", entry.isIntersecting);
+          syncSpiralLoop();
+        },
+        { rootMargin: "35% 0px", threshold: 0 }
+      );
+      spiralVisibilityObserver.observe(spiralVisibilityTarget);
+      window.addEventListener("scroll", syncSpiralLoop, { passive: true });
+
+      spiralExperience = { renderer, scene, camera, planes, resize };
+    } catch (error) {
+      console.error("Spiral WebGL failed to initialize", error);
+    } finally {
+      spiralInitializing = false;
+    }
+  };
+  initSpiralExperience();
 
   /* ---------- 7. studies strip ---------- */
   const studies = [
     // 이름은 각 배포 사이트의 <title> 기준 (이미지·링크는 원래 맞았고 이름만 어긋나 있었음)
-    ["Qude", "assets/clone-coding/clone-03.webp", "https://clonecode-virid.vercel.app/"],
+    // 4번째 값 true = 피그마에서 카드 모양(30° 기운 알약)대로 잘라 내보낸 이미지 → CSS .is-cutout으로 카드에 딱 맞춰 얹음
+    ["Qude", "assets/clone-coding/qude.webp", "https://clonecode-virid.vercel.app/", true],
     ["한화케미컬", "assets/clone-coding/clone-04.webp", "https://clonecoding2.vercel.app/"],
-    ["Y Studio", "assets/clone-coding/clone-05.webp", "https://clonecoding3.vercel.app/"],
-    ["Crew A La mode", "assets/clone-coding/clone-06.webp", "https://clonecoding4.vercel.app/"],
-    ["대방산업", "assets/clone-coding/clone-01.webp", "https://clonecoding5.vercel.app/"],
+    ["Y Studio", "assets/clone-coding/ystudio.webp", "https://clonecoding3.vercel.app/", true],
+    ["Crew A La mode", "assets/clone-coding/crewalamode.webp", "https://clonecoding4.vercel.app/", true],
+    ["대방산업", "assets/clone-coding/daebang.webp", "https://clonecoding5.vercel.app/", true],
     ["Musign", "assets/clone-coding/clone-02.webp", "https://clonecodiing6.vercel.app/"],
   ];
   // bauer-lab About people 카드: 짝수=down(아래에서), 홀수=up(위에서) / 뒷판(이름) → 0.3s 뒤 앞판(이미지)
   const studiesList = $(".studies-row");
   studiesList.innerHTML = studies
-    .map(([n, img, url], i) => `<li class="card-item" data-dir="${i % 2 === 0 ? "down" : "up"}"><a class="card-link" href="${url}" target="_blank" rel="noopener noreferrer" aria-label="${n} 클론코딩 (새 창)">`
+    .map(([n, img, url, cutout], i) => `<li class="card-item" data-dir="${i % 2 === 0 ? "down" : "up"}"><a class="card-link" href="${url}" target="_blank" rel="noopener noreferrer" aria-label="${n} 클론코딩 (새 창)">`
       + `<div class="card-img__back"><div class="info-box"><div class="info-box__inner"><span class="name">${n}</span><p class="position"><span>Web Study. 0${i + 1} ↗</span></p></div></div></div>`
-      + `<div class="card-img__front"><img src="${img}" alt="" loading="lazy" /></div></a></li>`)
+      + `<div class="card-img__front"><img${cutout ? ' class="is-cutout"' : ""} src="${img}" alt="" loading="lazy" /></div></a></li>`)
     .join("");
 
   (function initStudyCards() {
@@ -990,12 +1304,13 @@
         el.append(word);
         if (i < arr.length - 1) el.append(" ");
       });
-      return { el, letters: $$(".rise-letter", el), shown: false };
+      // data-rise-at: 재생 기준(화면 높이 배수). MY WORKS는 원형 마스크가 열린 뒤에야 보여서 0.7 — 기본 1.08이면 가려진 채로 끝남
+      return { el, letters: $$(".rise-letter", el), shown: false, at: parseFloat(el.dataset.riseAt) || 1.08 };
     });
     if (reduced || !groups.length) return;
     groups.forEach((g) => gsap.set(g.letters, { yPercent: 145 }));
     const check = () => groups.forEach((g) => {
-      if (g.el.getBoundingClientRect().top < innerHeight * 1.08) {
+      if (g.el.getBoundingClientRect().top < innerHeight * g.at) {
         if (g.shown) return;
         g.shown = true;
         // 끝나면 transform 제거: 3D 레이어로 남으면 크롬이 가변폰트 굵기를 잃어 얇게 그림
@@ -1015,6 +1330,7 @@
      SKILLS(고정 무대 안 목록과 한 덩어리)·Let's talk(제목이 곧 콘텐츠)은 제외 */
   (function initHeadFade() {
     const pairs = [
+      [".works-head", ".spiral-scroll-shell"], // MY WORKS도 CLONE CODING과 같게 사라짐
       [".studies .v1-head", ".studies-row"],
       [".timeline .v1-head", ".timeline-shell"],
     ].map(([h, c]) => ({ head: $(h), content: $(c) })).filter((p) => p.head && p.content);
@@ -1468,7 +1784,31 @@
     dy(e.clientY);
     mouseX = e.clientX;
     mouseY = e.clientY;
+    syncTimelineHint();
   });
+
+  // 커서 힌트 (v1 .cursor-hint 그대로): Timeline 영역 안인데 사진 위가 아닐 때 "Hover image !" 민트 알약이 커서를 따라다님
+  const cursorHint = $(".cursor-hint");
+  const timelineShell = $(".timeline-shell");
+  const timelinePhotos = $$(".timeline-photo");
+  const figmaSecForHint = $(".figma-sec"); // 피그마 창이 Timeline 위에 떠 있는 동안은 힌트를 끔
+  const lastHintItem = $$(".experience-item:not(.experience-now)").pop(); // 힌트는 마지막 경력(Internship)까지만, GROWING에서는 끔
+  let hintMoved = false;
+  function syncTimelineHint() {
+    if (!cursorHint || !timelineShell) return;
+    hintMoved = true;
+    cursorHint.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(20px, 20px)`;
+    const r = timelineShell.getBoundingClientRect();
+    const bottom = lastHintItem ? lastHintItem.getBoundingClientRect().bottom : r.bottom;
+    const inside = mouseX >= r.left && mouseX <= r.right && mouseY >= r.top && mouseY <= bottom;
+    const onPhoto = timelinePhotos.some((p) => {
+      const pr = p.getBoundingClientRect();
+      return mouseX >= pr.left && mouseX <= pr.right && mouseY >= pr.top && mouseY <= pr.bottom;
+    });
+    const onFigma = !!figmaSecForHint && figmaSecForHint.classList.contains("is-shown");
+    cursorHint.classList.toggle("is-visible", inside && !onPhoto && !onFigma);
+  }
+  addEventListener("scroll", () => { if (hintMoved) syncTimelineHint(); }, { passive: true }); // 마우스를 가만히 두고 스크롤해도 맞춰 켜고 끔
   // 눈동자: 평소엔 마우스를, 날아가는 중엔 가는 방향을 봄 (해수봇 프레임 루프에서 호출)
   function setGaze(ang) {
     pupils.forEach((p, i) => {
@@ -1481,7 +1821,10 @@
     });
   }
   document.documentElement.addEventListener("mouseleave", () => dot.classList.remove("is-on"));
-  document.addEventListener("mouseover", (e) => dot.classList.toggle("is-link", !!e.target.closest("a, button, .lead-rotator")));
+  document.addEventListener("mouseover", (e) => {
+    dot.classList.toggle("is-link", !!e.target.closest("a, button, .lead-rotator"));
+    dot.classList.toggle("is-ink", !!e.target.closest(".chatbot-modal-panel")); // 챗봇 창 위에선 검정 점
+  });
   const botLabel = $(".bot-label");
   let sayTimer = 0;
   function botSay(text, ms = 2200) { // 말풍선을 잠깐 펼쳐 메시지 표시
@@ -1495,7 +1838,7 @@
   }
 
   /* ---------- 10-1. chatbot : v1 initChatbotModal 그대로 (키워드 답변, 외부 API 없음) ----------
-     답변 내용은 v1 기준 + 지금 사이트에 맞게 손봄 (Works 목록, 인턴 경험 추가, Sayout 체험 버튼 문구 삭제) */
+     답변 내용은 v1 기준 + 지금 사이트에 맞게 손봄 (Works 목록, 인턴 경험 추가, Sayout 답변 삭제) */
   const chat = (function initChatbot() {
     const modal = $("[data-chatbot-modal]");
     const closeButton = $("[data-chatbot-close]", modal || document);
@@ -1512,15 +1855,18 @@
       suggestions: ["어떤 프로젝트를 했나요?", "가장 자신 있는 기술은?", "함께 일하려면 어떻게 하나요?"],
       qna: [
         { keywords: ["MOA결과", "4.12", "사용자평가", "25명", "984개", "MOA 성과"], answer: "MOA는 25명한테 40문항으로 사용자 평가를 받았어요. 미입력 16개 빼고 984개 응답 기준으로 평균 4.12점(5점 만점) 나왔고, 거기서 발견한 문제들(클릭 표현, 질문 흐름, 홈 화면 구조, 튜토리얼)은 다 개선했어요." },
-        { keywords: ["MOA", "모아", "의사결정", "후보추천"], answer: "MOA는 선택지가 너무 많아서 결정이 어렵거나 남 의견에 자꾸 기대게 되는 문제를 풀려고 만든 서비스예요. 답변 맥락에 따라 질문을 이어가면서 선택 기준을 정리해주고, 마지막엔 후보 세 개랑 추천 이유를 보여줘요." },
-        { keywords: ["아쿠아플라넷", "AQUA", "Aqua Planet", "글래스모피즘"], answer: "아쿠아플라넷의 지점, 해양생물, 프로그램을 깊어지는 바다 느낌으로 소개하는 인터랙티브 웹이에요. 긴 스크롤 배경, 영상, 기포·물결 효과, 3D 생물 모델, 글래스모피즘 UI를 섞어서 수중 공간을 탐색하는 감각을 표현했고, 대용량 영상·3D 자산 때문에 생기는 성능 문제도 같이 줄여봤어요." },
-        { keywords: ["LAYER", "레이어", "향수"], answer: "LAYER는 어렵고 방대한 향수 정보를 취향이랑 상황에 맞게 탐색하게 도와주는 향수 앱이에요. 향수 성향 진단, 매거진, 후기랑 자유롭게 대화하는 커뮤니티, 사진 보고 어울리는 향 추천해주는 콘텐츠랑 챗봇까지 설계했어요." },
-        { keywords: ["Sayout", "세이아웃", "명령형", "와이어프레임"], answer: "Sayout은 원하는 화면을 문장으로 입력하면 Figma 와이어프레임을 만들어주는 도구예요. 반복되는 초기 레이아웃 작업 시간을 줄이고, 구조를 빠르게 비교하고 고칠 수 있게 하는 게 목표예요." },
-        { keywords: ["인턴", "Pyro", "파이로", "실무", "경력"], answer: "2026년 9월부터 11월까지 Pyro Creations에서 인턴으로 일했어요. 웹페이지·상세페이지 디자인이랑 SNS 콘텐츠 제작, AEO 최적화를 경험했고, 보기 좋은 화면을 넘어 사람과 AI 모두에게 잘 읽히는 디자인을 배웠어요." },
-        { keywords: ["대표 프로젝트", "프로젝트 순서", "무엇부터", "추천 프로젝트"], answer: "UX 문제 정의랑 사용자 검증 과정 보고 싶으면 MOA 먼저 추천해요. 인터랙티브 웹 구현은 아쿠아플라넷, 콘텐츠 구조랑 감각적인 모바일 UI는 LAYER에서 볼 수 있어요." },
-        { keywords: ["클론", "clone"], answer: "실제 웹사이트의 구조랑 인터랙션을 분석해서 직접 재현해보는 클론코딩도 여러 개 했어요. Works 아래 CLONE CODING에서 카드 누르면 결과물을 바로 볼 수 있어요!" },
-        { keywords: ["프로젝트", "작업물", "포트폴리오", "만든", "work"], answer: "선택을 돕는 질문형 결정 도우미 앱 MOA, 아쿠아플라넷 웹사이트 리뉴얼, 향수 AI 챗봇 커뮤니티 LAYER를 진행했고, Blender·Codex로 만든 3D 구조물이랑 상세페이지·AEO 작업도 정리하고 있어요. Works 섹션에서 더 자세히 볼 수 있어요!" },
-        { keywords: ["코딩", "개발", "HTML", "CSS", "React", "GitHub", "기술", "스킬", "skill", "잘하", "자신"], answer: "네, HTML·CSS 기반으로 화면 만들고 React랑 Vite로 프로젝트도 여러 개 진행했어요. Git·GitHub로 협업하고 Vercel로 배포까지 직접 해봤고, 인터랙션이 많이 필요한 프로젝트에선 GSAP·ScrollTrigger·Three.js도 써봤어요." },
+        { keywords: ["MOA", "모아", "의사결정", "후보추천"], answer: "MOA는 선택지가 너무 많아서 결정이 어렵거나 남 의견에 자꾸 기대게 되는 문제를 풀려고 만든 질문형 결정 도우미 앱이에요. 답변 맥락에 따라 질문을 이어가면서 선택 기준을 정리해주고, 마지막엔 후보 세 개랑 추천 이유를 보여줘요. 2026년 3~5월에 UX 설계부터 디자인·개발까지 전 과정을 제가 직접 했어요." },
+        { keywords: ["아쿠아플라넷", "AQUA", "Aqua Planet", "글래스모피즘"], answer: "2026년 6~7월에 한 K브랜드 웹사이트 리뉴얼 팀프로젝트예요. 아쿠아플라넷의 지점, 해양생물, 프로그램을 깊어지는 바다 느낌으로 소개하는 인터랙티브 웹이고, 저는 랜딩·마린랩·티켓 페이지 개발이랑 생물·로고 3D 작업을 맡았어요. 전 페이지가 같이 쓰는 인터랙션 시스템도 설계했고, 대용량 영상·3D 자산 때문에 생기는 성능 문제도 같이 줄여봤어요." },
+        { keywords: ["LAYER", "레이어", "향수"], answer: "LAYER는 어렵고 방대한 향수 정보를 취향이랑 상황에 맞게 탐색하게 도와주는 AI 챗봇 커뮤니티 앱이에요(2026년 7월). 향수 성향 진단, 매거진, 후기랑 자유롭게 대화하는 커뮤니티, 사진 보고 어울리는 향 추천해주는 콘텐츠랑 챗봇까지 설계했고, 저는 온보딩이랑 홈을 메인으로 개발하면서 앱 전반의 기능 구현이랑 더미데이터 설계를 맡았어요." },
+        { keywords: ["3D 구조물", "3D OBJECT", "3D 오브젝트", "구조물", "인트로", "Blender", "블렌더", "3D"], answer: "2026년 9월에 개인 외주로 맡은 작업이에요. 홈페이지 컨셉에 맞는 3D 구조물을 만들어서, 스크롤하면 움직이는 홈페이지 도입부를 맡았어요. MY WORKS의 004 카드를 누르면 직접 볼 수 있어요!" },
+        { keywords: ["상세페이지", "상세 페이지", "DETAIL PAGE", "와디즈", "종근당"], answer: "인턴 때 담당했던 상세페이지 디자인을 지금(2026년 10월~)도 외주로 이어서 하고 있어요. 와디즈, 종근당 상세페이지를 진행했어요." },
+        { keywords: ["리만", "RIMAN", "AEO", "허브 사이트", "허브사이트"], answer: "리만코리아 AEO 허브 사이트 작업이에요(2026년 9~11월). AI 검색 답변에 잘 인용되도록(AEO) 허브 홈페이지를 만들고, 사이트 안의 콘텐츠도 AEO에 맞게 최적화했어요. MY WORKS의 006 카드에서 실제 사이트로 갈 수 있어요." },
+        { keywords: ["외주", "프리랜서", "freelance"], answer: "지금은 상세페이지 디자인 외주를 이어서 하고 있고(와디즈·종근당), 2026년 9월엔 홈페이지 도입부에 들어가는 3D 구조물 작업도 외주로 맡았어요." },
+        { keywords: ["인턴", "Pyro", "파이로", "실무", "경력"], answer: "2026년 9월부터 11월까지 Pyro Creations에서 인턴으로 일했어요. 웹페이지·상세페이지 디자인이랑 SNS 콘텐츠 제작, AEO 최적화를 경험했고, 보기 좋은 화면을 넘어 사람과 AI 모두에게 잘 읽히는 디자인을 배웠어요. 그때 맡았던 상세페이지 작업은 지금도 외주로 이어가고 있어요." },
+        { keywords: ["대표 프로젝트", "프로젝트 순서", "무엇부터", "추천 프로젝트"], answer: "UX 문제 정의랑 사용자 검증 과정 보고 싶으면 MOA 먼저 추천해요. 인터랙티브 웹 구현은 아쿠아플라넷, 콘텐츠 구조랑 감각적인 모바일 UI는 LAYER, AEO 작업은 리만코리아 허브 사이트에서 볼 수 있어요." },
+        { keywords: ["클론", "clone"], answer: "실제 웹사이트의 구조랑 인터랙션을 분석해서 직접 재현해보는 클론코딩을 6개 했어요(Qude, 한화케미컬, Y Studio, Crew A La mode, 대방산업, Musign). MY WORKS 아래 CLONE CODING에서 카드 누르면 결과물을 바로 볼 수 있어요!" },
+        { keywords: ["프로젝트", "작업물", "포트폴리오", "만든", "work"], answer: "MY WORKS에 여섯 개를 정리했어요. 아쿠아플라넷 웹사이트 리뉴얼, 향수 AI 챗봇 커뮤니티 LAYER, 질문형 결정 도우미 앱 MOA, 외주로 맡은 홈페이지 도입부 3D 구조물, 지금도 이어가는 상세페이지 디자인, 리만코리아 AEO 허브 사이트예요. 카드를 누르면 실제 사이트로 갈 수 있어요!" },
+        { keywords: ["코딩", "개발", "HTML", "CSS", "React", "GitHub", "기술", "스킬", "skill", "잘하", "자신"], answer: "네, HTML·CSS 기반으로 화면 만들고 React랑 Vite로 프로젝트도 여러 개 진행했어요. Git·GitHub로 협업하고 Vercel로 배포까지 직접 해봤고, 인터랙션이 많이 필요한 프로젝트에선 GSAP·ScrollTrigger·Three.js도 써봤어요. TypeScript·Tailwind도 쓰고, 3D는 Blender로 만들어요." },
         { keywords: ["디자인 도구", "디자인툴", "Figma", "피그마", "프로토타입", "컴포넌트"], answer: "주로 Figma로 와이어프레임, UI, 컴포넌트, 프로토타입까지 다 만들어요. 필요한 이미지나 시각 자산도 다듬고, 인터랙티브 웹으로 옮길 땐 구조를 개발 환경에 맞게 정리해서 써요." },
         { keywords: ["앞으로", "커리어 목표", "미래", "프로덕트 디자이너", "되고 싶", "되고싶"], answer: "사용자 행동이랑 감정을 세밀하게 이해하면서도, 아이디어를 실제 제품·서비스로 구현할 수 있는 디자이너가 되고 싶어요. 디자인이랑 개발 사이의 언어를 같이 이해하면서 팀이랑 잘 협업하고, 사용자가 직접 만지고 반응할 수 있는 경험을 만드는 게 목표예요." },
         { keywords: ["어떤 디자이너", "디자인 철학", "정체성", "지향점", "한 문장"], answer: "저는 사용자를 감각으로 읽고, 그 감각을 논리로 구현하는 디자이너를 지향해요. 보기 좋은 화면 만드는 데서 끝내지 않고, 사용자가 뭘 이해하고 어떤 행동을 하게 될지까지 설계한 다음 인터랙션이랑 코드로 연결하려고 해요." },
@@ -1543,7 +1889,7 @@
         { keywords: ["어디 살", "사는 곳", "거주", "지역", "location"], answer: "용인 살아요!" },
         { keywords: ["취미", "여가", "hobby", "쉴 때", "관심사", "그림", "드로잉"], answer: "그림 그리는 걸 제일 좋아해요. 라떼아트로 커피 위에 그리기도 하고, 시간 날 때 전시 보러 다니거나 여행 다니는 것도 즐겨요." },
         { keywords: ["그림과 디자인", "시각화"], answer: "그림 그리면서 머릿속 아이디어를 눈에 보이는 형태로 옮기는 게 익숙해졌어요. 지금은 그 경험을 가만히 있는 이미지에만 안 쓰고, 사용자가 움직이고 선택하고 반응할 수 있는 화면이랑 인터랙션으로 넓혀서 쓰고 있어요." },
-        { keywords: ["함께", "협업", "연락", "컨택", "채용", "일하", "인터뷰", "이메일", "전화"], answer: "010-4212-4970 또는 chs041015@gmail.com으로 편하게 연락 주세요. 프로젝트별 자세한 과정은 Works 섹션에서 더 볼 수 있어요!" },
+        { keywords: ["함께", "협업", "연락", "컨택", "채용", "일하", "인터뷰", "이메일", "전화"], answer: "010-4212-4970 또는 chs041015@gmail.com으로 편하게 연락 주세요. 프로젝트별 자세한 내용은 MY WORKS 섹션에서 더 볼 수 있어요!" },
       ],
       fallback: "그건 제가 아직 답을 못 드리는 질문이에요. 프로젝트나 기술, 제 얘기, 협업 방법 같은 거 물어봐 주세요!",
     };
@@ -1697,11 +2043,26 @@
     const legL = $(".bot-leg-g.is-left", bot), legR = $(".bot-leg-g.is-right", bot);
     const st = {
       x: 0, y: 0, vx: 0, vy: 0, mode: "dock", zone: null, onGround: false, t: 0,
-      walkPhase: 0, lean: 0, wob: 0, land: 0, crouch: 0, jetting: false, lastPuff: 0, target: null,
+      walkPhase: 0, lean: 0, wob: 0, land: 0, crouch: 0, jetting: false, lastPuff: 0, target: null, big: 0,
+      facing: 1, face: 1, entering: false, // facing: 보는 방향(±1) / face: 뒤집히는 중간값 (v1 facingScale) / entering: 첫 등장 낙하 중
     };
+
+    // 눈 깜빡임 (v1 scheduleBlink: 2.4~5초마다 0.14초)
+    (function blink() {
+      setTimeout(() => {
+        bot.classList.add("is-blinking");
+        setTimeout(() => bot.classList.remove("is-blinking"), 140);
+        blink();
+      }, 2400 + Math.random() * 2600);
+    })();
     const keys = new Set();
     const hinted = { hero: false, foot: false };
 
+    // 글자 하나를 탄성 있게 밀어내는 핸들 (x·y·회전)
+    const pusher = (el) => {
+      const q = (prop) => gsap.quickTo(el, prop, { duration: 0.9, ease: "elastic.out(1, 0.4)" });
+      return { el, x: q("x"), y: q("y"), r: q("rotation"), pushed: false };
+    };
     // 서명 글자 쪼개기 (글자마다 탄성 있게 밀려남)
     const sigLetters = $$(".contact-signature p").flatMap((line) => {
       const text = line.textContent;
@@ -1711,25 +2072,28 @@
         el.className = "contact-signature-letter";
         el.textContent = ch === " " ? " " : ch;
         line.append(el);
-        const q = (prop) => gsap.quickTo(el, prop, { duration: 0.9, ease: "elastic.out(1, 0.4)" });
-        return { el, x: q("x"), y: q("y"), r: q("rotation"), pushed: false };
+        return pusher(el);
       });
     });
+    // Hero 제목(DESIGNER / WHO CODES)도 같은 자기장 효과. 글자(.ch)는 등장 모션용 마스크 안에서 잘리니까 마스크째 밀어냄
+    const heroLetters = $$(".top-logo .top-logo-mask").map(pusher);
 
     const scaleNow = () => (innerWidth < 1024 ? 0.8 : 1);
+    // Hero·Footer에선 v1처럼 크게 (v1: 정박 66×88 → 돌아다닐 때 88×120 = 4/3배). st.big 0→1로 부드럽게 커지고 작아짐
+    const sizeNow = () => scaleNow() * (1 + st.big / 3);
     const dockPos = () => {
       const s = scaleNow(), mobile = innerWidth < 1024;
       return { x: innerWidth - (mobile ? 30 : 56) - (BW * s) / 2, y: innerHeight - (mobile ? 18 : 22) - (BH * s) / 2 };
     };
     const zoneNow = () => {
       if (reduced || chat?.isOpen()) return null;
-      if (introDone && scrollY < innerHeight * 0.35) return "hero";
+      if ((introDone || st.entering) && scrollY < innerHeight * 0.35) return "hero";
       if (footZone && footZone.getBoundingClientRect().top < innerHeight * 0.3) return "foot";
       return null;
     };
     // 바닥·천장·좌우 벽 (y는 몸 중심 기준)
     const bounds = () => {
-      const s = scaleNow(), hw = (BW * s) / 2, hh = (BH * s) / 2, m = 16;
+      const s = sizeNow(), hw = (BW * s) / 2, hh = (BH * s) / 2, m = 16;
       let ground = innerHeight - 24; // Hero: 화면 아래
       let ceil = 84;                 // 메뉴 아래
       if (st.zone === "foot" && footZone) {
@@ -1753,11 +2117,11 @@
       });
     };
     const jetPuff = () => {
-      const s = scaleNow();
+      const s = sizeNow();
       particle(st.x + (Math.random() - 0.5) * 22 * s, st.y + BH * s * 0.36, (Math.random() - 0.5) * 30, 50 + Math.random() * 45, Math.random() < 0.3);
     };
     const dust = (power) => {
-      const s = scaleNow(), fy = st.y + (FOOT - 0.5) * BH * s;
+      const s = sizeNow(), fy = st.y + (FOOT - 0.5) * BH * s;
       const n = Math.round(4 + power * 6);
       for (let i = 0; i < n; i++) {
         const dir = i % 2 ? 1 : -1;
@@ -1765,16 +2129,33 @@
       }
     };
 
+    // 방향키 생각풍선 (v1 dpad 힌트): 구역에 처음 들어올 때 잠깐 + 마우스를 올릴 때 (v1처럼 방향키 ↔ 챗봇 말풍선 번갈아)
+    let keysTimer = 0, nextHover = "keys";
+    const showKeys = (ms) => {
+      clearTimeout(keysTimer);
+      bot.classList.add("is-keys");
+      if (ms) keysTimer = setTimeout(() => bot.classList.remove("is-keys"), ms);
+    };
+    const hideKeys = () => { clearTimeout(keysTimer); bot.classList.remove("is-keys"); };
+    bot.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse" || st.mode !== "walk") return;
+      if (nextHover === "keys") showKeys(0);
+      nextHover = nextHover === "keys" ? "chat" : "keys";
+    });
+    bot.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hideKeys(); });
+
+    // 돌아다닐 땐 말풍선을 띄우지 않음 → 방향키 풍선만 (터치 화면은 방향키가 없어 생략)
     const hint = (zone) => {
       if (hinted[zone]) return;
       hinted[zone] = true;
-      botSay(touchQuery.matches ? "터치한 곳으로 걸어가요! 위쪽을 누르면 날아가요" : "← → 걷기 · ↑ 길게 누르면 날아요!", 3600);
+      if (!touchQuery.matches) showKeys(3600);
     };
 
     addEventListener("keydown", (e) => {
       if (!ARROWS.has(e.key) || st.mode !== "walk" || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.target instanceof Element && e.target.closest("input, textarea, select, [contenteditable]")) return;
       e.preventDefault(); // 걷는 동안엔 방향키로 페이지가 스크롤되지 않게
+      hideKeys(); // 눌러봤으니 풍선은 닫음
       if (e.key === "ArrowUp" && !e.repeat && st.onGround) { st.vy = -JUMP; st.onGround = false; } // 둥실 점프
       keys.add(e.key);
       st.target = null;
@@ -1789,11 +2170,18 @@
 
     const d0 = dockPos();
     st.x = d0.x; st.y = d0.y;
+    // 첫 등장 (v1 그대로): Hero에서 시작하면 가운데 스크롤 빛 선(.scroll-cue) 바로 왼쪽, 바닥 110px 위에서 떨어져 착지
+    // → 착지하면 방향키 풍선 → 그다음 제목 글자가 올라옴 (제목은 botIntro를 기다림)
+    let shutUntil = 0;
+    if (!reduced && scrollY < innerHeight * 0.35) {
+      st.mode = "walk"; st.zone = "hero"; hinted.hero = true; st.entering = true; st.big = 1;
+      st.x = innerWidth / 2 - 120 * scaleNow(); st.y = bounds().floor - 110; st.vx = 0; st.vy = 0; st.onGround = false;
+    } else botIntroDone();
 
     gsap.ticker.add((time, deltaMs) => {
       const dt = Math.min(deltaMs / 1000, 0.05);
       st.t += dt;
-      const s = scaleNow();
+      const s = sizeNow();
 
       // 구역 판정 → 걷기 / 복귀 / 정박
       const z = zoneNow();
@@ -1801,9 +2189,11 @@
         if (st.mode !== "walk") { st.mode = "walk"; st.onGround = false; st.vx = -140; st.vy = -380; } // 정박 자리에서 폴짝
         if (st.zone !== z) { st.zone = z; st.onGround = false; hint(z); }
       } else if (st.mode === "walk") {
-        st.mode = "return"; st.zone = null; st.target = null; keys.clear();
+        st.mode = "return"; st.zone = null; st.target = null; keys.clear(); hideKeys();
       }
       bot.classList.toggle("is-floating", st.mode === "walk");
+      bot.classList.toggle("is-docked", st.mode === "dock");
+      st.big +=((st.mode === "walk" ? 1 : 0) - st.big) * Math.min(1, dt * 6);
 
       let dir = 0, jet = false;
       if (st.mode === "walk") {
@@ -1844,8 +2234,13 @@
         if (st.y >= b.floor) {
           if (!st.onGround) {
             const impact = clamp(st.vy / FALL_MAX);
-            if (st.vy > HOP * 1.3) { st.land = Math.min(1, impact * 1.2); dust(impact); } // 점프·비행 후 착지: 크게 찌그러지고 먼지
+            if (st.vy > HOP * 1.3) { st.land = Math.min(1, impact * 1.2); dust(impact); shutUntil = time + 0.28; } // 점프·비행 후 착지: 크게 찌그러지고 먼지, 눈 질끈 (v1 reaction "down")
             else if (st.vy > 60) { st.land = 0.18; if (Math.random() < 0.5) dust(0); }  // 걸음 착지: 살짝 + 가끔 먼지
+            if (st.entering) { // 첫 등장 착지 → 방향키 풍선 → 풍선이 다 뜬 뒤(v1 460ms) 제목 시작
+              st.entering = false;
+              if (!touchQuery.matches) showKeys(3600);
+              setTimeout(botIntroDone, 460);
+            }
           }
           st.y = b.floor; st.vy = 0; st.onGround = true;
         }
@@ -1875,7 +2270,14 @@
       const sy = 1 - st.crouch * 0.18 - st.land * 0.22;
       // 찌그러질 때 발바닥이 바닥에 붙어 있도록 아래로 보정
       const squashDrop = (1 - sy) * BH * s * (FOOT - 0.5);
-      bot.style.transform = `translate3d(${(st.x - BW / 2).toFixed(2)}px,${(st.y - BH / 2 + squashDrop).toFixed(2)}px,0) rotate(${(st.lean + wobble).toFixed(2)}deg) scale(${(s * sx).toFixed(3)},${(s * sy).toFixed(3)})`;
+      // 보는 방향: 가는 쪽으로 몸 전체가 좌우로 뒤집힘 (v1 facingScale: 1 ↔ -1 사이를 빠르게 지나며 휙 돌아섬). 정박하면 오른쪽
+      if (walking) { if (dir) st.facing = dir; else if (Math.abs(st.vx) > 40) st.facing = Math.sign(st.vx); }
+      else st.facing = 1;
+      st.face += (st.facing - st.face) * Math.min(1, dt * 9);
+      const mirror = st.face < 0 ? -1 : 1; // 뒤집힌 상태에선 회전 방향도 반대로 줘야 화면에서 같은 쪽으로 기울어짐
+      bot.dataset.facing = mirror < 0 ? "left" : "right";
+      bot.classList.toggle("is-eyes-shut", (walking && st.crouch > 0.08) || time < shutUntil);
+      bot.style.transform = `translate3d(${(st.x - BW / 2).toFixed(2)}px,${(st.y - BH / 2 + squashDrop).toFixed(2)}px,0) scaleX(${st.face.toFixed(3)}) rotate(${((st.lean + wobble) * mirror).toFixed(2)}deg) scale(${(s * sx).toFixed(3)},${(s * sy).toFixed(3)})`;
 
       // 다리: 바닥에선 v1 걷기 흔들기(달이라 느리게), 공중에선 벌린 채 둥둥, 제트팩 땐 모음
       if (walking && st.onGround === false && Math.abs(st.vx) > 30) st.walkPhase += Math.abs(st.vx) * dt * 0.03;
@@ -1891,27 +2293,26 @@
 
       // 눈: 움직일 땐 가는 방향, 아니면 마우스
       const speed = Math.hypot(st.vx, st.vy);
-      setGaze(walking && speed > 70 ? Math.atan2(st.vy * 0.6, st.vx) : Math.atan2(mouseY - (st.y - BH * s * 0.08), mouseX - st.x));
+      const gaze = walking && speed > 70 ? Math.atan2(st.vy * 0.6, st.vx) : Math.atan2(mouseY - (st.y - BH * s * 0.08), mouseX - st.x);
+      setGaze(mirror < 0 ? Math.PI - gaze : gaze); // 뒤집혀 있으면 눈동자 좌우도 거울로
 
-      // Footer 서명 글자 밀어내기
-      if (sigLetters.length) {
-        const active = walking && st.zone === "foot";
-        const R = 170;
-        sigLetters.forEach((L) => {
-          if (!active) { if (L.pushed) { L.pushed = false; L.x(0); L.y(0); L.r(0); } return; }
-          const r = L.el.getBoundingClientRect();
-          const cx = r.left + r.width / 2 - (gsap.getProperty(L.el, "x") || 0);
-          const cy = r.top + r.height / 2 - (gsap.getProperty(L.el, "y") || 0);
-          const ddx = cx - st.x, ddy = cy - st.y, dist = Math.max(Math.hypot(ddx, ddy), 0.001);
-          const k = Math.pow(Math.max(0, 1 - dist / R), 1.5);
-          if (k > 0) {
-            L.pushed = true;
-            L.x((ddx / dist) * k * 46);
-            L.y((ddy / dist) * k * 46 - k * 10);
-            L.r((ddx / R) * k * 24);
-          } else if (L.pushed) { L.pushed = false; L.x(0); L.y(0); L.r(0); }
-        });
-      }
+      // 글자 밀어내기 (자기장): Footer "It's Haesoo ." + Hero "DESIGNER WHO CODES". 봇이 가까이 오면 반대쪽으로 밀려났다 탄성 있게 돌아옴
+      const pushAway = (letters, active, R, amt) => letters.forEach((L) => {
+        if (!active) { if (L.pushed) { L.pushed = false; L.x(0); L.y(0); L.r(0); } return; }
+        const r = L.el.getBoundingClientRect();
+        const cx = r.left + r.width / 2 - (gsap.getProperty(L.el, "x") || 0);
+        const cy = r.top + r.height / 2 - (gsap.getProperty(L.el, "y") || 0);
+        const ddx = cx - st.x, ddy = cy - st.y, dist = Math.max(Math.hypot(ddx, ddy), 0.001);
+        const k = Math.pow(Math.max(0, 1 - dist / R), 1.5);
+        if (k > 0) {
+          L.pushed = true;
+          L.x((ddx / dist) * k * amt);
+          L.y((ddy / dist) * k * amt - k * 10);
+          L.r((ddx / R) * k * 24);
+        } else if (L.pushed) { L.pushed = false; L.x(0); L.y(0); L.r(0); }
+      });
+      pushAway(sigLetters, walking && st.zone === "foot", 170, 46);
+      pushAway(heroLetters, walking && st.zone === "hero" && !st.entering, 210, 56); // Hero 글자가 커서 반경·밀리는 거리를 조금 크게
     });
   })();
 

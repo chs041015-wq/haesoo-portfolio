@@ -4,11 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio - Choi Haesoo</title>
+    <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- SUIT Variable : 영문·한글 공통 / JetBrains Mono : 코드 창·좌표 표시 전용 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
+    <!-- Featured 3D 나선 캡션·VIEW SITE 알약: 예전 클론코딩 섹션과 같은 폰트 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -17,15 +21,16 @@
     <div class="reveal-paper" aria-hidden="true"></div><!-- Hero→About: 미색이 원형으로 퍼지는 레이어 -->
 
     <div class="cursor-dot" aria-hidden="true"></div>
+    <div class="cursor-hint" aria-hidden="true">Hover image !</div>
 
     <!-- NAV : bauer 알약 버튼 + 섹션 진행률 채움 -->
     <header class="nav">
-      <a class="nav-logo" href="#home">haesoo<span>.</span></a>
+      <a class="nav-logo" href="#home" aria-label="HAESOO 홈으로"><span class="nav-logo-mark" aria-hidden="true"></span></a>
       <nav class="nav-pills" aria-label="Primary">
-        <a class="pill" href="#about" data-group="about"><span class="pill-text">About</span><span class="pill-fill" aria-hidden="true">About</span></a>
-        <a class="pill" href="#works" data-group="works"><span class="pill-text">Works</span><span class="pill-fill" aria-hidden="true">Works</span></a>
-        <a class="pill" href="#timeline" data-group="timeline"><span class="pill-text">Timeline</span><span class="pill-fill" aria-hidden="true">Timeline</span></a>
-        <a class="pill" href="#contact" data-group="contact"><span class="pill-text">Contact</span><span class="pill-fill" aria-hidden="true">Contact</span></a>
+        <a class="pill" href="#about" data-group="about" data-stop="about"><span class="pill-text rolling-link"><span>About</span><span aria-hidden="true">About</span></span><span class="pill-fill" aria-hidden="true"><span class="rolling-link"><span>About</span><span>About</span></span></span></a>
+        <a class="pill" href="#works" data-group="works" data-stop="works"><span class="pill-text rolling-link"><span>Works</span><span aria-hidden="true">Works</span></span><span class="pill-fill" aria-hidden="true"><span class="rolling-link"><span>Works</span><span>Works</span></span></span></a>
+        <a class="pill" href="#timeline" data-group="timeline"><span class="pill-text rolling-link"><span>Timeline</span><span aria-hidden="true">Timeline</span></span><span class="pill-fill" aria-hidden="true"><span class="rolling-link"><span>Timeline</span><span>Timeline</span></span></span></a>
+        <a class="pill" href="#contact" data-group="contact"><span class="pill-text rolling-link"><span>Contact</span><span aria-hidden="true">Contact</span></span><span class="pill-fill" aria-hidden="true"><span class="rolling-link"><span>Contact</span><span>Contact</span></span></span></a>
       </nav>
     </header>
 
@@ -41,7 +46,6 @@
             <div class="lead">
               <!-- 원칙 4문장 타이핑 순환 (구 Approach 섹션). 호버하면 한국어 -->
               <p class="lead-rotator" style="transition-delay: 0s" aria-live="polite">
-                <span class="lead-icon" aria-hidden="true"></span>
                 <span class="lead-text"></span>
               </p>
             </div>
@@ -65,16 +69,16 @@
               <!-- 회전하며 다가오는 동안은 영어, 제자리에 오면 한국어로 번역 (히어로 호버 번역과 같은 장치) -->
               <div class="about-desc">
                 <div class="desc-en">
-                  <p class="d-hi">I'm <b class="ad-fact">Haesoo</b>, a <b class="ad-fact">UX·UI designer</b>.</p>
-                  <p class="d-body">I translate user experiences into design and decode them with code.<br /> To create experiences anyone can use with ease, beyond good-looking screens,<br /> I aim to understand people and systems with equal depth.</p>
+                  <p class="d-hi">I'm <b class="ad-fact">Haesoo</b>, a <b class="ad-fact">designer</b>.</p>
+                  <p class="d-body">Focused on <b class="ad-fact">UX·UI</b>, I design user flows and build them myself in code.<br /> To create experiences anyone can use with ease, beyond good-looking screens,<br /> I aim to understand people and systems with equal depth.</p>
                 </div>
                 <div class="desc-ko" aria-hidden="true">
-                  <p class="d-hi">안녕하세요! <b class="ad-fact">UX·UI 디자이너 최해수</b>입니다.</p>
-                  <p class="d-body">사용자 경험을 디자인으로 해석하고, 코드로 해독합니다.<br /> 보기 좋은 화면을 넘어 누구나 편하게 쓸 수 있는 경험을 만들기 위해,<br /> 사람과 시스템을 똑같이 깊이 이해하는 것을 목표로 합니다.</p>
+                  <p class="d-hi">안녕하세요! <b class="ad-fact">디자이너 최해수</b>입니다.</p>
+                  <p class="d-body"><b class="ad-fact">UX·UI</b>를 중심으로, 사용자의 흐름을 설계하고 직접 코드로 구현합니다.<br /> 보기 좋은 화면을 넘어 누구나 편하게 쓸 수 있는 경험을 만들기 위해,<br /> 사람과 시스템을 똑같이 깊이 이해하는 것을 목표로 합니다.</p>
                 </div>
               </div>
               <div class="about-after">
-                <a class="about-cta about-reveal" href="#works">View Project <span aria-hidden="true">→</span></a>
+                <a class="about-cta about-reveal" href="#works" data-stop="works">View Project <span aria-hidden="true">→</span></a>
               </div>
             </div>
           </div>
@@ -84,84 +88,29 @@
       </section>
       </div><!-- /.top-wrap -->
 
-      <!-- 4. WORKS : bauer-lab Featured Projects (creation) 그대로
-           .works-mask  : 섹션 맨 위 100vh 고정 막(About과 같은 어두운 색), 원형 구멍이 커지며 열림 (bauer circleMaskContainer)
-           .works-gl    : 이미지를 WebGL 평면으로 다시 그림. 화면 아래쪽에 있는 부분이 보는 사람 쪽으로 휘어짐 (bauer uCurve 500 / uCurveY -0.08)
-           .works-navi  : bauer #creation__navi 자리(왼쪽 23%) — 목록이 없어서 숨기고, 77% 내용 칸을 가운데 정렬: 고정 제목 + 설명 3줄 + 16:9 이미지 + 가운데 캡션 -->
-      <section class="works" id="works">
+      <!-- 4. WORKS : Featured Projects
+           .works-mask          : 섹션 맨 위 100vh 고정 막(About과 같은 어두운 색), 원형 구멍이 커지며 열림 (bauer circleMaskContainer)
+           .spiral-scroll-shell : 예전 클론코딩 섹션 3D 나선(spiral) 그대로 — 420vh 동안 무대가 고정되고 스크롤하면 카드가 나선을 따라 회전
+                                  이미지·이름·링크만 Featured 프로젝트로 바꿈 (script.js spiralProjectData) -->
+      <section class="works spiral-section" id="works">
         <div class="works-mask" aria-hidden="true"></div>
-        <canvas class="works-gl" aria-hidden="true"></canvas>
-        <div class="works-inner">
-          <div class="works-navi" aria-hidden="true"></div>
-          <div class="works-contents">
-            <h2 class="works-title"><span>FEATURED PROJECTS</span></h2>
-            <div class="works-section" id="work-aqua">
-              <div class="content-desc">
-                <div>
-                  <p data-fade>K브랜드 웹사이트 리뉴얼 팀프로젝트 · 2026.06 — 07</p>
-                  <p data-fade>랜딩·마린랩·티켓 페이지 개발을 맡고,</p>
-                  <p data-fade>전 페이지가 공유하는 인터랙션 시스템을 설계했습니다.</p>
-                  <p class="content-links" data-fade><a href="https://ezen-aquaplanet-project.vercel.app/" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A398&amp;node-id=237-1640&amp;viewport=612%2C783%2C0.08&amp;t=Y3y3Dgch0k1oZkVg-1&amp;scaling=min-zoom&amp;content-scaling=fixed" target="_blank" rel="noopener noreferrer">Figma ↗</a></p>
-                </div>
+        <header class="works-head">
+          <h2 class="works-title" data-rise data-rise-at="0.7">MY WORKS</h2>
+        </header>
+        <div class="spiral-scroll-shell">
+          <div class="spiral-stage">
+            <canvas class="spiral-webgl" role="button" tabindex="0" aria-label="My Works spiral"></canvas>
+            <div class="spiral-webgl-fade" aria-hidden="true"></div>
+            <span class="spiral-project-cta" aria-hidden="true">
+              <span class="spiral-project-cta-arrow" aria-hidden="true">↗</span>
+              <span>VIEW SITE</span>
+            </span>
+            <div class="spiral-active-caption" aria-hidden="true">
+              <div class="spiral-active-caption-name">
+                <span class="spiral-active-caption-index" data-spiral-caption-index></span>
+                <span class="spiral-active-caption-title" data-spiral-caption-title></span>
               </div>
-              <figure class="work-item">
-                <a class="work-media" href="https://ezen-aquaplanet-project.vercel.app/" target="_blank" rel="noopener noreferrer" data-cursor-title="AQUA PLANET" aria-label="AQUA PLANET 사이트 열기 (새 탭)"><img src="assets/project1/figma/project-left.webp" alt="AQUA PLANET 작업 화면" data-gl-img /></a>
-                <figcaption>AQUA PLANET</figcaption>
-              </figure>
-            </div>
-            <div class="works-section" id="work-layer">
-              <div class="content-desc">
-                <div>
-                  <p data-fade>AI 챗봇 커뮤니티 프로젝트 · 2026.07</p>
-                  <p data-fade>온보딩과 홈을 메인으로 개발하고,</p>
-                  <p data-fade>앱 전반의 기능 구현과 더미데이터 설계를 담당했습니다.</p>
-                  <p class="content-links" data-fade><a href="https://ezen-layerproject.vercel.app/" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="https://www.figma.com/proto/RNZVS2U4p1upluVvq78tTL/personal?page-id=237%3A5040&amp;node-id=237-5053&amp;viewport=690%2C571%2C0.03&amp;t=DIbfmwmD9cwUu7El-1&amp;scaling=min-zoom&amp;content-scaling=fixed" target="_blank" rel="noopener noreferrer">Figma ↗</a></p>
-                </div>
-              </div>
-              <figure class="work-item">
-                <a class="work-media" href="https://ezen-layerproject.vercel.app/" target="_blank" rel="noopener noreferrer" data-cursor-title="LAYER" aria-label="LAYER 사이트 열기 (새 탭)"><img src="assets/project1/figma/project-center.webp" alt="LAYER 작업 화면" data-gl-img /></a>
-                <figcaption>LAYER</figcaption>
-              </figure>
-            </div>
-            <div class="works-section" id="work-moa">
-              <div class="content-desc">
-                <div>
-                  <p data-fade>선택을 돕는 질문형 결정 도우미 앱 · 2026.03 — 05</p>
-                  <p data-fade>사용자가 스스로 기준을 찾도록,</p>
-                  <p data-fade>UX 설계부터 디자인·개발까지 전 과정을 직접 담당했습니다.</p>
-                  <p class="content-links" data-fade><a href="https://moa-app-indol.vercel.app/" target="_blank" rel="noopener noreferrer">Website ↗</a><a href="https://www.figma.com/proto/IYUwIKFuLk3G0BmvlsoH9h/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%AA%A8%EC%95%84?page-id=1159%3A1255&amp;node-id=1159-2682&amp;viewport=1063%2C1162%2C0.03&amp;t=5qcWExPYTwMcfkE4-1&amp;scaling=contain&amp;content-scaling=fixed&amp;starting-point-node-id=1159%3A2682" target="_blank" rel="noopener noreferrer">Figma ↗</a></p>
-                </div>
-              </div>
-              <figure class="work-item">
-                <a class="work-media" href="https://moa-app-indol.vercel.app/" target="_blank" rel="noopener noreferrer" data-cursor-title="MOA" aria-label="MOA 사이트 열기 (새 탭)"><img src="assets/project1/figma/project-right.webp" alt="MOA 작업 화면" data-gl-img /></a>
-                <figcaption>MOA</figcaption>
-              </figure>
-            </div>
-            <div class="works-section" id="work-3d">
-              <div class="content-desc">
-                <div>
-                  <p data-fade>Blender · Codex로 만든 3D 구조물</p>
-                  <p data-fade>Blender로 3D 구조물을 모델링하고,</p>
-                  <p data-fade>Codex(AI 코딩)로 제작 과정을 자동화했습니다.</p>
-                </div>
-              </div>
-              <figure class="work-item">
-                <div class="work-media is-placeholder" data-cursor-title="3D OBJECT" data-gl-ph="3D OBJECT|Blender × Codex — 자료 준비 중"><b>3D OBJECT</b><span>Blender × Codex — 자료 준비 중</span></div>
-                <figcaption>3D OBJECT</figcaption>
-              </figure>
-            </div>
-            <div class="works-section" id="work-detail">
-              <div class="content-desc">
-                <div>
-                  <p data-fade>상세페이지 HTML 작업 · AEO 최적화</p>
-                  <p data-fade>상세페이지를 HTML로 직접 구현하고,</p>
-                  <p data-fade>AI 검색 답변(AEO)에 인용되도록 구조를 최적화했습니다.</p>
-                </div>
-              </div>
-              <figure class="work-item">
-                <div class="work-media is-placeholder" data-cursor-title="DETAIL PAGE" data-gl-ph="DETAIL PAGE|상세페이지 · AEO — 자료 준비 중"><b>DETAIL PAGE</b><span>상세페이지 · AEO — 자료 준비 중</span></div>
-                <figcaption>DETAIL PAGE</figcaption>
-              </figure>
+              <div class="spiral-active-caption-desc" data-spiral-caption-desc></div>
             </div>
           </div>
         </div>
@@ -287,8 +236,9 @@
                 <h4 class="timeline-company">Internship</h4>
                 <p class="timeline-description">웹페이지·상세페이지 디자인과 SNS 콘텐츠 제작, AEO 최적화를 경험했습니다.<br>보기 좋은 화면을 넘어, 사람과 AI 모두에게 잘 읽히는 디자인을 배웠습니다.</p>
                 <p class="timeline-date">2026.09 – 2026.11 · Pyro Creations</p>
-                <div class="timeline-photo" aria-hidden="true" data-todo="인턴 사진 2장 필요 (기본 + 호버)">
-                  <span>사진 준비 중</span>
+                <div class="timeline-photo" aria-hidden="true">
+                  <img src="assets/timeline/intern-certificate.webp" alt="" loading="lazy">
+                  <img class="timeline-photo-hover" src="assets/timeline/intern-desk.webp" alt="" loading="lazy">
                 </div>
               </div>
               <span class="timeline-dot" aria-hidden="true"></span>
@@ -313,7 +263,7 @@
       <!-- GROWING 고정 화면 끝부분과 겹쳐 놓고(margin-top 음수), 같은 자리에서 GROWING 페이드아웃 → 피그마 페이드인 -->
       <section class="figma-sec" id="figma" aria-label="피그마 작업 파일">
         <div class="figma-pin">
-          <a class="figma-window" href="#" target="_blank" rel="noopener noreferrer" data-todo="피그마 링크 필요" aria-label="피그마 작업 파일 열기 (새 탭)">
+          <a class="figma-window" href="https://www.figma.com/design/oo4VfoqKSHEvSa7WHH1yQL/%EC%B5%9C%ED%95%B4%EC%88%98-%EB%94%94%EC%9E%90%EC%9D%B8%EC%9E%90%EB%A3%8C?node-id=280-31&amp;t=QTwpdLLkkO8so60g-1" target="_blank" rel="noopener noreferrer" aria-label="피그마 작업 파일 열기 (새 탭)">
             <div class="window is-dark">
               <div class="window-bar"><i></i><i></i><i></i><span>Figma — haesoo / workflow</span></div>
               <div class="window-body win-figma">
@@ -322,13 +272,13 @@
                   <span>▢ Workflow</span><span class="in">▭ Planning</span><span class="in">▭ Wireframe</span><span class="in">▭ UI Design</span><span class="in">▭ Design System</span><span class="in">▭ Components</span><span class="in">▭ Prototype</span>
                 </aside>
                 <div class="fg-canvas" aria-hidden="true">
-                  <!-- data-todo: 실제 피그마 작업 화면 캡처로 교체 (지금은 프로젝트·클론 썸네일 임시) -->
-                  <figure class="fg-shot s1" data-name="Planning"><img src="assets/clone-coding/clone-01.webp" alt="" loading="lazy" /></figure>
-                  <figure class="fg-shot s2" data-name="Wireframe"><img src="assets/project1/figma/project-left.webp" alt="" loading="lazy" /></figure>
-                  <figure class="fg-shot s3" data-name="UI Design"><img src="assets/project1/figma/project-right.webp" alt="" loading="lazy" /></figure>
-                  <figure class="fg-shot s4" data-name="Design System"><img src="assets/clone-coding/clone-04.webp" alt="" loading="lazy" /></figure>
-                  <figure class="fg-shot s5" data-name="Components"><img src="assets/clone-coding/clone-05.webp" alt="" loading="lazy" /></figure>
-                  <figure class="fg-shot s6" data-name="Prototype"><img src="assets/project1/figma/project-center.webp" alt="" loading="lazy" /></figure>
+                  <!-- 실제 피그마 작업 화면 (단계별, assets/figma-section) -->
+                  <figure class="fg-shot s1" data-name="Planning"><img src="assets/figma-section/planning.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s2" data-name="Wireframe"><img src="assets/figma-section/wireframe.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s3" data-name="UI Design"><img src="assets/figma-section/ui-design.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s4" data-name="Design System"><img src="assets/figma-section/design-system.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s5" data-name="Components"><img src="assets/figma-section/components.webp" alt="" loading="lazy" /></figure>
+                  <figure class="fg-shot s6" data-name="Prototype"><img src="assets/figma-section/prototype.webp" alt="" loading="lazy" /></figure>
                   <span class="fg-select"><em>Planning</em></span>
                   <span class="fg-cursor"><svg viewBox="0 0 16 20" aria-hidden="true"><path d="M1 1 L1 16 L5 12 L8 19 L11 18 L8 11 L14 11 Z" /></svg><b>Haesoo</b></span>
                 </div>
@@ -350,8 +300,8 @@
             </div>
             <nav class="contact-gnb" aria-label="Section navigation">
               <a class="rolling-link" href="#home"><span>HOME</span><span aria-hidden="true">HOME</span></a>
-              <a class="rolling-link" href="#about"><span>ABOUT</span><span aria-hidden="true">ABOUT</span></a>
-              <a class="rolling-link" href="#works"><span>WORK</span><span aria-hidden="true">WORK</span></a>
+              <a class="rolling-link" href="#about" data-stop="about"><span>ABOUT</span><span aria-hidden="true">ABOUT</span></a>
+              <a class="rolling-link" href="#works" data-stop="works"><span>WORK</span><span aria-hidden="true">WORK</span></a>
               <a class="rolling-link" href="#timeline"><span>TIMELINE</span><span aria-hidden="true">TIMELINE</span></a>
             </nav>
           </div>
@@ -382,13 +332,27 @@
         <g class="bot-leg-g is-left"><line class="bot-leg" x1="68" y1="167" x2="68" y2="222" /><rect class="bot-foot" x="64" y="216" width="16" height="12" rx="6" /></g>
         <g class="bot-leg-g is-right"><line class="bot-leg" x1="124" y1="167" x2="124" y2="222" /><rect class="bot-foot" x="120" y="216" width="16" height="12" rx="6" /></g>
         <rect class="bot-body" x="8" y="38" width="176" height="134" rx="36" />
-        <circle class="bot-eye" cx="62" cy="108" r="26" /><circle class="bot-eye" cx="128" cy="108" r="26" />
-        <circle class="bot-pupil" cx="66" cy="108" r="11.2" /><circle class="bot-pupil" cx="132" cy="108" r="11.2" />
-        <circle class="bot-hl" cx="70.5" cy="103" r="2" /><circle class="bot-hl" cx="136.5" cy="103" r="2" />
+        <g class="bot-eyes-open">
+          <circle class="bot-eye" cx="62" cy="108" r="26" /><circle class="bot-eye" cx="128" cy="108" r="26" />
+          <circle class="bot-pupil" cx="66" cy="108" r="11.2" /><circle class="bot-pupil" cx="132" cy="108" r="11.2" />
+          <circle class="bot-hl" cx="70.5" cy="103" r="2" /><circle class="bot-hl" cx="136.5" cy="103" r="2" />
+        </g>
+        <!-- 눈 감은 모양 (v1 buddy-eyes-closed) : 깜빡일 때·착지·웅크릴 때 -->
+        <g class="bot-eyes-closed"><rect x="36" y="104" width="52" height="8" rx="4" /><rect x="102" y="104" width="52" height="8" rx="4" /></g>
       </svg>
       <span class="bot-prompt" aria-hidden="true">
         <span class="bot-label">I'm Haesoo Bot!</span>
         <span class="bot-dots"><i></i><i></i><i></i></span>
+      </span>
+      <!-- 방향키 생각풍선 (v1 buddy-hint-bubble 모양·배치 그대로, 색만 흰 풍선 + 검정 키 + 민트 ↑) : Hero·Footer에서 처음 들어올 때 / 마우스 올릴 때 -->
+      <span class="bot-keys" aria-hidden="true">
+        <svg class="bot-keys-cloud" viewBox="0 0 220 284.528"><circle cx="110" cy="110" r="110" /><circle cx="144.714" cy="241.361" r="17" /><circle cx="124.35" cy="274.528" r="10" /></svg>
+        <span class="bot-keys-pad">
+        <span class="bot-key is-up"><svg viewBox="0 0 45 45"><path d="M21.6687 14.2436C22.0646 13.6513 22.9354 13.6513 23.3313 14.2436L30.9862 25.6942C31.4304 26.3587 30.9542 27.25 30.1549 27.25H14.8451C14.0458 27.25 13.5696 26.3587 14.0138 25.6942L21.6687 14.2436Z" /></svg></span>
+        <span class="bot-key is-left"><svg viewBox="0 0 45 45"><path d="M14.2436 23.3313C13.6513 22.9354 13.6513 22.0646 14.2436 21.6687L25.6942 14.0138C26.3587 13.5696 27.25 14.0458 27.25 14.8451V30.1549C27.25 30.9542 26.3587 31.4304 25.6942 30.9862L14.2436 23.3313Z" /></svg></span>
+        <span class="bot-key is-down"><svg viewBox="0 0 45 45"><path d="M23.3313 30.7564C22.9354 31.3487 22.0646 31.3487 21.6687 30.7564L14.0138 19.3058C13.5696 18.6413 14.0458 17.75 14.8451 17.75H30.1549C30.9542 17.75 31.4304 18.6413 30.9862 19.3058L23.3313 30.7564Z" /></svg></span>
+        <span class="bot-key is-right"><svg viewBox="0 0 45 45"><path d="M30.7564 21.6687C31.3487 22.0646 31.3487 22.9354 30.7564 23.3313L19.3058 30.9862C18.6413 31.4304 17.75 30.9542 17.75 30.1549V14.8451C17.75 14.0458 18.6413 13.5696 19.3058 14.0138L30.7564 21.6687Z" /></svg></span>
+        </span>
       </span>
     </button>
 
